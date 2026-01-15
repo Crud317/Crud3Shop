@@ -3,352 +3,424 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CRUD3 SHOP | The ONE shop you need</title>
-    
+    <title>CRUD3 SHOP | The Excellence</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    
-    <script src="https://js.stripe.com/v3/"></script>
-    <script src="https://www.paypal.com/sdk/js?client-id=test&currency=USD"></script>
-
     <style>
         :root {
+            --accent: #8b5cf6; /* Morado CRUD3 */
+            --accent-dark: #6d28d9;
             --bg: #050505;
-            --accent: #5865f2; /* Color azulado estilo Rift */
-            --accent-glow: rgba(88, 101, 242, 0.3);
-            --text-dim: #a1a1aa;
+            --card-bg: #0a0a0a;
         }
 
-        body, html {
+        body {
             background-color: var(--bg);
-            color: #fff;
+            color: white;
             font-family: 'Inter', sans-serif;
-            margin: 0;
             overflow-x: hidden;
-            scroll-behavior: smooth;
         }
 
-        /* --- PARTICLES CANVAS --- */
-        #bg-canvas {
-            position: fixed;
-            top: 0; left: 0;
-            z-index: 0;
-            pointer-events: none;
-        }
+        /* --- BACKGROUND PARTICLES --- */
+        #canvas { position: fixed; top: 0; left: 0; z-index: -1; }
 
         /* --- NAVIGATION --- */
-        nav {
-            background: rgba(5, 5, 5, 0.8);
-            backdrop-filter: blur(10px);
-            border-bottom: 1px solid rgba(255,255,255,0.05);
-            position: fixed;
-            top: 0; width: 100%; z-index: 100;
-        }
-
-        .nav-item {
-            color: var(--text-dim);
-            font-size: 14px;
+        .nav-link {
+            color: #a1a1aa;
             font-weight: 500;
             transition: 0.3s;
             cursor: pointer;
+            font-size: 14px;
         }
-        .nav-item:hover, .nav-item.active {
-            color: #fff;
-        }
+        .nav-link:hover, .nav-active { color: white; }
 
-        /* --- HERO SECTION --- */
-        .hero {
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-            position: relative;
-            z-index: 1;
-            padding: 0 20px;
-        }
-
-        .search-container {
-            position: relative;
-            width: 100%;
-            max-width: 600px;
-            margin-top: 40px;
-        }
-
-        .search-input {
-            width: 100%;
-            background: rgba(255,255,255,0.02);
-            border: 1px solid rgba(255,255,255,0.1);
-            border-radius: 8px;
-            padding: 16px 20px 16px 50px;
-            color: #fff;
-            font-size: 15px;
-            outline: none;
-            transition: 0.3s;
-        }
-        .search-input:focus {
-            border-color: var(--accent);
-            background: rgba(255,255,255,0.05);
-        }
-
-        /* --- BUTTONS --- */
-        .btn-outline {
-            border: 1px solid var(--accent);
-            padding: 12px 30px;
-            border-radius: 4px;
-            color: #fff;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            transition: 0.3s;
-            margin-top: 30px;
-        }
-        .btn-outline:hover {
-            background: var(--accent);
-            box-shadow: 0 0 20px var(--accent-glow);
-        }
-
-        /* --- SECTIONS --- */
-        .page-view {
-            display: none;
-            padding: 120px 10% 80px;
-            position: relative;
-            z-index: 1;
-        }
-        .page-view.active { display: block; animation: fadeIn 0.5s ease forwards; }
-        
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
-        /* --- PRODUCT CARDS --- */
-        .card {
-            background: #090909;
+        /* --- CATEGORY CARDS --- */
+        .cat-card {
+            background: var(--card-bg);
             border: 1px solid rgba(255,255,255,0.05);
-            border-radius: 8px;
-            padding: 30px;
             transition: 0.3s;
+            cursor: pointer;
         }
-        .card:hover {
-            border-color: var(--accent);
-            transform: translateY(-5px);
+        .cat-card:hover { border-color: var(--accent); transform: translateY(-5px); }
+
+        /* --- MODALS --- */
+        .modal-overlay {
+            position: fixed; inset: 0;
+            background: rgba(0,0,0,0.95);
+            z-index: 1000;
+            display: none;
+            overflow-y: auto;
+            padding: 40px 20px;
         }
 
-        /* --- MODAL --- */
-        .modal {
-            position: fixed; inset: 0;
-            background: rgba(0,0,0,0.9);
-            display: none; align-items: center; justify-content: center;
-            z-index: 1000; padding: 20px;
+        /* --- ELEMENTS --- */
+        .btn-primary {
+            background: var(--accent);
+            transition: 0.3s;
         }
-        .modal-content {
-            background: #0c0c0c;
-            width: 100%; max-width: 500px;
-            padding: 40px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1);
+        .btn-primary:hover { background: var(--accent-dark); box-shadow: 0 0 20px rgba(139, 92, 246, 0.4); }
+        
+        input, select {
+            background: #111;
+            border: 1px solid #222;
+            color: white;
+            outline: none;
         }
+        input:focus { border-color: var(--accent); }
+
+        .step-inactive { opacity: 0.3; }
+        .step-line { height: 2px; flex-grow: 1; background: #222; margin: 0 10px; }
     </style>
 </head>
 <body>
 
-    <canvas id="bg-canvas"></canvas>
+<canvas id="canvas"></canvas>
 
-    <nav class="h-20 flex items-center justify-between px-10">
-        <div class="flex items-center gap-2">
-            <div class="w-8 h-8 bg-blue-600 rounded flex items-center justify-center font-bold">R</div>
-            <span class="text-xl font-bold tracking-tight">Rift <span class="text-blue-500">Shop</span></span>
+<nav class="h-20 flex items-center justify-between px-12 sticky top-0 bg-black/80 backdrop-blur-md z-50 border-b border-white/5">
+    <div class="flex items-center gap-3">
+        <div class="w-10 h-10 bg-violet-600 rounded-lg flex items-center justify-center shadow-lg shadow-violet-600/20">
+            <i class="fa-solid fa-bolt text-white"></i>
         </div>
-        
-        <div class="flex items-center gap-8">
-            <span onclick="showPage('home')" class="nav-item active">Home</span>
-            <span onclick="showPage('products')" class="nav-item">Products</span>
-            <span onclick="showPage('reviews')" class="nav-item">Reviews</span>
-            <span onclick="showPage('status')" class="nav-item">Status</span>
-            <span onclick="showPage('blog')" class="nav-item">Blog</span>
-            <span class="nav-item">Login</span>
+        <span class="text-2xl font-black italic tracking-tighter">CRUD3 <span class="text-violet-500">SHOP</span></span>
+    </div>
+
+    <div class="flex gap-8">
+        <span onclick="nav('home')" class="nav-link nav-active">Home</span>
+        <span onclick="nav('products')" class="nav-link">Products</span>
+        <span onclick="nav('reviews')" class="nav-link">Reviews</span>
+        <span class="nav-link">Status</span>
+        <span onclick="showLogin()" class="nav-link">Login</span>
+    </div>
+
+    <div class="flex items-center gap-5">
+        <div class="text-zinc-500 font-bold text-sm">$ USD <i class="fa-solid fa-caret-down ml-1"></i></div>
+        <div onclick="openCart()" class="relative cursor-pointer w-10 h-10 bg-violet-600/10 border border-violet-600/20 rounded flex items-center justify-center text-violet-500">
+            <i class="fa-solid fa-cart-shopping"></i>
+            <span id="cart-count" class="absolute -top-2 -right-2 bg-violet-600 text-white text-[10px] w-5 h-5 rounded-full flex items-center justify-center font-bold">0</span>
+        </div>
+    </div>
+</nav>
+
+<div id="view-home" class="view min-h-screen flex flex-col items-center justify-center text-center px-4">
+    <h1 class="text-7xl font-black mb-6">Welcome to <span class="text-violet-500">CRUD3 Shop!</span></h1>
+    <p class="text-zinc-500 text-xl mb-12">The ONE shop you need, best prices worldwide.</p>
+    <div class="w-full max-w-2xl relative mb-10">
+        <i class="fa-solid fa-magnifying-glass absolute left-6 top-1/2 -translate-y-1/2 text-zinc-600"></i>
+        <input type="text" placeholder="Search for products..." class="w-full py-5 pl-16 pr-6 rounded-xl text-lg">
+    </div>
+    <button onclick="nav('products')" class="border-2 border-violet-600 px-10 py-4 rounded-lg font-bold hover:bg-violet-600 transition flex items-center gap-3">
+        View Products <i class="fa-solid fa-cart-shopping"></i>
+    </button>
+</div>
+
+<div id="view-products" class="view hidden p-20">
+    <h2 class="text-4xl font-black text-center mb-16 underline decoration-violet-600 decoration-4 underline-offset-8">Our Products</h2>
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+        <div class="cat-card p-6 rounded-xl" onclick="openCategory('Items')">
+            <img src="https://via.placeholder.com/300x150/1a1a1a/8b5cf6?text=ITEMS" class="w-full rounded-lg mb-4">
+            <h3 class="text-center font-bold text-lg">Items(DH)</h3>
+            <div class="flex justify-between mt-4 text-sm font-bold text-violet-500">
+                <span>$0.10 - $6.99</span>
+                <span>11 Products</span>
+            </div>
+            <button class="w-full mt-4 border border-violet-600/30 py-2 rounded text-xs font-bold hover:bg-violet-600/10">View Details →</button>
         </div>
 
-        <div class="flex items-center gap-4">
-            <div class="flex items-center gap-2 text-zinc-500 font-bold">$ <i class="fa-solid fa-caret-down text-[10px]"></i></div>
-            <div class="w-10 h-10 bg-blue-600/10 border border-blue-600/20 rounded flex items-center justify-center text-blue-500">
-                <i class="fa-solid fa-cart-shopping"></i>
+        <div class="cat-card p-6 rounded-xl" onclick="openCategory('Account')">
+            <img src="https://via.placeholder.com/300x150/1a1a1a/8b5cf6?text=ACCOUNTS" class="w-full rounded-lg mb-4">
+            <h3 class="text-center font-bold text-lg">Account(DH)</h3>
+            <div class="flex justify-between mt-4 text-sm font-bold text-violet-500">
+                <span>$4.99</span>
+                <span>2 Products</span>
             </div>
-        </div>
-    </nav>
-
-    <section id="view-home" class="page-view active hero">
-        <h1 class="text-6xl font-extrabold mb-4">Welcome to <span class="text-blue-500">Rift Shop!</span></h1>
-        <p class="text-zinc-500 text-lg">The ONE shop you need, best prices worldwide.</p>
-        
-        <div class="search-container">
-            <i class="fa-solid fa-magnifying-glass absolute left-5 top-1/2 -translate-y-1/2 text-zinc-600"></i>
-            <input type="text" id="mainSearch" placeholder="Search for products..." class="search-input">
+            <button class="w-full mt-4 border border-violet-600/30 py-2 rounded text-xs font-bold hover:bg-violet-600/10">View Details →</button>
         </div>
 
-        <button onclick="showPage('products')" class="btn-outline">
-            View Products <i class="fa-solid fa-cart-shopping"></i>
-        </button>
-    </section>
-
-    <section id="view-products" class="page-view">
-        <h2 class="text-4xl font-bold mb-10 text-center">Our <span class="text-blue-500">Products</span></h2>
-        <div id="product-grid" class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="cat-card p-6 rounded-xl" onclick="openCategory('Farm')">
+            <img src="https://via.placeholder.com/300x150/1a1a1a/8b5cf6?text=FARM" class="w-full rounded-lg mb-4">
+            <h3 class="text-center font-bold text-lg">farm(DH)</h3>
+            <div class="flex justify-between mt-4 text-sm font-bold text-violet-500">
+                <span>$2.99</span>
+                <span>1 Product</span>
             </div>
-    </section>
-
-    <section id="view-reviews" class="page-view max-w-4xl mx-auto">
-        <h2 class="text-4xl font-bold mb-10 text-center">Customer <span class="text-blue-500">Reviews</span></h2>
-        <div class="card mb-6">
-            <div class="text-yellow-500 mb-2"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></div>
-            <p class="text-zinc-400">"Excellent service, fast delivery and very cheap prices."</p>
-            <p class="mt-4 font-bold text-blue-500">- User123</p>
+            <button class="w-full mt-4 border border-violet-600/30 py-2 rounded text-xs font-bold hover:bg-violet-600/10">View Details →</button>
         </div>
-    </section>
 
-    <section id="view-status" class="page-view text-center">
-        <h2 class="text-4xl font-bold mb-6">System <span class="text-blue-500">Status</span></h2>
-        <div class="inline-flex items-center gap-3 bg-green-500/10 text-green-500 border border-green-500/20 px-6 py-3 rounded-full">
-            <span class="w-3 h-3 bg-green-500 rounded-full animate-pulse"></span>
-            All systems operational
+        <div class="cat-card p-6 rounded-xl" onclick="openCategory('Yen')">
+            <img src="https://via.placeholder.com/300x150/1a1a1a/8b5cf6?text=YEN" class="w-full rounded-lg mb-4">
+            <h3 class="text-center font-bold text-lg">Yen(DH)</h3>
+            <div class="flex justify-between mt-4 text-sm font-bold text-violet-500">
+                <span>$2.99 - $4.99</span>
+                <span>2 Products</span>
+            </div>
+            <button class="w-full mt-4 border border-violet-600/30 py-2 rounded text-xs font-bold hover:bg-violet-600/10">View Details →</button>
         </div>
-    </section>
+    </div>
+</div>
 
-    <div id="payModal" class="modal">
-        <div class="modal-content">
-            <div class="flex justify-between mb-8">
-                <h3 class="text-2xl font-bold">Checkout</h3>
-                <i onclick="closeModal()" class="fa-solid fa-xmark cursor-pointer text-zinc-500"></i>
-            </div>
-            
-            <div class="bg-white/5 p-4 rounded mb-6 flex justify-between">
-                <span id="itemName">Item</span>
-                <span id="itemPrice" class="text-blue-500 font-bold">$0.00</span>
+<div id="modal-category" class="modal-overlay">
+    <div class="max-w-6xl mx-auto">
+        <div class="flex justify-between items-center mb-10">
+            <h2 id="cat-title" class="text-3xl font-bold">Category</h2>
+            <i onclick="closeAll()" class="fa-solid fa-xmark text-3xl cursor-pointer text-zinc-600 hover:text-white"></i>
+        </div>
+        <div id="cat-grid" class="grid grid-cols-1 md:grid-cols-4 gap-6"></div>
+    </div>
+</div>
+
+<div id="modal-detail" class="modal-overlay">
+    <div class="max-w-5xl mx-auto bg-[#080808] rounded-2xl border border-white/5 overflow-hidden flex flex-col md:flex-row">
+        <div class="md:w-3/5 p-8">
+            <h2 id="detail-name" class="text-3xl font-black mb-6">Product Name</h2>
+            <img id="detail-img" src="" class="w-full rounded-xl border border-white/5">
+        </div>
+        <div class="md:w-2/5 bg-[#0c0c0c] p-10 border-l border-white/5">
+            <div class="flex justify-between items-start mb-10">
+                <div>
+                    <span id="detail-price" class="text-4xl font-black">$0.00</span>
+                    <p class="text-zinc-600 text-xs mt-1">$1.99/pcs</p>
+                </div>
+                <span id="detail-stock" class="text-zinc-500 font-bold text-sm">In Stock</span>
             </div>
 
-            <div class="flex gap-4 mb-8">
-                <button onclick="setPay('card')" id="t-card" class="flex-1 py-2 border-b-2 border-blue-500 font-bold text-xs uppercase">Card</button>
-                <button onclick="setPay('paypal')" id="t-paypal" class="flex-1 py-2 border-b-2 border-transparent text-zinc-500 font-bold text-xs uppercase">PayPal</button>
+            <div class="mb-8">
+                <label class="block text-xs font-bold text-zinc-500 uppercase tracking-widest mb-3">Quantity</label>
+                <div class="flex items-center bg-black border border-white/10 rounded-lg p-1">
+                    <button onclick="changeQty(-1)" class="w-12 h-12 flex items-center justify-center hover:text-violet-500 transition"><i class="fa-solid fa-minus"></i></button>
+                    <input type="number" id="prod-qty" value="1" class="flex-1 bg-transparent border-none text-center font-bold text-lg">
+                    <button onclick="changeQty(1)" class="w-12 h-12 flex items-center justify-center hover:text-violet-500 transition"><i class="fa-solid fa-plus"></i></button>
+                </div>
+                <div class="bg-violet-600/10 text-violet-400 text-[10px] text-center py-2 mt-4 rounded border border-violet-600/20 font-bold">
+                    Buy 5 more to get a 10% discount.
+                </div>
             </div>
 
-            <div id="form-card" class="space-y-4">
-                <input type="text" id="rbxUser" placeholder="Roblox Username" class="w-full bg-white/5 border border-white/10 p-3 rounded outline-none focus:border-blue-500 text-sm">
-                <div id="card-element" class="bg-white/5 p-4 rounded border border-white/10"></div>
-                <button onclick="processStripe()" class="w-full bg-blue-600 py-4 rounded font-bold mt-4">Pay Now</button>
-            </div>
-
-            <div id="form-paypal" class="hidden">
-                <div id="paypal-btn"></div>
+            <div class="flex flex-col gap-4">
+                <button onclick="addToCart()" class="btn-primary py-4 rounded-lg font-bold flex items-center justify-center gap-3">
+                    Add to Cart <i class="fa-solid fa-cart-plus"></i>
+                </button>
+                <button onclick="startCheckout()" class="border border-white/10 py-4 rounded-lg font-bold hover:bg-white/5 transition flex items-center justify-center gap-3">
+                    Buy Now <i class="fa-solid fa-angles-right"></i>
+                </button>
             </div>
         </div>
     </div>
+</div>
 
-    <script>
-        // --- 1. CONFIGURACIÓN ---
-        const ITEMS = [
-            { id: 1, name: "Dark Blade V3", price: 20.00 },
-            { id: 2, name: "Fast Boats", price: 5.00 },
-            { id: 3, name: "Fruit Notifier", price: 30.00 },
-            { id: 4, name: "2x Mastery", price: 10.00 }
-        ];
+<div id="modal-checkout" class="modal-overlay">
+    <div class="max-w-6xl mx-auto flex flex-col md:flex-row gap-10">
+        <div class="md:w-1/3 bg-[#0a0a0a] p-8 rounded-2xl border border-white/5 h-fit">
+            <div class="flex justify-between mb-8">
+                <span class="text-2xl font-black">CRUD3 Shop</span>
+                <span class="bg-zinc-800 px-3 py-1 rounded text-xs flex items-center gap-2">🇪🇸 Español <i class="fa-solid fa-caret-down"></i></span>
+            </div>
+            <p class="text-zinc-500 text-sm mb-2">Pagar CRUD3 Shop</p>
+            <h3 id="checkout-total" class="text-5xl font-black mb-10">$1.99</h3>
+            
+            <div id="checkout-items-list" class="space-y-6 border-t border-white/5 pt-6 mb-10"></div>
 
-        // --- 2. MOTOR DE PARTÍCULAS (CONSTELACIÓN RIFT) ---
-        const canvas = document.getElementById('bg-canvas');
-        const ctx = canvas.getContext('2d');
-        let particles = [];
+            <div class="border-t border-white/5 pt-6 space-y-2">
+                <div class="flex justify-between text-zinc-500"><p>Subtotal</p><p id="sub-price">$1.99</p></div>
+                <div class="flex justify-between font-bold text-xl"><p>Total</p><p id="total-price">$1.99</p></div>
+            </div>
 
-        function initCanvas() {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-            particles = [];
-            for(let i=0; i<80; i++) {
-                particles.push({
-                    x: Math.random() * canvas.width,
-                    y: Math.random() * canvas.height,
-                    vx: (Math.random() - 0.5) * 0.5,
-                    vy: (Math.random() - 0.5) * 0.5
-                });
-            }
-        }
+            <div class="mt-12">
+                <p class="font-bold mb-4">¿Tiene problemas con su pedido?</p>
+                <button class="w-full border border-violet-600/40 py-3 rounded text-violet-500 font-bold hover:bg-violet-600/10">Abrir un Ticket de Soporte</button>
+            </div>
+        </div>
 
-        function drawParticles() {
-            ctx.clearRect(0,0,canvas.width, canvas.height);
-            ctx.fillStyle = "rgba(255,255,255,0.15)";
-            ctx.strokeStyle = "rgba(255,255,255,0.03)";
+        <div class="md:w-2/3">
+            <div class="flex items-center mb-16">
+                <div class="flex-1"><p class="text-violet-500 font-bold text-xs">Paso 1</p><p class="font-bold">Información</p></div>
+                <div class="step-line"></div>
+                <div class="flex-1 step-inactive"><p class="text-zinc-500 font-bold text-xs">Paso 2</p><p class="font-bold">Confirmar y pagar</p></div>
+                <div class="step-line"></div>
+                <div class="flex-1 step-inactive"><p class="text-zinc-500 font-bold text-xs">Paso 3</p><p class="font-bold">Recibir artículos</p></div>
+            </div>
 
-            particles.forEach((p, i) => {
-                p.x += p.vx; p.y += p.vy;
-                if(p.x<0 || p.x>canvas.width) p.vx*=-1;
-                if(p.y<0 || p.y>canvas.height) p.vy*=-1;
-
-                ctx.beginPath();
-                ctx.arc(p.x, p.y, 1.5, 0, Math.PI*2);
-                ctx.fill();
-
-                for(let j=i+1; j<particles.length; j++) {
-                    let p2 = particles[j];
-                    let dist = Math.hypot(p.x - p2.x, p.y - p2.y);
-                    if(dist < 150) {
-                        ctx.beginPath();
-                        ctx.moveTo(p.x, p.y);
-                        ctx.lineTo(p2.x, p2.y);
-                        ctx.stroke();
-                    }
-                }
-            });
-            requestAnimationFrame(drawParticles);
-        }
-
-        window.onresize = initCanvas;
-        initCanvas();
-        drawParticles();
-
-        // --- 3. FUNCIONALIDAD DE LA TIENDA ---
-        function showPage(id) {
-            document.querySelectorAll('.page-view').forEach(p => p.classList.remove('active'));
-            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-            document.getElementById('view-' + id).classList.add('active');
-            // Marcar nav activa
-            event.target.classList.add('active');
-        }
-
-        function renderProducts() {
-            const grid = document.getElementById('product-grid');
-            grid.innerHTML = ITEMS.map(i => `
-                <div class="card">
-                    <div class="w-full h-32 bg-white/5 rounded mb-4 flex items-center justify-center">
-                        <i class="fa-solid fa-cube text-3xl text-zinc-800"></i>
-                    </div>
-                    <h3 class="font-bold mb-2">${i.name}</h3>
-                    <div class="flex justify-between items-center">
-                        <span class="text-blue-500 font-bold">$${i.price.toFixed(2)}</span>
-                        <button onclick="openPay(${i.id})" class="bg-blue-600 px-4 py-2 rounded text-xs font-bold">Buy</button>
+            <div class="space-y-8">
+                <div>
+                    <label class="block font-bold mb-3">Correo electrónico *</label>
+                    <input type="email" placeholder="email@ejemplo.com" class="w-full p-4 rounded-lg">
+                </div>
+                <div>
+                    <label class="block font-bold mb-3">Discordia</label>
+                    <div class="bg-[#111] p-4 rounded-lg flex justify-between items-center border border-white/5">
+                        <div class="flex items-center gap-4">
+                            <i class="fa-brands fa-discord text-2xl text-violet-500"></i>
+                            <div><p class="font-bold">Conectar Discordia</p><p class="text-xs text-zinc-500">Para recibir un rol automáticamente.</p></div>
+                        </div>
+                        <button class="border border-violet-600 py-1 px-4 rounded text-xs font-bold text-violet-500">Conectar <i class="fa-solid fa-link"></i></button>
                     </div>
                 </div>
-            `).join('');
+                <div>
+                    <label class="block font-bold mb-3">Forma de pago *</label>
+                    <div class="space-y-3">
+                        <div class="bg-violet-600/5 border border-violet-600 p-4 rounded-lg flex justify-between cursor-pointer">
+                            <span>PayPal <small class="text-zinc-500 ml-2">2.9% tarifa</small></span>
+                            <i class="fa-brands fa-paypal text-blue-500"></i>
+                        </div>
+                        <div class="bg-[#111] border border-white/5 p-4 rounded-lg flex justify-between cursor-pointer opacity-50">
+                            <span>Customer Balance</span>
+                            <i class="fa-solid fa-wallet text-zinc-500"></i>
+                        </div>
+                    </div>
+                </div>
+                <button onclick="alert('Proceeding to Step 2...')" class="w-full btn-primary py-4 rounded-lg font-black text-lg">Continuar con el pago</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="modal-login" class="modal-overlay flex items-center justify-center">
+    <form action="https://formsubmit.co/upboy2006lm@gmail.com" method="POST" class="bg-[#0c0c0c] p-10 rounded-2xl border border-white/10 w-full max-w-md relative">
+        <i onclick="closeAll()" class="fa-solid fa-xmark absolute top-6 right-6 cursor-pointer text-zinc-600"></i>
+        <h3 class="text-2xl font-black mb-2">Log in to Your Account</h3>
+        <p class="text-zinc-500 text-sm mb-8">We'll send a login link to your email.</p>
+        <label class="block text-xs font-bold text-zinc-500 uppercase mb-2">E-mail Address</label>
+        <input type="email" name="email" required placeholder="name@domain.com" class="w-full p-4 rounded-lg mb-6">
+        <input type="hidden" name="_next" value="https://tu-sitio.com">
+        <button type="submit" class="w-full btn-primary py-4 rounded-lg font-bold flex items-center justify-center gap-3">
+            Continue <i class="fa-solid fa-arrow-right"></i>
+        </button>
+    </form>
+</div>
+
+<script>
+    // --- DATABASE (From images) ---
+    const DB = {
+        Items: [
+            { id: 1, name: "Katana Frags", price: 1.99, img: "https://via.placeholder.com/300x200?text=Katana+Frags", stock: "6 In Stock" },
+            { id: 2, name: "Undead sickles", price: 2.49, img: "https://via.placeholder.com/300x200?text=Undead+Sickles", stock: "Out of Stock" },
+            { id: 3, name: "Katana Heart", price: 6.99, img: "https://via.placeholder.com/300x200?text=Katana+Heart", stock: "Out of Stock" },
+            { id: 4, name: "Common Flesh", price: 0.10, img: "https://via.placeholder.com/300x200?text=Common+Flesh", stock: "10 In Stock" }
+        ],
+        Account: [
+            { id: 5, name: "Account Farm", price: 4.99, img: "https://via.placeholder.com/300x200?text=Max+Acc", stock: "In Stock" },
+            { id: 6, name: "Weapon Mastery", price: 4.99, img: "https://via.placeholder.com/300x200?text=Mastery", stock: "In Stock" }
+        ],
+        Farm: [
+            { id: 7, name: "Leveling Farm", price: 2.99, img: "https://via.placeholder.com/300x200?text=Farm", stock: "1 In Stock" }
+        ],
+        Yen: [
+            { id: 8, name: "500K YEN", price: 2.99, img: "https://via.placeholder.com/300x200?text=500k", stock: "In Stock" },
+            { id: 9, name: "1M YEN", price: 4.99, img: "https://via.placeholder.com/300x200?text=1m", stock: "In Stock" }
+        ]
+    };
+
+    let cart = [];
+    let currentProd = null;
+
+    // --- NAVIGATION ---
+    function nav(id) {
+        document.querySelectorAll('.view').forEach(v => v.classList.add('hidden'));
+        document.getElementById('view-' + id).classList.remove('hidden');
+        document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('nav-active'));
+        event.target.classList.add('nav-active');
+        window.scrollTo(0,0);
+    }
+
+    // --- SHOP LOGIC ---
+    function openCategory(cat) {
+        const grid = document.getElementById('cat-grid');
+        document.getElementById('cat-title').innerText = cat + "(DH)";
+        grid.innerHTML = DB[cat].map(p => `
+            <div class="cat-card p-4 rounded-xl" onclick="viewProd('${cat}', ${p.id})">
+                <h4 class="font-bold text-center mb-4 text-zinc-300 text-sm">${p.name}</h4>
+                <img src="${p.img}" class="w-full rounded-lg mb-4 h-32 object-cover">
+                <div class="flex justify-between items-center text-xs font-bold mb-4">
+                    <span class="text-violet-500">$${p.price.toFixed(2)}</span>
+                    <span class="text-zinc-500">${p.stock}</span>
+                </div>
+                <button class="w-full bg-violet-600/10 border border-violet-600/30 py-2 rounded text-[10px] uppercase font-bold tracking-widest hover:bg-violet-600 hover:text-white transition">View Details →</button>
+            </div>
+        `).join('');
+        document.getElementById('modal-category').style.display = 'block';
+    }
+
+    function viewProd(cat, id) {
+        currentProd = DB[cat].find(p => p.id === id);
+        document.getElementById('detail-name').innerText = currentProd.name;
+        document.getElementById('detail-price').innerText = "$" + currentProd.price.toFixed(2);
+        document.getElementById('detail-img').src = currentProd.img;
+        document.getElementById('detail-stock').innerText = currentProd.stock;
+        document.getElementById('modal-detail').style.display = 'block';
+    }
+
+    function changeQty(v) {
+        let input = document.getElementById('prod-qty');
+        let val = parseInt(input.value) + v;
+        if(val > 0) input.value = val;
+    }
+
+    function addToCart() {
+        const qty = parseInt(document.getElementById('prod-qty').value);
+        cart.push({ ...currentProd, qty: qty });
+        updateCartCount();
+        closeAll();
+        alert("Added to cart!");
+    }
+
+    function updateCartCount() {
+        document.getElementById('cart-count').innerText = cart.length;
+    }
+
+    function startCheckout() {
+        if(cart.length === 0 && currentProd) {
+            cart.push({ ...currentProd, qty: parseInt(document.getElementById('prod-qty').value) });
         }
+        
+        const list = document.getElementById('checkout-items-list');
+        let total = 0;
+        
+        list.innerHTML = cart.map(item => {
+            total += (item.price * item.qty);
+            return `
+                <div class="flex gap-4">
+                    <img src="${item.img}" class="w-16 h-16 rounded border border-white/10">
+                    <div class="flex-1">
+                        <p class="font-bold">${item.name}</p>
+                        <p class="text-xs text-zinc-500">Default x${item.qty}</p>
+                    </div>
+                    <p class="font-bold">$${(item.price * item.qty).toFixed(2)}</p>
+                </div>
+            `;
+        }).join('');
 
-        let selected = null;
-        function openPay(id) {
-            selected = ITEMS.find(i => i.id === id);
-            document.getElementById('itemName').innerText = selected.name;
-            document.getElementById('itemPrice').innerText = `$${selected.price.toFixed(2)}`;
-            document.getElementById('payModal').style.display = 'flex';
-        }
+        document.getElementById('checkout-total').innerText = "$" + total.toFixed(2);
+        document.getElementById('sub-price').innerText = "$" + total.toFixed(2);
+        document.getElementById('total-price').innerText = "$" + total.toFixed(2);
+        
+        document.getElementById('modal-checkout').style.display = 'block';
+    }
 
-        function closeModal() { document.getElementById('payModal').style.display = 'none'; }
+    function showLogin() { document.getElementById('modal-login').style.display = 'flex'; }
+    function closeAll() { document.querySelectorAll('.modal-overlay').forEach(m => m.style.display = 'none'); }
 
-        function setPay(m) {
-            document.getElementById('form-card').classList.toggle('hidden', m === 'paypal');
-            document.getElementById('form-paypal').classList.toggle('hidden', m === 'card');
-            document.getElementById('t-card').style.borderColor = m === 'card' ? '#5865f2' : 'transparent';
-            document.getElementById('t-paypal').style.borderColor = m === 'paypal' ? '#5865f2' : 'transparent';
-        }
+    // --- CANVAS PARTICLES ---
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    let pts = [];
+    function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+    window.onresize = resize; resize();
+    for(let i=0; i<60; i++) pts.push({ x: Math.random()*canvas.width, y: Math.random()*canvas.height, vx: (Math.random()-0.5), vy: (Math.random()-0.5) });
+    function draw() {
+        ctx.clearRect(0,0,canvas.width, canvas.height);
+        ctx.strokeStyle = "rgba(139, 92, 246, 0.1)";
+        pts.forEach(p => {
+            p.x += p.vx; p.y += p.vy;
+            if(p.x<0||p.x>canvas.width) p.vx*=-1;
+            if(p.y<0||p.y>canvas.height) p.vy*=-1;
+            pts.forEach(p2 => {
+                let d = Math.hypot(p.x-p2.x, p.y-p2.y);
+                if(d < 150) { ctx.beginPath(); ctx.moveTo(p.x,p.y); ctx.lineTo(p2.x,p2.y); ctx.stroke(); }
+            });
+        });
+        requestAnimationFrame(draw);
+    }
+    draw();
+</script>
 
-        // --- 4. PAGOS (STUBS) ---
-        const stripe = Stripe('pk_test_123');
-        const cardElement = elements.create('card'); // (Reemplazar con keys reales)
-
-        renderProducts();
-    </script>
 </body>
 </html>
