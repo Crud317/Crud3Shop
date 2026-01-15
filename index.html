@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,345 +8,256 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
-    <script src="https://www.paypal.com/sdk/js?client-id=test&currency=USD"></script>
+    <script src="https://js.stripe.com/v3/"></script>
 
     <style>
-        :root {
-            --bg: #050505;
-            --sidebar: #080808;
-            --accent: #e11d48;
-            --card: #0c0c0c;
-            --border: rgba(255, 255, 255, 0.08);
-        }
+        :root { --bg: #050505; --accent: #e11d48; --card: #0c0c0c; --border: rgba(255, 255, 255, 0.08); }
+        body { background-color: var(--bg); color: #fff; font-family: 'Plus Jakarta Sans', sans-serif; overflow: hidden; margin: 0; }
+        
+        /* Full Animated Background Clouds */
+        .cloud-bg { position: absolute; width: 600px; height: 600px; background: radial-gradient(circle, rgba(225, 29, 72, 0.1) 0%, transparent 70%); z-index: -1; filter: blur(80px); animation: move 20s infinite alternate; }
+        @keyframes move { from { transform: translate(-20%, -20%); } to { transform: translate(30%, 30%); } }
 
-        body {
-            background-color: var(--bg);
-            color: #fff;
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            overflow: hidden;
-            margin: 0;
-        }
-
-        /* --- ANIMACIÓN DE NUBES DE FONDO --- */
-        .cloud {
-            position: absolute;
-            width: 500px;
-            height: 500px;
-            background: radial-gradient(circle, rgba(225, 29, 72, 0.1) 0%, transparent 70%);
-            z-index: -1;
-            filter: blur(60px);
-            animation: moveClouds 20s infinite alternate;
-        }
-
-        @keyframes moveClouds {
-            from { transform: translate(-10%, -10%); }
-            to { transform: translate(20%, 20%); }
-        }
-
-        /* --- SISTEMA DE VISTAS (SPA) --- */
-        .section-view { display: none; opacity: 0; transform: translateY(10px); transition: all 0.3s ease; }
+        /* SPA Navigation System */
+        .section-view { display: none; opacity: 0; transform: translateY(15px); transition: 0.4s ease; }
         .section-view.active { display: block; opacity: 1; transform: translateY(0); }
 
-        /* --- SIDEBAR --- */
-        .nav-link.active {
-            background: linear-gradient(90deg, rgba(225, 29, 72, 0.15) 0%, transparent 100%);
-            border-left: 4px solid var(--accent);
-            color: #fff;
-        }
+        /* Sidebar Styling */
+        .nav-link.active { background: linear-gradient(90deg, rgba(225, 29, 72, 0.15) 0%, transparent 100%); border-left: 4px solid var(--accent); color: #fff; }
 
-        /* --- MODALES (VENTANAS) --- */
-        .modal-overlay {
-            position: fixed;
-            inset: 0;
-            background: rgba(0, 0, 0, 0.85);
-            backdrop-filter: blur(8px);
-            z-index: 100;
-            display: none; /* Controlado por JS */
-            align-items: center;
-            justify-content: center;
-            animation: fadeIn 0.2s ease;
-        }
-
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-
-        /* --- NOTIFICACIONES (TOASTS) --- */
+        /* Notification Bubbles (Toasts) */
         #toast-container { position: fixed; top: 20px; right: 20px; z-index: 1000; }
-        .toast {
-            background: #111;
-            border: 1px solid var(--accent);
-            padding: 12px 24px;
-            border-radius: 12px;
-            margin-bottom: 10px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            animation: slideLeft 0.3s ease forwards;
-        }
+        .toast { background: #111; border: 1px solid var(--accent); padding: 14px 24px; border-radius: 16px; margin-bottom: 10px; display: flex; align-items: center; gap: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.6); animation: slideIn 0.3s ease forwards; }
+        @keyframes slideIn { from { transform: translateX(120%); } to { transform: translateX(0); } }
 
-        @keyframes slideLeft { from { transform: translateX(100%); } to { transform: translateX(0); } }
+        /* Checkout Modal (Windows) */
+        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.95); backdrop-filter: blur(12px); z-index: 100; display: none; align-items: center; justify-content: center; }
+        .stripe-input { background: #000; border: 1px solid var(--border); padding: 16px; border-radius: 12px; }
 
-        /* Estilos de Tarjeta */
-        .item-card {
-            background: var(--card);
-            border: 1px solid var(--border);
-            transition: 0.3s;
-            cursor: pointer;
-        }
-        .item-card:hover {
-            border-color: var(--accent);
-            transform: translateY(-5px);
-            box-shadow: 0 15px 30px -10px rgba(225, 29, 72, 0.2);
-        }
+        /* Reviews Cards */
+        .rev-card { background: var(--card); border: 1px solid var(--border); padding: 20px; border-radius: 20px; }
     </style>
 </head>
 <body class="flex h-screen w-screen">
 
-    <div class="cloud" style="top: -100px; left: -100px;"></div>
-    <div class="cloud" style="bottom: -100px; right: -100px; animation-delay: -5s;"></div>
-
+    <div class="cloud-bg" style="top: -100px; left: -100px;"></div>
+    <div class="cloud-bg" style="bottom: -100px; right: -100px; animation-delay: -5s;"></div>
     <div id="toast-container"></div>
 
     <aside class="w-72 bg-[#080808] border-r border-white/5 flex flex-col z-50">
-        <div class="p-8">
-            <div class="flex items-center gap-3">
-                <div class="w-10 h-10 bg-rose-600 rounded-xl flex items-center justify-center font-bold text-xl italic shadow-lg shadow-rose-600/30">C</div>
-                <h1 class="text-xl font-extrabold tracking-tighter uppercase italic">CRUD3 <span class="text-rose-600">SHOP</span></h1>
-            </div>
+        <div class="p-8 flex items-center gap-3">
+            <div class="w-10 h-10 bg-rose-600 rounded-xl flex items-center justify-center font-bold text-xl italic shadow-lg shadow-rose-600/30">C</div>
+            <h1 class="text-xl font-extrabold tracking-tighter uppercase italic">CRUD3 <span class="text-rose-600">SHOP</span></h1>
         </div>
-
         <nav class="flex-1 px-4 space-y-1">
             <p class="text-[10px] font-bold text-zinc-600 uppercase tracking-[2px] ml-4 mb-4">Marketplace</p>
-            <button onclick="router('store')" id="btn-store" class="nav-link active w-full flex items-center gap-4 px-4 py-3.5 rounded-xl text-zinc-400 hover:text-white transition">
-                <i class="fa-solid fa-house-chimney text-sm"></i>
-                <span class="text-sm font-semibold">Inicio</span>
+            <button onclick="router('store')" id="btn-store" class="nav-link active w-full flex items-center gap-4 px-4 py-4 rounded-xl text-zinc-400 hover:text-white transition">
+                <i class="fa-solid fa-shop"></i> <span class="text-sm font-bold uppercase tracking-wider">Products</span>
             </button>
-            <button onclick="router('faq')" id="btn-faq" class="nav-link w-full flex items-center gap-4 px-4 py-3.5 rounded-xl text-zinc-400 hover:text-white transition">
-                <i class="fa-solid fa-circle-question text-sm"></i>
-                <span class="text-sm font-semibold">Preguntas</span>
+            <button onclick="router('reviews')" id="btn-reviews" class="nav-link w-full flex items-center gap-4 px-4 py-4 rounded-xl text-zinc-400 hover:text-white transition">
+                <i class="fa-solid fa-star"></i> <span class="text-sm font-bold uppercase tracking-wider">Reviews</span>
             </button>
-            <button onclick="router('tos')" id="btn-tos" class="nav-link w-full flex items-center gap-4 px-4 py-3.5 rounded-xl text-zinc-400 hover:text-white transition">
-                <i class="fa-solid fa-file-contract text-sm"></i>
-                <span class="text-sm font-semibold">Términos</span>
+            <button onclick="router('faq')" id="btn-faq" class="nav-link w-full flex items-center gap-4 px-4 py-4 rounded-xl text-zinc-400 hover:text-white transition">
+                <i class="fa-solid fa-circle-question"></i> <span class="text-sm font-bold uppercase tracking-wider">FAQ</span>
+            </button>
+            <button onclick="router('tos')" id="btn-tos" class="nav-link w-full flex items-center gap-4 px-4 py-4 rounded-xl text-zinc-400 hover:text-white transition">
+                <i class="fa-solid fa-file-shield"></i> <span class="text-sm font-bold uppercase tracking-wider">Terms</span>
             </button>
         </nav>
-
         <div class="p-6">
-            <a href="https://discord.gg/wxCNQCNn" class="w-full bg-[#5865f2] hover:bg-[#4752c4] py-3.5 rounded-2xl flex items-center justify-center gap-2 font-bold text-sm transition shadow-lg">
-                <i class="fa-brands fa-discord"></i> Discord
+            <a href="https://discord.gg/wxCNQCNn" class="w-full bg-[#5865f2] py-4 rounded-2xl flex items-center justify-center gap-2 font-bold text-xs hover:opacity-80 transition uppercase tracking-widest text-white decoration-none">
+                <i class="fa-brands fa-discord text-lg"></i> Discord Server
             </a>
         </div>
     </aside>
 
-    <main class="flex-1 flex flex-col min-w-0 overflow-hidden relative">
-        
-        <header class="h-20 border-b border-white/5 flex items-center justify-between px-10 bg-[#050505]/60 backdrop-blur-xl z-40">
-            <div class="relative w-full max-w-md">
-                <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500"></i>
-                <input type="text" id="searchInput" oninput="shop.filter()" placeholder="Buscar productos..." class="w-full bg-white/5 border border-white/10 rounded-xl py-2.5 pl-12 pr-4 text-sm focus:border-rose-600 outline-none transition">
+    <main class="flex-1 flex flex-col overflow-hidden relative">
+        <header class="h-24 border-b border-white/5 flex items-center justify-between px-10 bg-[#050505]/60 backdrop-blur-xl z-40">
+            <div class="relative">
+                <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-zinc-600"></i>
+                <input type="text" id="searchInput" oninput="shop.render()" placeholder="Search items..." class="bg-white/5 border border-white/10 rounded-2xl py-3 pl-12 pr-6 text-sm focus:border-rose-600 outline-none w-80 transition text-white">
             </div>
-            <div class="flex items-center gap-4">
-                <div class="flex items-center gap-2 bg-green-500/10 border border-green-500/20 px-4 py-1.5 rounded-full">
-                    <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
-                    <span class="text-[10px] font-black text-green-500 uppercase">ONLINE</span>
-                </div>
+            <div class="bg-green-500/10 border border-green-500/20 px-4 py-2 rounded-full flex items-center gap-3">
+                <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
+                <span class="text-[10px] font-black text-green-500 uppercase tracking-widest">Live Status</span>
             </div>
         </header>
 
-        <div class="flex-1 overflow-y-auto p-10">
+        <div class="flex-1 overflow-y-auto p-12">
             
             <section id="view-store" class="section-view active">
-                <div class="flex items-center justify-between mb-10">
-                    <h2 class="text-4xl font-black italic uppercase tracking-tighter">Explorar <span class="text-rose-600">Items</span></h2>
-                    <div class="flex bg-white/5 p-1 rounded-xl border border-white/5">
-                        <button onclick="shop.setCat('all')" class="cat-btn bg-rose-600 px-5 py-2 rounded-lg text-[10px] font-bold uppercase transition">Todos</button>
-                        <button onclick="shop.setCat('accounts')" class="cat-btn px-5 py-2 rounded-lg text-[10px] font-bold uppercase text-zinc-500 hover:text-white transition">Cuentas</button>
-                        <button onclick="shop.setCat('items')" class="cat-btn px-5 py-2 rounded-lg text-[10px] font-bold uppercase text-zinc-500 hover:text-white transition">Objetos</button>
+                <div class="flex justify-between items-end mb-10">
+                    <div>
+                        <h2 class="text-4xl font-black italic uppercase tracking-tighter">Market<span class="text-rose-600">place</span></h2>
+                        <p class="text-zinc-500 text-sm mt-1">Select an item to proceed with checkout.</p>
                     </div>
                 </div>
-
-                <div id="product-grid" class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6">
-                    </div>
+                <div id="product-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8"></div>
             </section>
 
-            <section id="view-faq" class="section-view max-w-3xl mx-auto">
-                <h2 class="text-3xl font-black uppercase italic mb-8">Preguntas <span class="text-rose-600">Frecuentes</span></h2>
-                <div class="space-y-4" id="faq-list">
-                    <div class="bg-white/5 p-6 rounded-2xl border border-white/10">
-                        <h3 class="font-bold text-rose-500">¿Cómo recibo mi cuenta?</h3>
-                        <p class="text-zinc-400 text-sm mt-2">La entrega es inmediata a través de nuestro sistema de tickets en Discord una vez que el pago sea validado.</p>
+            <section id="view-reviews" class="section-view max-w-5xl mx-auto">
+                <h2 class="text-3xl font-black italic uppercase mb-10">Customer <span class="text-rose-600">Feedback</span></h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6" id="reviews-list">
+                    <div class="rev-card">
+                        <div class="flex text-yellow-500 text-xs mb-3"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></div>
+                        <p class="text-zinc-300 italic text-sm">"Instant delivery and great support. 10/10!"</p>
+                        <p class="text-rose-600 font-bold text-[10px] uppercase mt-4 tracking-widest">@Vex_User</p>
                     </div>
                 </div>
             </section>
 
-            <section id="view-tos" class="section-view max-w-3xl mx-auto">
-                <h2 class="text-3xl font-black uppercase italic mb-8">Términos de <span class="text-rose-600">Servicio</span></h2>
-                <div class="bg-white/5 p-8 rounded-3xl border border-white/10 text-zinc-400 text-sm leading-relaxed">
-                    <p class="mb-4">1. Al realizar una compra, aceptas que no hay reembolsos debido a la naturaleza digital de los productos.</p>
-                    <p>2. No nos hacemos responsables por baneos de terceros si se infringe la normativa de Roblox.</p>
+            <section id="view-faq" class="section-view max-w-2xl mx-auto">
+                <h2 class="text-3xl font-black italic uppercase mb-8">FAQ</h2>
+                <div class="space-y-4">
+                    <div class="bg-[#0c0c0c] p-6 rounded-3xl border border-white/5">
+                        <p class="font-bold text-white uppercase text-xs tracking-widest mb-2">Is this service automated?</p>
+                        <p class="text-zinc-500 text-sm">Yes, once the transaction is verified, our system logs your request instantly.</p>
+                    </div>
                 </div>
             </section>
 
+            <section id="view-tos" class="section-view max-w-2xl mx-auto">
+                <h2 class="text-3xl font-black italic uppercase mb-8">Terms of <span class="text-rose-600">Service</span></h2>
+                <div class="bg-[#0c0c0c] p-8 rounded-3xl border border-white/5 text-zinc-400 text-sm space-y-4">
+                    <p>1. No refunds are provided for digital goods.</p>
+                    <p>2. We are not responsible for account bans by third parties.</p>
+                </div>
+            </section>
         </div>
     </main>
 
     <div id="paymentModal" class="modal-overlay">
-        <div class="bg-[#0a0a0a] border border-white/10 w-full max-w-xl rounded-[2.5rem] overflow-hidden shadow-2xl">
-            <div class="p-8 border-b border-white/5 flex justify-between items-center bg-white/5">
-                <div>
-                    <h3 id="m-name" class="text-2xl font-black uppercase italic">Item</h3>
-                    <p id="m-price" class="text-rose-500 font-extrabold text-xl mt-1">$0.00</p>
-                </div>
-                <button onclick="closeModal()" class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-white/10 transition text-zinc-500 hover:text-white">
-                    <i class="fa-solid fa-xmark text-xl"></i>
-                </button>
-            </div>
+        <div class="bg-[#0a0a0a] border border-white/10 w-full max-w-md rounded-[2.5rem] p-10 relative shadow-2xl">
+            <button onclick="closeModal()" class="absolute top-8 right-8 text-zinc-600 hover:text-white transition"><i class="fa-solid fa-xmark text-2xl"></i></button>
             
-            <div class="p-8 space-y-6">
-                <div>
-                    <label class="text-[10px] font-black text-zinc-500 uppercase tracking-widest ml-1 mb-2 block">Usuario de Roblox</label>
-                    <input type="text" id="rbxUser" placeholder="Tu nombre de usuario..." class="w-full bg-black border border-white/10 p-4 rounded-2xl outline-none focus:border-rose-600 transition text-sm">
-                </div>
-                <div id="paypal-container" class="min-h-[150px]"></div>
-                <p class="text-center text-[9px] text-zinc-600 uppercase font-bold tracking-widest">Protegido por CRUD3 SECURE-PAY</p>
+            <h3 class="text-2xl font-black italic uppercase mb-2">Checkout</h3>
+            <p class="text-zinc-500 text-[10px] font-bold uppercase tracking-[2px] mb-8">Secure Payment Gateway</p>
+            
+            <div class="bg-white/5 p-5 rounded-2xl border border-white/5 mb-8 flex justify-between items-center">
+                <span id="m-name" class="font-bold text-sm text-zinc-300 uppercase">Item</span>
+                <span id="m-price" class="text-rose-500 font-black text-xl">$0.00</span>
             </div>
+
+            <form id="payment-form" class="space-y-6">
+                <div>
+                    <label class="text-[10px] font-black text-zinc-500 uppercase tracking-widest ml-1 mb-2 block">Roblox Username</label>
+                    <input type="text" id="rbxUser" required placeholder="Type username..." class="w-full bg-black border border-white/10 p-4 rounded-xl outline-none focus:border-rose-600 transition text-sm text-white">
+                </div>
+
+                <div>
+                    <label class="text-[10px] font-black text-zinc-500 uppercase tracking-widest ml-1 mb-2 block">Card Details</label>
+                    <div id="card-element" class="stripe-input"></div>
+                    <div id="card-errors" class="text-rose-500 text-[9px] mt-2 font-bold uppercase tracking-widest"></div>
+                </div>
+
+                <button id="submit-button" class="w-full bg-rose-600 hover:bg-rose-700 py-5 rounded-2xl font-black text-xs uppercase tracking-[3px] transition shadow-lg shadow-rose-600/20 text-white">
+                    Confirm & Pay
+                </button>
+            </form>
+            
+            <p class="text-[8px] text-zinc-700 text-center uppercase font-bold mt-8 tracking-widest">
+                <i class="fa-solid fa-shield-halved"></i> Encrypted Transaction
+            </p>
         </div>
     </div>
 
     <script>
-        // --- 1. BASE DE DATOS ---
+        // --- 1. PRODUCT DATABASE ---
         const PRODUCTS = [
-            { id: 1, name: "Epic Devil Blade", price: 15.00, cat: "items", stock: 12, img: "https://tr.rbxcdn.com/180da92042296d04254479e0a022989b/420/420/Image/Png" },
-            { id: 2, name: "Max Level Blox Fruit", price: 45.00, cat: "accounts", stock: 3, img: "https://tr.rbxcdn.com/3931657805626a575083759367123984/420/420/Image/Png" },
-            { id: 3, name: "Dual Cursed Katana", price: 25.00, cat: "items", stock: 5, img: "https://tr.rbxcdn.com/c60787a9355745191535456209867919/420/420/Image/Png" },
-            { id: 4, name: "100M Beli Cash", price: 10.00, cat: "items", stock: "99+", img: "https://tr.rbxcdn.com/027376045622089228929283742/420/420/Image/Png" },
-            { id: 5, name: "Cuentas CDK + Soul", price: 55.00, cat: "accounts", stock: 1, img: "" },
-            { id: 6, name: "Dark Blade Gamepass", price: 30.00, cat: "items", stock: 8, img: "" }
+            { id: 1, name: "Epic Devil Blade", price: 15.00, img: "" },
+            { id: 2, name: "Max Account Level", price: 49.99, img: "" },
+            { id: 3, name: "Dark Blade V3", price: 25.00, img: "" },
+            { id: 4, name: "Currency Pack", price: 9.99, img: "" }
         ];
 
-        // --- 2. GESTIÓN DE TIENDA ---
+        // --- 2. STRIPE SETUP ---
+        // REPLACE WITH YOUR REAL KEY (pk_test_...)
+        const stripe = Stripe('pk_test_51Pxxxxxxxxxxxxxxx'); 
+        const elements = stripe.elements();
+        const card = elements.create("card", {
+            style: {
+                base: {
+                    color: "#ffffff",
+                    fontFamily: '"Plus Jakarta Sans", sans-serif',
+                    fontSize: "14px",
+                    "::placeholder": { color: "#52525b" }
+                }
+            }
+        });
+
+        // --- 3. SHOP ENGINE ---
         const shop = {
-            currentCat: 'all',
-            selectedItem: null,
-
-            init() {
-                this.render();
-                showNotification("CRUD3 SHOP Cargada Correctamente", "fa-check");
-            },
-
             render() {
                 const grid = document.getElementById('product-grid');
                 const search = document.getElementById('searchInput').value.toLowerCase();
-                
-                const filtered = PRODUCTS.filter(p => {
-                    const matchCat = this.currentCat === 'all' || p.cat === this.currentCat;
-                    const matchSearch = p.name.toLowerCase().includes(search);
-                    return matchCat && matchSearch;
-                });
-
-                grid.innerHTML = filtered.map(p => `
-                    <div class="item-card rounded-[2rem] p-5 flex flex-col group" onclick="openModal(${p.id})">
-                        <div class="h-44 bg-black/50 rounded-3xl mb-4 flex items-center justify-center relative border border-white/5 overflow-hidden">
-                            ${p.img ? `<img src="${p.img}" class="w-2/3 group-hover:scale-110 transition duration-500">` : `<i class="fa-solid fa-box text-5xl text-zinc-900"></i>`}
-                            <div class="absolute top-3 left-3 bg-rose-600 text-[8px] font-black px-2 py-0.5 rounded italic">NEW</div>
+                grid.innerHTML = PRODUCTS.filter(p => p.name.toLowerCase().includes(search)).map(p => `
+                    <div class="bg-[#0c0c0c] border border-white/5 rounded-[2.5rem] p-6 hover:border-rose-600 transition group cursor-pointer" onclick="openModal(${p.id})">
+                        <div class="h-40 bg-black/50 rounded-3xl mb-6 flex items-center justify-center border border-white/5 overflow-hidden">
+                            ${p.img ? `<img src="${p.img}" class="h-2/3 group-hover:scale-110 transition duration-500">` : `<i class="fa-solid fa-box-open text-3xl text-zinc-900"></i>`}
                         </div>
-                        <div class="flex justify-between items-center mb-1">
-                            <span class="text-[9px] font-bold text-zinc-600 uppercase tracking-widest">${p.cat}</span>
-                            <span class="text-[9px] font-bold text-green-500 uppercase">Stock: ${p.stock}</span>
-                        </div>
-                        <h3 class="font-bold text-sm text-zinc-200 group-hover:text-rose-500 transition mb-4">${p.name}</h3>
-                        <div class="mt-auto flex items-center justify-between pt-4 border-t border-white/5">
-                            <span class="text-xl font-black text-white">$${p.price.toFixed(2)}</span>
-                            <button class="bg-white text-black text-[9px] font-black px-4 py-2 rounded-xl group-hover:bg-rose-600 group-hover:text-white transition uppercase">Comprar</button>
+                        <h3 class="font-bold text-zinc-200 group-hover:text-rose-600 transition mb-4 uppercase text-[12px] tracking-widest">${p.name}</h3>
+                        <div class="flex justify-between items-center pt-4 border-t border-white/5">
+                            <span class="text-xl font-black italic">$${p.price.toFixed(2)}</span>
+                            <div class="bg-white/5 text-zinc-500 text-[9px] font-black px-4 py-2 rounded-xl group-hover:bg-rose-600 group-hover:text-white transition uppercase">Buy Now</div>
                         </div>
                     </div>
                 `).join('');
-            },
-
-            setCat(cat) {
-                this.currentCat = cat;
-                document.querySelectorAll('.cat-btn').forEach(b => {
-                    b.classList.remove('bg-rose-600', 'text-white');
-                    b.classList.add('text-zinc-500');
-                });
-                event.currentTarget.classList.add('bg-rose-600', 'text-white');
-                event.currentTarget.classList.remove('text-zinc-500');
-                this.render();
-                showNotification("Filtrando por: " + cat, "fa-filter");
-            },
-
-            filter() { this.render(); }
+            }
         };
 
-        // --- 3. NAVEGACIÓN (ROUTER) ---
-        function router(viewId) {
-            // Ocultar todas las secciones
+        // --- 4. SPA ROUTING ---
+        function router(id) {
             document.querySelectorAll('.section-view').forEach(v => v.classList.remove('active'));
-            // Mostrar la seleccionada
-            document.getElementById('view-' + viewId).classList.add('active');
-            
-            // Actualizar botones del sidebar
+            document.getElementById('view-' + id).classList.add('active');
             document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
-            document.getElementById('btn-' + viewId).classList.add('active');
-
-            showNotification("Navegando a: " + viewId.toUpperCase(), "fa-eye");
+            document.getElementById('btn-' + id).classList.add('active');
+            toast("Switching to " + id.toUpperCase(), "fa-eye");
         }
 
-        // --- 4. VENTANAS (MODALES) ---
+        // --- 5. PAYMENT WINDOWS ---
         function openModal(id) {
             const item = PRODUCTS.find(p => p.id === id);
-            shop.selectedItem = item;
-            
             document.getElementById('m-name').innerText = item.name;
-            document.getElementById('m-price').innerText = `$${item.price.toFixed(2)} USD`;
+            document.getElementById('m-price').innerText = `$${item.price.toFixed(2)}`;
             document.getElementById('paymentModal').style.display = 'flex';
-            
-            // Reiniciar PayPal Button
-            document.getElementById('paypal-container').innerHTML = '';
-            paypal.Buttons({
-                createOrder: (data, actions) => {
-                    const user = document.getElementById('rbxUser').value;
-                    if(!user) { 
-                        showNotification("Ingresa tu usuario de Roblox", "fa-exclamation-triangle"); 
-                        return; 
-                    }
-                    return actions.order.create({
-                        purchase_units: [{
-                            description: `${item.name} - User: ${user}`,
-                            amount: { value: item.price.toString() }
-                        }]
-                    });
-                },
-                onApprove: (data, actions) => {
-                    return actions.order.capture().then(() => {
-                        showNotification("¡Pago Exitoso! Entra a Discord.", "fa-check-circle");
-                        window.location.href = "https://discord.gg/wxCNQCNn";
-                    });
-                }
-            }).render('#paypal-container');
+            card.mount("#card-element");
+            toast("Securing Payment...", "fa-lock");
         }
 
         function closeModal() {
             document.getElementById('paymentModal').style.display = 'none';
         }
 
-        // --- 5. NOTIFICACIONES (TOASTS) ---
-        function showNotification(msg, icon) {
+        const form = document.getElementById('payment-form');
+        form.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            const submitBtn = document.getElementById('submit-button');
+            submitBtn.disabled = true;
+            toast("Validating Order...", "fa-spinner fa-spin");
+
+            const {token, error} = await stripe.createToken(card);
+
+            if (error) {
+                document.getElementById('card-errors').textContent = error.message;
+                toast("Payment Error", "fa-xmark");
+                submitBtn.disabled = false;
+            } else {
+                toast("Success! Redirecting...", "fa-check");
+                setTimeout(() => window.location.href = "https://discord.gg/wxCNQCNn", 1500);
+            }
+        });
+
+        // --- 6. TOAST NOTIFICATIONS ---
+        function toast(msg, icon) {
             const container = document.getElementById('toast-container');
-            const toast = document.createElement('div');
-            toast.className = 'toast';
-            toast.innerHTML = `<i class="fa-solid ${icon} text-rose-500"></i> <span class="text-xs font-bold uppercase">${msg}</span>`;
-            container.appendChild(toast);
-            
-            setTimeout(() => {
-                toast.style.opacity = '0';
-                toast.style.transform = 'translateX(50px)';
-                setTimeout(() => toast.remove(), 300);
-            }, 3000);
+            const t = document.createElement('div');
+            t.className = 'toast';
+            t.innerHTML = `<i class="fa-solid ${icon} text-rose-500"></i> <span class="text-[10px] font-black uppercase tracking-widest">${msg}</span>`;
+            container.appendChild(t);
+            setTimeout(() => { t.style.opacity = '0'; setTimeout(() => t.remove(), 400); }, 3000);
         }
 
-        // INICIAR AL CARGAR
-        window.onload = () => shop.init();
+        window.onload = () => shop.render();
     </script>
 </body>
 </html>
