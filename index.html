@@ -3,383 +3,332 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CRUD3 SHOP | The Excellence</title>
+    <title>CRUDE SHOP | The Eye of Excellence</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Syncopate:wght@400;700&family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    
     <style>
         :root {
-            --accent: #ff0000;
-            --accent-dark: #cc0000;
-            --bg: #050505;
-            --card-bg: #0a0a0a;
-            --panel-bg: #0c0c0c;
+            --primary: #ff0000;
+            --primary-glow: rgba(255, 0, 0, 0.6);
+            --bg-dark: #050505;
+            --bg-card: #0a0a0a;
+            --text-main: #ffffff;
+            --text-dim: #a1a1aa;
         }
 
         * {
+            margin: 0; padding: 0; box-sizing: border-box;
             scrollbar-width: thin;
-            scrollbar-color: var(--accent) #111;
+            scrollbar-color: var(--primary) #111;
         }
 
         body {
-            background-color: var(--bg);
-            color: white;
+            background-color: var(--bg-dark);
+            color: var(--text-main);
             font-family: 'Inter', sans-serif;
             overflow-x: hidden;
         }
 
+        h1, h2, h3, .brand-font { font-family: 'Syncopate', sans-serif; }
+
         /* --- BACKGROUND ENGINE --- */
-        #canvas { position: fixed; top: 0; left: 0; z-index: -1; pointer-events: none; }
+        #canvas { position: fixed; top: 0; left: 0; z-index: -1; }
 
-        /* --- UI COMPONENTS --- */
+        /* --- LOGO EYE ANIMATION --- */
+        .eye-container {
+            position: relative;
+            width: 45px; height: 45px;
+            background: radial-gradient(circle, #220000 0%, #000 70%);
+            border: 2px solid var(--primary);
+            border-radius: 50% 0 50% 0;
+            transform: rotate(45deg);
+            display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 0 15px var(--primary-glow);
+            overflow: hidden;
+        }
+        .eye-pupil {
+            width: 15px; height: 15px;
+            background: var(--primary);
+            border-radius: 50%;
+            transform: rotate(-45deg);
+            box-shadow: 0 0 10px #fff;
+            animation: lookAround 4s infinite ease-in-out;
+        }
+        @keyframes lookAround {
+            0%, 100% { transform: translate(0, 0) rotate(-45deg); }
+            25% { transform: translate(5px, -5px) rotate(-45deg); }
+            75% { transform: translate(-5px, 5px) rotate(-45deg); }
+        }
+
+        /* --- NAVIGATION --- */
+        .navbar {
+            height: 90px;
+            background: rgba(0,0,0,0.85);
+            backdrop-filter: blur(15px);
+            border-bottom: 1px solid rgba(255,0,0,0.1);
+            transition: 0.3s;
+        }
         .nav-link {
-            position: relative;
-            color: #a1a1aa;
-            font-weight: 700;
-            transition: 0.3s;
-            cursor: pointer;
-            font-size: 13px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
+            font-size: 12px; font-weight: 700; color: var(--text-dim);
+            text-transform: uppercase; letter-spacing: 2px;
+            transition: 0.3s; cursor: pointer;
         }
-        .nav-link:hover, .nav-active { color: white; }
-        .nav-link::after {
-            content: '';
-            position: absolute;
-            bottom: -5px; left: 0;
-            width: 0; height: 2px;
-            background: var(--accent);
-            transition: 0.3s;
-        }
-        .nav-link:hover::after, .nav-active::after { width: 100%; }
+        .nav-link:hover, .active-link { color: var(--primary); text-shadow: 0 0 8px var(--primary-glow); }
 
-        .cat-card {
-            background: var(--card-bg);
-            border: 1px solid rgba(255,255,255,0.05);
-            transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            cursor: pointer;
-            overflow: hidden;
+        /* --- DROP DOWN CURRENCY --- */
+        .currency-dropdown {
+            position: relative; display: inline-block;
         }
-        .cat-card:hover { 
-            border-color: var(--accent); 
-            transform: translateY(-8px) scale(1.02);
-            box-shadow: 0 15px 30px rgba(255,0,0,0.15);
+        .dropdown-content {
+            display: none; position: absolute; right: 0;
+            background: #0f0f0f; border: 1px solid #222;
+            min-width: 120px; border-radius: 8px; z-index: 100;
         }
+        .dropdown-content button {
+            width: 100%; padding: 10px; text-align: left;
+            font-size: 12px; color: var(--text-dim); transition: 0.2s;
+        }
+        .dropdown-content button:hover { background: var(--primary); color: white; }
+        .currency-dropdown:hover .dropdown-content { display: block; }
 
-        /* --- MODALS SYSTEM --- */
-        .modal-overlay {
-            position: fixed; inset: 0;
-            background: rgba(0,0,0,0.95);
-            backdrop-filter: blur(10px);
-            z-index: 1000;
-            display: none;
-            overflow-y: auto;
-            padding: 40px 20px;
-            animation: modalFadeIn 0.3s ease-out;
+        /* --- CARDS & UI --- */
+        .crude-card {
+            background: var(--bg-card);
+            border: 1px solid rgba(255,255,255,0.03);
+            border-radius: 20px; transition: 0.5s cubic-bezier(0.2, 1, 0.3, 1);
+            position: relative; overflow: hidden;
         }
-        @keyframes modalFadeIn {
-            from { opacity: 0; transform: scale(0.95); }
-            to { opacity: 1; transform: scale(1); }
+        .crude-card::before {
+            content: ''; position: absolute; inset: 0;
+            background: linear-gradient(45deg, transparent, rgba(255,0,0,0.05), transparent);
+            transform: translateX(-100%); transition: 0.5s;
+        }
+        .crude-card:hover::before { transform: translateX(100%); }
+        .crude-card:hover {
+            transform: translateY(-10px);
+            border-color: var(--primary);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.6), 0 0 20px rgba(255,0,0,0.1);
         }
 
-        /* --- BUTTONS & INPUTS --- */
-        .btn-primary {
-            background: var(--accent);
-            color: white;
-            transition: 0.4s;
-            font-weight: 900;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            position: relative;
-            overflow: hidden;
+        .btn-crude {
+            background: var(--primary);
+            color: white; font-weight: 800; text-transform: uppercase;
+            letter-spacing: 1px; transition: 0.4s;
+            clip-path: polygon(10% 0, 100% 0, 90% 100%, 0% 100%);
         }
-        .btn-primary:hover { 
-            background: white; 
-            color: black;
-            box-shadow: 0 0 25px rgba(255, 0, 0, 0.6); 
+        .btn-crude:hover {
+            background: white; color: black;
+            transform: scale(1.05); box-shadow: 0 0 20px #fff;
         }
+
+        /* --- MODALS --- */
+        .modal-blur {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.9);
+            backdrop-filter: blur(10px); z-index: 1000;
+            display: none; align-items: center; justify-content: center;
+            opacity: 0; transition: 0.3s;
+        }
+        .modal-blur.active { display: flex; opacity: 1; }
         
-        input, select {
-            background: #111;
-            border: 1px solid #222;
-            color: white;
-            outline: none;
-            transition: 0.3s;
+        /* --- CHECKOUT STEPS --- */
+        .step-circle {
+            width: 40px; height: 40px; border-radius: 50%;
+            background: #111; border: 2px solid #222;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 900; transition: 0.4s;
         }
-        input:focus { border-color: var(--accent); background: #161616; }
+        .step-active { border-color: var(--primary); color: var(--primary); box-shadow: 0 0 15px var(--primary-glow); }
 
-        .red-glow { filter: drop-shadow(0 0 10px rgba(255,0,0,0.6)); }
-        .step-line { height: 2px; flex-grow: 1; background: #222; margin: 0 10px; transition: 0.5s; }
-        .step-line.active { background: var(--accent); }
-
-        /* --- NOTIFICATIONS --- */
-        #notification-host {
-            position: fixed;
-            bottom: 20px; right: 20px;
-            z-index: 2000;
-            display: flex;
-            flex-col: column;
-            gap: 10px;
+        /* --- STATS BAR --- */
+        .stats-grid {
+            background: rgba(255,0,0,0.02);
+            border-top: 1px solid rgba(255,0,0,0.1);
+            border-bottom: 1px solid rgba(255,0,0,0.1);
         }
-        .toast {
-            background: #111;
-            border-left: 4px solid var(--accent);
-            padding: 15px 25px;
-            border-radius: 4px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
-            animation: toastIn 0.3s ease-out forwards;
-        }
-        @keyframes toastIn { from { transform: translateX(100%); } to { transform: translateX(0); } }
-
-        /* --- CART SIDEBAR --- */
-        #cart-sidebar {
-            position: fixed; right: -400px; top: 0; bottom: 0;
-            width: 400px; background: var(--panel-bg);
-            z-index: 1100; transition: 0.5s cubic-bezier(0.77, 0, 0.175, 1);
-            border-left: 1px solid rgba(255,255,255,0.05);
-            display: flex; flex-direction: column;
-        }
-        #cart-sidebar.open { right: 0; }
     </style>
 </head>
 <body>
 
 <canvas id="canvas"></canvas>
-<div id="notification-host"></div>
 
-<nav class="h-24 flex items-center justify-between px-12 sticky top-0 bg-black/90 backdrop-blur-xl z-50 border-b border-white/5">
-    <div class="flex items-center gap-4 cursor-pointer group" onclick="nav('home')">
-        <div class="relative red-glow transition-transform group-hover:scale-110">
-            <i class="fa-solid fa-cloud text-4xl text-red-600"></i>
-            <span class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-[10px] font-black text-white mt-1">3</span>
+<nav class="navbar fixed w-full z-50 flex items-center justify-between px-6 lg:px-20">
+    <div class="flex items-center gap-4 cursor-pointer group" onclick="showView('home')">
+        <div class="eye-container">
+            <div class="eye-pupil"></div>
         </div>
-        <div class="flex flex-col leading-none">
-            <span class="text-2xl font-black italic tracking-tighter">CRUD3 <span class="text-red-600">SHOP</span></span>
-            <span class="text-[9px] font-bold text-zinc-500 tracking-[0.3em] uppercase">The Excellence</span>
+        <div class="brand-font flex flex-col">
+            <span class="text-xl font-bold tracking-tighter">CRUDE</span>
+            <span class="text-[10px] text-red-600 tracking-[0.4em] -mt-1">SHOP</span>
         </div>
     </div>
 
-    <div class="hidden lg:flex gap-10">
-        <span onclick="nav('home')" class="nav-link nav-active">Home</span>
-        <span onclick="nav('products')" class="nav-link">Products</span>
-        <span onclick="nav('reviews')" class="nav-link">Reviews</span>
-        <span class="nav-link">Status</span>
-        <span onclick="showModal('modal-login')" class="nav-link">Account</span>
+    <div class="hidden md:flex gap-10">
+        <a onclick="showView('home')" class="nav-link active-link">Home</a>
+        <a onclick="showView('products')" class="nav-link">Products</a>
+        <a onclick="showView('reviews')" class="nav-link">Reviews</a>
+        <a class="nav-link">Status</a>
+        <a class="nav-link">Blog</a>
+        <a onclick="openModal('modal-login')" class="nav-link">Login</a>
     </div>
 
     <div class="flex items-center gap-6">
-        <div class="bg-white/5 p-1 rounded-lg flex gap-1">
-            <button onclick="setCurrency('USD')" class="curr-btn px-3 py-1 text-xs font-black rounded bg-red-600 text-white transition">USD</button>
-            <button onclick="setCurrency('EUR')" class="curr-btn px-3 py-1 text-xs font-black rounded text-zinc-500 hover:text-white transition">EUR</button>
-        </div>
-        
-        <div onclick="toggleCart()" class="relative cursor-pointer group">
-            <div class="w-12 h-12 bg-white/5 rounded-xl flex items-center justify-center border border-white/10 group-hover:border-red-600/50 transition">
-                <i class="fa-solid fa-cart-shopping text-zinc-400 group-hover:text-red-600"></i>
+        <div class="currency-dropdown">
+            <button class="bg-white/5 px-4 py-2 rounded-lg text-xs font-black border border-white/10 hover:border-red-600 transition">
+                <span id="current-currency-label">$ USD</span> <i class="fa-solid fa-chevron-down ml-2 text-red-600"></i>
+            </button>
+            <div class="dropdown-content">
+                <button onclick="updateCurrency('USD', 1, '$')">$ USD</button>
+                <button onclick="updateCurrency('EUR', 0.92, '€')">€ EUR</button>
+                <button onclick="updateCurrency('ARS', 900, '$')">$ ARS</button>
+                <button onclick="updateCurrency('GBP', 0.79, '£')">£ GBP</button>
             </div>
-            <span id="cart-count" class="absolute -top-2 -right-2 bg-red-600 text-white text-[10px] w-6 h-6 rounded-full flex items-center justify-center font-black border-4 border-bg">0</span>
+        </div>
+
+        <div class="relative cursor-pointer" onclick="toggleCartSidebar()">
+            <i class="fa-solid fa-cart-shopping text-xl hover:text-red-600 transition"></i>
+            <span id="cart-counter" class="absolute -top-3 -right-3 bg-red-600 text-[10px] font-black w-5 h-5 rounded-full flex items-center justify-center">0</span>
         </div>
     </div>
 </nav>
 
-<main>
-    <section id="view-home" class="view min-h-[90vh] flex flex-col items-center justify-center text-center px-4">
-        <div class="mb-6 inline-block bg-red-600/10 border border-red-600/20 px-4 py-1 rounded-full">
-            <span class="text-red-500 text-xs font-black tracking-widest uppercase">Best Prices Worldwide</span>
+<main class="pt-24">
+    
+    <section id="view-home" class="view-section min-h-screen flex flex-col items-center justify-center text-center px-4">
+        <div class="mb-6 animate-bounce">
+            <span class="bg-red-600/10 text-red-500 border border-red-600/20 px-4 py-1 rounded-full text-[10px] font-black uppercase tracking-widest">Digital Excellence</span>
         </div>
-        <h1 class="text-8xl font-black mb-6 italic leading-none tracking-tighter">
-            Elevate Your <span class="text-red-600 red-glow">Gaming.</span>
+        <h1 class="text-5xl lg:text-8xl font-black italic mb-6 tracking-tighter">
+            WELCOME TO <br> <span class="text-red-600">CRUDE SHOP!</span>
         </h1>
-        <p class="text-zinc-500 text-xl mb-12 max-w-2xl font-medium">
-            Join thousands of satisfied customers and get access to premium digital assets with instant delivery and lifetime support.
+        <p class="text-zinc-500 text-lg lg:text-xl max-w-2xl mb-12">
+            The ONE shop you need, best prices worldwide. Secure assets, instant delivery, and 24/7 support.
         </p>
-        
-        <div class="flex flex-col sm:flex-row gap-4">
-            <button onclick="nav('products')" class="btn-primary px-12 py-5 rounded-2xl text-lg flex items-center gap-3">
-                Explorar Catálogo <i class="fa-solid fa-arrow-right"></i>
-            </button>
-            <button class="bg-white/5 border border-white/10 px-12 py-5 rounded-2xl text-lg font-black hover:bg-white/10 transition">
-                Discord <i class="fa-brands fa-discord ml-2 text-indigo-500"></i>
-            </button>
+
+        <div class="w-full max-w-xl relative mb-12">
+            <i class="fa-solid fa-magnifying-glass absolute left-5 top-1/2 -translate-y-1/2 text-zinc-600"></i>
+            <input type="text" oninput="liveSearch(this.value)" placeholder="Search for items, accounts, or services..." class="w-full bg-white/5 border border-white/10 py-5 pl-14 pr-6 rounded-2xl text-white outline-none focus:border-red-600 transition shadow-2xl">
+        </div>
+
+        <button onclick="showView('products')" class="btn-crude px-12 py-5 text-lg flex items-center gap-4">
+            View Products <i class="fa-solid fa-arrow-right"></i>
+        </button>
+
+        <div class="stats-grid w-full mt-24 grid grid-cols-2 lg:grid-cols-4 py-12 gap-8">
+            <div class="flex flex-col items-center">
+                <span class="text-4xl font-black mb-2">940+</span>
+                <span class="text-[10px] text-zinc-500 font-bold tracking-widest uppercase">Products Sold</span>
+            </div>
+            <div class="flex flex-col items-center border-l border-white/5">
+                <span class="text-4xl font-black mb-2">1.2K</span>
+                <span class="text-[10px] text-zinc-500 font-bold tracking-widest uppercase">Total Customers</span>
+            </div>
+            <div class="flex flex-col items-center border-l border-white/5">
+                <span class="text-4xl font-black mb-2">450</span>
+                <span class="text-[10px] text-zinc-500 font-bold tracking-widest uppercase">Reviews Received</span>
+            </div>
+            <div class="flex flex-col items-center border-l border-white/5">
+                <span class="text-4xl font-black mb-2">5.0</span>
+                <span class="text-[10px] text-zinc-500 font-bold tracking-widest uppercase">Average Rating</span>
+            </div>
         </div>
     </section>
 
-    <section id="view-products" class="view hidden p-12 lg:p-24">
-        <div class="flex flex-col lg:flex-row justify-between items-end mb-20 gap-8">
-            <div>
-                <h2 class="text-5xl font-black italic mb-4 uppercase tracking-tighter">Premium <span class="text-red-600">Collections</span></h2>
-                <div class="w-20 h-1.5 bg-red-600 rounded-full"></div>
-            </div>
-            <div class="w-full lg:w-96 relative">
-                <i class="fa-solid fa-search absolute left-5 top-1/2 -translate-y-1/2 text-zinc-600"></i>
-                <input type="text" id="search-bar" oninput="filterProducts()" placeholder="Search item or category..." class="w-full py-4 pl-14 pr-6 rounded-2xl">
-            </div>
+    <section id="view-products" class="view-section hidden py-20 px-6 lg:px-24">
+        <div class="mb-16">
+            <h2 class="text-4xl font-black italic">OUR <span class="text-red-600">INVENTORY</span></h2>
+            <div class="w-20 h-1 bg-red-600 mt-2"></div>
         </div>
 
-        <div id="category-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+        <div id="category-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             </div>
     </section>
+
 </main>
 
-<aside id="cart-sidebar">
-    <div class="p-8 border-b border-white/5 flex justify-between items-center">
-        <h3 class="text-xl font-black italic">Your <span class="text-red-600">Cart</span></h3>
-        <i onclick="toggleCart()" class="fa-solid fa-xmark cursor-pointer text-zinc-500 hover:text-white"></i>
-    </div>
-    <div id="cart-items" class="flex-1 overflow-y-auto p-8 space-y-6">
+<div id="modal-category" class="modal-blur">
+    <div class="bg-[#080808] w-full max-w-6xl h-[85vh] rounded-3xl border border-white/5 flex flex-col overflow-hidden relative">
+        <div class="p-8 border-b border-white/5 flex justify-between items-center">
+            <h3 id="cat-modal-title" class="text-2xl font-black italic tracking-tighter uppercase">Category Name</h3>
+            <button onclick="closeModal('modal-category')" class="w-10 h-10 flex items-center justify-center rounded-full bg-white/5 hover:bg-red-600 transition"><i class="fa-solid fa-xmark"></i></button>
         </div>
-    <div class="p-8 bg-black/40 border-t border-white/5">
-        <div class="space-y-2 mb-6 text-sm">
-            <div class="flex justify-between text-zinc-500"><span>Subtotal</span><span id="cart-subtotal">$0.00</span></div>
-            <div class="flex justify-between text-zinc-500"><span>Fee (Direct)</span><span>$0.00</span></div>
-            <div class="flex justify-between text-xl font-black"><span>Total</span><span id="cart-total" class="text-red-600">$0.00</span></div>
-        </div>
-        <button onclick="startCheckout()" class="w-full btn-primary py-4 rounded-xl">Checkout Now</button>
-    </div>
-</aside>
-
-<div id="modal-category" class="modal-overlay">
-    <div class="max-w-7xl mx-auto">
-        <div class="flex justify-between items-center mb-12 bg-white/5 p-6 rounded-2xl">
-            <div>
-                <p class="text-red-600 text-xs font-black uppercase tracking-widest mb-1">Browsing Category</p>
-                <h2 id="cat-title" class="text-4xl font-black italic">Category Name</h2>
+        <div id="product-list" class="flex-1 overflow-y-auto p-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             </div>
-            <div class="flex items-center gap-6">
-                <div class="hidden md:block text-right">
-                    <p class="text-xs text-zinc-500 font-bold">Secure Delivery</p>
-                    <p class="text-sm font-black">100% Protection</p>
-                </div>
-                <i onclick="closeAll()" class="fa-solid fa-circle-xmark text-4xl cursor-pointer text-zinc-700 hover:text-red-600 transition"></i>
-            </div>
-        </div>
-        <div id="cat-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8"></div>
     </div>
 </div>
 
-<div id="modal-detail" class="modal-overlay">
-    <div class="max-w-6xl mx-auto mt-10">
-        <div class="bg-[#080808] rounded-3xl border border-white/5 overflow-hidden flex flex-col lg:flex-row">
-            <div class="lg:w-1/2 p-12 flex flex-col justify-center bg-gradient-to-br from-red-600/5 to-transparent">
-                <img id="detail-img" src="" class="w-full rounded-2xl shadow-2xl border border-white/10 transform transition hover:scale-105 duration-500">
-                <div class="flex gap-4 mt-8">
-                    <div class="flex-1 p-4 bg-white/5 rounded-xl border border-white/5 text-center">
-                        <i class="fa-solid fa-bolt text-red-600 mb-2"></i>
-                        <p class="text-[10px] font-black uppercase text-zinc-500">Instant Delivery</p>
-                    </div>
-                    <div class="flex-1 p-4 bg-white/5 rounded-xl border border-white/5 text-center">
-                        <i class="fa-solid fa-shield-halved text-red-600 mb-2"></i>
-                        <p class="text-[10px] font-black uppercase text-zinc-500">Secure Assets</p>
-                    </div>
-                </div>
+<div id="modal-checkout" class="modal-blur">
+    <div class="bg-black w-full max-w-5xl rounded-3xl border border-white/10 overflow-hidden flex flex-col lg:flex-row">
+        <div class="lg:w-1/3 bg-[#0a0a0a] p-10 border-r border-white/5">
+            <div class="flex items-center gap-3 mb-10">
+                <div class="eye-container scale-75"><div class="eye-pupil"></div></div>
+                <span class="brand-font font-bold">CRUDE</span>
             </div>
-            <div class="lg:w-1/2 p-12 lg:border-l border-white/5 flex flex-col">
-                <div class="mb-10">
-                    <h2 id="detail-name" class="text-5xl font-black italic mb-4 leading-tight">Product Name</h2>
-                    <div class="flex items-center gap-4">
-                        <span id="detail-price" class="text-4xl font-black text-red-600">$0.00</span>
-                        <span id="detail-stock-badge" class="bg-green-500/10 text-green-500 px-3 py-1 rounded-full text-xs font-black uppercase">In Stock</span>
-                    </div>
-                </div>
-
-                <div class="space-y-8 mb-12">
-                    <div>
-                        <label class="block text-xs font-black text-zinc-500 uppercase tracking-[0.2em] mb-4">Select Quantity</label>
-                        <div class="flex items-center bg-black border border-white/10 rounded-2xl p-2 w-fit">
-                            <button onclick="changeQty(-1)" class="w-14 h-14 rounded-xl flex items-center justify-center hover:bg-white/5 transition text-xl"><i class="fa-solid fa-minus"></i></button>
-                            <input type="number" id="prod-qty" value="1" class="w-20 bg-transparent border-none text-center font-black text-2xl">
-                            <button onclick="changeQty(1)" class="w-14 h-14 rounded-xl flex items-center justify-center hover:bg-white/5 transition text-xl"><i class="fa-solid fa-plus"></i></button>
-                        </div>
-                    </div>
-                    
-                    <div class="p-4 bg-red-600/5 border border-red-600/20 rounded-xl">
-                        <p class="text-sm font-bold"><i class="fa-solid fa-gift mr-2 text-red-600"></i> Bulk Discount Available</p>
-                        <p class="text-xs text-zinc-500 mt-1">Order more than 10 units for a 15% discount on checkout.</p>
-                    </div>
-                </div>
-
-                <div class="mt-auto grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <button onclick="addToCart()" class="btn-primary py-5 rounded-2xl text-lg flex items-center justify-center gap-3">
-                        Add To Cart <i class="fa-solid fa-cart-arrow-down"></i>
-                    </button>
-                    <button onclick="startCheckout()" class="bg-white/5 border border-white/10 py-5 rounded-2xl font-black hover:bg-white/10 transition">
-                        Quick Buy
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div id="modal-checkout" class="modal-overlay">
-    <div class="max-w-7xl mx-auto flex flex-col lg:flex-row gap-10">
-        <div class="lg:w-2/5 order-2 lg:order-1">
-            <div class="bg-panel-bg p-10 rounded-3xl border border-white/5 sticky top-10">
-                <div class="flex items-center gap-3 mb-10">
-                    <i class="fa-solid fa-cloud text-3xl text-red-600"></i>
-                    <h3 class="text-2xl font-black italic uppercase">Order Summary</h3>
-                </div>
-                
-                <div id="checkout-list" class="space-y-6 max-h-[400px] overflow-y-auto mb-10 pr-4">
-                    </div>
-
-                <div class="space-y-4 border-t border-white/5 pt-8">
-                    <div class="flex justify-between text-zinc-500"><span>Subtotal</span><span id="check-sub">$0.00</span></div>
-                    <div class="flex justify-between text-zinc-500"><span>Exchange Fee</span><span id="check-fee">$0.00</span></div>
-                    <div class="flex justify-between text-3xl font-black"><span>Total</span><span id="check-total" class="text-red-600">$0.00</span></div>
-                </div>
-
-                <div class="mt-12 p-6 bg-white/5 rounded-2xl border border-white/5">
-                    <p class="text-xs font-black text-zinc-500 uppercase mb-4 tracking-widest">Support</p>
-                    <p class="text-sm mb-4">Have questions about your order? Join our Discord or contact live support.</p>
-                    <button class="w-full py-3 border border-red-600/30 rounded-xl text-red-500 font-black text-xs hover:bg-red-600 hover:text-white transition">Open Support Ticket</button>
-                </div>
+            <h4 class="text-xs font-black text-zinc-500 uppercase tracking-widest mb-6">Your Selection</h4>
+            <div id="checkout-items" class="space-y-4 mb-10"></div>
+            <div class="border-t border-white/10 pt-6">
+                <div class="flex justify-between text-zinc-500 mb-2"><span>Subtotal</span><span id="check-sub">0.00</span></div>
+                <div class="flex justify-between text-2xl font-black"><span>Total</span><span id="check-total" class="text-red-600">0.00</span></div>
             </div>
         </div>
 
-        <div class="lg:w-3/5 order-1 lg:order-2">
-            <div class="flex items-center mb-16 px-4">
-                <div id="step-1" class="flex-1"><p class="text-red-600 font-black text-[10px] uppercase tracking-widest mb-1">Step 01</p><p class="font-black text-xl">Details</p></div>
-                <div id="line-1" class="step-line"></div>
-                <div id="step-2" class="flex-1 step-inactive"><p class="text-zinc-600 font-black text-[10px] uppercase tracking-widest mb-1">Step 02</p><p class="font-black text-xl">Payment</p></div>
-                <div id="line-2" class="step-line"></div>
-                <div id="step-3" class="flex-1 step-inactive"><p class="text-zinc-600 font-black text-[10px] uppercase tracking-widest mb-1">Step 03</p><p class="font-black text-xl">Confirm</p></div>
+        <div class="lg:w-2/3 p-12">
+            <div class="flex items-center justify-between mb-16">
+                <div class="flex flex-col items-center gap-2">
+                    <div id="step-1-cir" class="step-circle step-active">1</div>
+                    <span class="text-[10px] font-black uppercase">Info</span>
+                </div>
+                <div class="flex-1 h-[2px] bg-zinc-800 mx-4"></div>
+                <div class="flex flex-col items-center gap-2">
+                    <div id="step-2-cir" class="step-circle">2</div>
+                    <span class="text-[10px] font-black uppercase">Payment</span>
+                </div>
+                <div class="flex-1 h-[2px] bg-zinc-800 mx-4"></div>
+                <div class="flex flex-col items-center gap-2">
+                    <div id="step-3-cir" class="step-circle">3</div>
+                    <span class="text-[10px] font-black uppercase">Final</span>
+                </div>
             </div>
 
-            <form id="checkout-form" action="https://formsubmit.co/upboy2006lm@gmail.com" method="POST" class="bg-panel-bg p-12 rounded-3xl border border-white/5">
-                <input type="hidden" name="_next" value="https://tu-sitio.com/success">
+            <form id="order-form" action="https://formsubmit.co/upboy2006lm@gmail.com" method="POST" class="space-y-8">
                 <input type="hidden" name="_captcha" value="false">
-                <input type="hidden" name="Full_Order_Data" id="form-data-input">
-
-                <div class="space-y-10">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <input type="hidden" name="Order_Details" id="hidden-order-data">
+                
+                <div id="step-1-content">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                         <div>
-                            <label class="block text-xs font-black text-zinc-500 uppercase tracking-widest mb-4">Email Address *</label>
-                            <input type="email" name="email" required placeholder="name@example.com" class="w-full p-5 rounded-2xl">
+                            <label class="text-[10px] font-black text-zinc-500 uppercase block mb-2">Email Address</label>
+                            <input type="email" name="email" required placeholder="customer@mail.com" class="w-full bg-white/5 border border-white/10 p-4 rounded-xl focus:border-red-600 outline-none">
                         </div>
                         <div>
-                            <label class="block text-xs font-black text-zinc-500 uppercase tracking-widest mb-4">Discord ID</label>
-                            <input type="text" name="discord" placeholder="User#0000" class="w-full p-5 rounded-2xl">
+                            <label class="text-[10px] font-black text-zinc-500 uppercase block mb-2">Discord ID</label>
+                            <input type="text" name="discord" placeholder="User#0000" class="w-full bg-white/5 border border-white/10 p-4 rounded-xl focus:border-red-600 outline-none">
                         </div>
                     </div>
+                    <button type="button" onclick="goToStep(2)" class="w-full btn-crude py-5 text-lg">Next Step</button>
+                </div>
 
-                    <div>
-                        <label class="block text-xs font-black text-zinc-500 uppercase tracking-widest mb-4">Payment Method</label>
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            <div class="p-6 bg-red-600/5 border border-red-600 rounded-2xl flex justify-between items-center cursor-pointer">
-                                <div><p class="font-black">PayPal</p><p class="text-[10px] text-zinc-500 font-bold uppercase">Instant Delivery</p></div>
+                <div id="step-2-content" class="hidden">
+                    <label class="text-[10px] font-black text-zinc-500 uppercase block mb-4">Choose Payment Method</label>
+                    <div class="grid grid-cols-1 gap-4 mb-8">
+                        <div class="p-6 bg-red-600/5 border border-red-600 rounded-2xl flex justify-between items-center cursor-pointer">
+                            <div class="flex items-center gap-4">
                                 <i class="fa-brands fa-paypal text-3xl text-blue-500"></i>
+                                <span class="font-bold">PayPal / Debit Card</span>
                             </div>
-                            <div class="p-6 bg-white/5 border border-white/10 rounded-2xl flex justify-between items-center opacity-50 cursor-not-allowed">
-                                <div><p class="font-black">Crypto</p><p class="text-[10px] text-zinc-500 font-bold uppercase">Disabled</p></div>
+                            <div class="w-6 h-6 rounded-full border-4 border-red-600 bg-white"></div>
+                        </div>
+                        <div class="p-6 bg-white/5 border border-white/5 rounded-2xl flex justify-between items-center opacity-50">
+                            <div class="flex items-center gap-4">
                                 <i class="fa-brands fa-bitcoin text-3xl text-orange-500"></i>
+                                <span class="font-bold">Crypto (Soon)</span>
                             </div>
                         </div>
                     </div>
-
-                    <div class="pt-10">
-                        <button type="submit" class="w-full btn-primary py-6 rounded-2xl text-2xl">Place Order Now</button>
-                        <p class="text-center text-zinc-600 text-xs mt-6 font-medium uppercase tracking-widest">By placing order you agree to our Terms of Service</p>
+                    <div class="flex gap-4">
+                        <button type="button" onclick="goToStep(1)" class="w-1/3 py-5 rounded-xl border border-white/10 font-black uppercase text-xs">Back</button>
+                        <button type="submit" class="w-2/3 btn-crude py-5 text-lg">Complete Purchase</button>
                     </div>
                 </div>
             </form>
@@ -388,305 +337,183 @@
 </div>
 
 <script>
-    /**
-     * CRUD3 CORE SYSTEM v3.0
-     * Professional eCommerce Engine
-     */
-
-    const DATABASE = {
+    /* --- CONFIGURACIÓN DE BASE DE DATOS --- */
+    const DB = {
         categories: [
-            { id: 'items', name: 'Items(DH)', img: 'https://i.postimg.cc/q7fW3G8B/items-dh.png', range: '$0.10 - $6.99', count: 11 },
-            { id: 'account', name: 'Account(DH)', img: 'https://i.postimg.cc/W3zD8z8Z/account-dh.png', range: '$4.99', count: 2 },
-            { id: 'farm', name: 'Farm(DH)', img: 'https://i.postimg.cc/9F4P5p2h/farm-dh.png', range: '$2.99', count: 1 },
-            { id: 'yen', name: 'Yen(DH)', img: 'https://i.postimg.cc/8P2zG8p5/yen-dh.png', range: '$2.99 - $4.99', count: 2 }
+            { id: 'items', name: 'Items(DH)', img: 'https://i.postimg.cc/q7fW3G8B/items-dh.png', range: [0.10, 6.99], count: 11 },
+            { id: 'account', name: 'Account(DH)', img: 'https://i.postimg.cc/W3zD8z8Z/account-dh.png', range: [4.99, 4.99], count: 2 },
+            { id: 'farm', name: 'Farm(DH)', img: 'https://i.postimg.cc/9F4P5p2h/farm-dh.png', range: [2.99, 2.99], count: 1 },
+            { id: 'yen', name: 'Yen(DH)', img: 'https://i.postimg.cc/8P2zG8p5/yen-dh.png', range: [2.99, 4.99], count: 2 }
         ],
         products: {
             items: [
-                { id: 1, name: "Katana Frags", price: 1.99, stock: "6 In Stock", img: "https://i.postimg.cc/q7fW3G8B/items-dh.png" },
-                { id: 2, name: "Undead Sickles", price: 2.49, stock: "Out of Stock", img: "https://i.postimg.cc/q7fW3G8B/items-dh.png" },
-                { id: 3, name: "Common Flesh", price: 0.10, stock: "15 In Stock", img: "https://i.postimg.cc/q7fW3G8B/items-dh.png" }
+                { id: 101, name: "Katana Frags", price: 1.99, stock: 6, img: "https://i.postimg.cc/q7fW3G8B/items-dh.png" },
+                { id: 102, name: "Common Flesh", price: 0.10, stock: 50, img: "https://i.postimg.cc/q7fW3G8B/items-dh.png" },
+                { id: 103, name: "Undead Sickles", price: 2.49, stock: 0, img: "https://i.postimg.cc/q7fW3G8B/items-dh.png" }
             ],
             account: [
-                { id: 4, name: "Max Account", price: 4.99, stock: "In Stock", img: "https://i.postimg.cc/W3zD8z8Z/account-dh.png" },
-                { id: 5, name: "Weapon Mastery", price: 4.99, stock: "In Stock", img: "https://i.postimg.cc/W3zD8z8Z/account-dh.png" }
+                { id: 201, name: "Starter Account", price: 4.99, stock: 2, img: "https://i.postimg.cc/W3zD8z8Z/account-dh.png" }
             ],
             farm: [
-                { id: 6, name: "Full Leveling Farm", price: 2.99, stock: "Available", img: "https://i.postimg.cc/9F4P5p2h/farm-dh.png" }
+                { id: 301, name: "Leveling Boost", price: 2.99, stock: 1, img: "https://i.postimg.cc/9F4P5p2h/farm-dh.png" }
             ],
             yen: [
-                { id: 7, name: "500K YEN Pack", price: 2.99, stock: "In Stock", img: "https://i.postimg.cc/8P2zG8p5/yen-dh.png" },
-                { id: 8, name: "1M YEN Pack", price: 4.99, stock: "In Stock", img: "https://i.postimg.cc/8P2zG8p5/yen-dh.png" }
+                { id: 401, name: "500K Yen Pack", price: 2.99, stock: 10, img: "https://i.postimg.cc/8P2zG8p5/yen-dh.png" },
+                { id: 402, name: "1M Yen Pack", price: 4.99, stock: 5, img: "https://i.postimg.cc/8P2zG8p5/yen-dh.png" }
             ]
         }
     };
 
-    let cart = JSON.parse(localStorage.getItem('crud3_cart')) || [];
-    let state = {
-        currency: 'USD',
+    let cart = [];
+    let config = {
         rate: 1,
         symbol: '$',
-        currentProd: null
+        currency: 'USD'
     };
 
-    // --- NAVIGATION ENGINE ---
-    function nav(viewId) {
-        document.querySelectorAll('.view').forEach(v => v.classList.add('hidden'));
+    /* --- MOTOR DE NAVEGACIÓN --- */
+    function showView(viewId) {
+        document.querySelectorAll('.view-section').forEach(s => s.classList.add('hidden'));
         document.getElementById(`view-${viewId}`).classList.remove('hidden');
         
-        document.querySelectorAll('.nav-link').forEach(l => {
-            l.classList.remove('nav-active');
-            if(l.textContent.toLowerCase() === viewId) l.classList.add('nav-active');
-        });
-
-        if(viewId === 'products') initProducts();
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+        document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active-link'));
+        if(event) event.target.classList.add('active-link');
+        
+        if(viewId === 'products') renderCategories();
+        window.scrollTo(0, 0);
     }
 
-    // --- PRODUCT ENGINE ---
-    function initProducts() {
-        const grid = document.getElementById('category-grid');
-        grid.innerHTML = DATABASE.categories.map(cat => `
-            <div class="cat-card p-6 rounded-3xl" onclick="openCategory('${cat.id}')">
-                <div class="relative mb-6 overflow-hidden rounded-2xl h-48 bg-black">
-                    <img src="${cat.img}" class="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition duration-500">
+    /* --- MOTOR DE PRECIOS --- */
+    function updateCurrency(label, rate, symbol) {
+        config.rate = rate;
+        config.symbol = symbol;
+        config.currency = label;
+        document.getElementById('current-currency-label').innerText = `${symbol} ${label}`;
+        renderCategories();
+        updateCartUI();
+    }
+
+    /* --- RENDERIZADO DE TIENDA --- */
+    function renderCategories() {
+        const container = document.getElementById('category-container');
+        container.innerHTML = DB.categories.map(cat => {
+            const min = (cat.range[0] * config.rate).toFixed(2);
+            const max = (cat.range[1] * config.rate).toFixed(2);
+            const priceText = cat.range[0] === cat.range[1] ? `${config.symbol}${min}` : `${config.symbol}${min} - ${config.symbol}${max}`;
+            
+            return `
+                <div class="crude-card p-6 flex flex-col items-center group" onclick="openCategory('${cat.id}')">
+                    <img src="${cat.img}" class="w-full h-40 object-cover rounded-xl mb-6 grayscale group-hover:grayscale-0 transition duration-500">
+                    <h3 class="text-lg font-black italic uppercase mb-2 tracking-tighter">${cat.name}</h3>
+                    <div class="flex justify-between w-full items-center">
+                        <span class="text-red-600 font-bold text-sm">${priceText}</span>
+                        <span class="text-zinc-600 text-[10px] font-black uppercase">${cat.count} Products</span>
+                    </div>
+                    <button class="w-full mt-6 py-3 border border-red-600/20 rounded-xl text-[10px] font-black uppercase group-hover:bg-red-600 group-hover:text-white transition">View Details →</button>
                 </div>
-                <h3 class="font-black text-xl italic mb-1 uppercase tracking-tighter">${cat.name}</h3>
-                <div class="flex justify-between items-center">
-                    <span class="text-red-500 font-black text-sm">${cat.range}</span>
-                    <span class="text-zinc-600 text-[10px] font-bold uppercase tracking-widest">${cat.count} Items</span>
-                </div>
-                <button class="w-full mt-6 py-3 border border-white/5 rounded-xl font-black text-[10px] tracking-widest uppercase hover:bg-red-600 hover:text-white transition-all duration-300">Browse Category</button>
-            </div>
-        `).join('');
+            `;
+        }).join('');
     }
 
     function openCategory(catId) {
-        const cat = DATABASE.categories.find(c => c.id === catId);
-        const products = DATABASE.products[catId];
+        const cat = DB.categories.find(c => c.id === catId);
+        const prods = DB.products[catId];
+        document.getElementById('cat-modal-title').innerText = cat.name;
         
-        document.getElementById('cat-title').innerText = cat.name;
-        document.getElementById('cat-grid').innerHTML = products.map(p => `
-            <div class="cat-card p-4 rounded-2xl" onclick="viewProduct('${catId}', ${p.id})">
-                <img src="${p.img}" class="w-full h-40 object-cover rounded-xl mb-4">
-                <p class="font-black text-center mb-4 uppercase text-xs tracking-tighter">${p.name}</p>
-                <div class="flex justify-between items-center font-black">
-                    <span class="text-red-600">${state.symbol}${(p.price * state.rate).toFixed(2)}</span>
-                    <span class="text-[10px] text-zinc-600 uppercase">${p.stock}</span>
+        document.getElementById('product-list').innerHTML = prods.map(p => `
+            <div class="bg-white/5 border border-white/5 p-4 rounded-2xl flex flex-col items-center">
+                <img src="${p.img}" class="w-full h-32 object-cover rounded-lg mb-4">
+                <h4 class="font-bold text-sm mb-4">${p.name}</h4>
+                <div class="flex justify-between w-full items-center mb-4">
+                    <span class="text-red-600 font-black">${config.symbol}${(p.price * config.rate).toFixed(2)}</span>
+                    <span class="text-[10px] font-bold ${p.stock > 0 ? 'text-green-500' : 'text-red-500'}">${p.stock > 0 ? 'In Stock' : 'Out of Stock'}</span>
                 </div>
+                <button onclick="addToCart(${p.id}, '${catId}')" ${p.stock === 0 ? 'disabled' : ''} class="w-full py-2 bg-white/5 rounded-lg text-[10px] font-black uppercase hover:bg-red-600 transition disabled:opacity-30">Add to Cart</button>
             </div>
         `).join('');
         
-        showModal('modal-category');
+        openModal('modal-category');
     }
 
-    function viewProduct(catId, prodId) {
-        const prod = DATABASE.products[catId].find(p => p.id === prodId);
-        state.currentProd = prod;
-        
-        document.getElementById('detail-name').innerText = prod.name;
-        document.getElementById('detail-img').src = prod.img;
-        document.getElementById('detail-price').innerText = state.symbol + (prod.price * state.rate).toFixed(2);
-        document.getElementById('detail-stock-badge').innerText = prod.stock;
-        document.getElementById('prod-qty').value = 1;
-
-        showModal('modal-detail');
+    /* --- SISTEMA DE CARRITO --- */
+    function addToCart(id, catId) {
+        const prod = DB.products[catId].find(p => p.id === id);
+        cart.push({...prod});
+        updateCartUI();
+        notify(`Added ${prod.name} to cart`);
     }
 
-    // --- CART SYSTEM ---
-    function addToCart() {
-        const qty = parseInt(document.getElementById('prod-qty').value);
-        if(qty < 1) return;
-
-        const existing = cart.find(item => item.id === state.currentProd.id);
-        if(existing) {
-            existing.qty += qty;
-        } else {
-            cart.push({ ...state.currentProd, qty: qty });
-        }
-
-        saveCart();
-        renderCart();
-        closeAll();
-        notify(`Added ${state.currentProd.name} to cart!`);
-    }
-
-    function renderCart() {
-        const container = document.getElementById('cart-items');
-        let subtotal = 0;
-
-        container.innerHTML = cart.map((item, idx) => {
-            const linePrice = item.price * state.rate * item.qty;
-            subtotal += linePrice;
-            return `
-                <div class="flex gap-4 group">
-                    <img src="${item.img}" class="w-16 h-16 rounded-xl border border-white/5 object-cover">
-                    <div class="flex-1">
-                        <div class="flex justify-between">
-                            <h4 class="font-black text-sm uppercase italic">${item.name}</h4>
-                            <i onclick="removeFromCart(${idx})" class="fa-solid fa-trash-can text-zinc-700 hover:text-red-600 cursor-pointer transition text-xs"></i>
-                        </div>
-                        <p class="text-[10px] text-zinc-500 font-bold uppercase mt-1">Qty: ${item.qty} × ${state.symbol}${(item.price * state.rate).toFixed(2)}</p>
-                        <p class="text-sm font-black text-red-600 mt-2">${state.symbol}${linePrice.toFixed(2)}</p>
-                    </div>
-                </div>
-            `;
-        }).join('');
-
-        const total = subtotal;
-        document.getElementById('cart-subtotal').innerText = state.symbol + subtotal.toFixed(2);
-        document.getElementById('cart-total').innerText = state.symbol + total.toFixed(2);
-        document.getElementById('cart-count').innerText = cart.reduce((a, b) => a + b.qty, 0);
-    }
-
-    function removeFromCart(idx) {
-        cart.splice(idx, 1);
-        saveCart();
-        renderCart();
-    }
-
-    function toggleCart() {
-        document.getElementById('cart-sidebar').classList.toggle('open');
-    }
-
-    function saveCart() {
-        localStorage.setItem('crud3_cart', JSON.stringify(cart));
-    }
-
-    // --- CHECKOUT LOGIC ---
-    function startCheckout() {
-        if(cart.length === 0) return notify("Your cart is empty!", "error");
-        
-        toggleCart();
-        const list = document.getElementById('checkout-list');
+    function updateCartUI() {
+        document.getElementById('cart-counter').innerText = cart.length;
+        // Resumen del checkout sidebar/modal
         let total = 0;
-
-        list.innerHTML = cart.map(item => {
-            const line = item.price * state.rate * item.qty;
-            total += line;
-            return `
-                <div class="flex justify-between items-center bg-white/5 p-4 rounded-2xl border border-white/5">
-                    <div class="flex gap-4 items-center">
-                        <img src="${item.img}" class="w-10 h-10 rounded-lg">
-                        <div>
-                            <p class="font-black text-xs uppercase">${item.name}</p>
-                            <p class="text-[10px] text-zinc-500 font-bold">Quantity: ${item.qty}</p>
+        const container = document.getElementById('checkout-items');
+        if(container) {
+            container.innerHTML = cart.map((item, idx) => {
+                let p = item.price * config.rate;
+                total += p;
+                return `
+                    <div class="flex justify-between items-center text-sm">
+                        <div class="flex items-center gap-3">
+                            <img src="${item.img}" class="w-8 h-8 rounded">
+                            <span class="font-bold">${item.name}</span>
                         </div>
+                        <span class="text-zinc-500">${config.symbol}${p.toFixed(2)}</span>
                     </div>
-                    <p class="font-black text-red-600 text-sm">${state.symbol}${line.toFixed(2)}</p>
-                </div>
-            `;
-        }).join('');
+                `;
+            }).join('');
+            document.getElementById('check-sub').innerText = config.symbol + total.toFixed(2);
+            document.getElementById('check-total').innerText = config.symbol + total.toFixed(2);
+            document.getElementById('hidden-order-data').value = cart.map(i => i.name).join(', ') + " | TOTAL: " + config.symbol + total.toFixed(2);
+        }
+    }
 
-        document.getElementById('check-sub').innerText = state.symbol + total.toFixed(2);
-        document.getElementById('check-total').innerText = state.symbol + total.toFixed(2);
+    /* --- LÓGICA DE PASOS --- */
+    function goToStep(step) {
+        document.getElementById('step-1-content').classList.add('hidden');
+        document.getElementById('step-2-content').classList.add('hidden');
+        document.getElementById(`step-${step}-content`).classList.remove('hidden');
         
-        // Data for FormSubmit
-        const details = cart.map(i => `${i.name} (x${i.qty}) - ${state.symbol}${(i.price * i.qty * state.rate).toFixed(2)}`).join('\n');
-        document.getElementById('form-data-input').value = `ORDER DETAILS:\n${details}\n\nTOTAL: ${state.symbol}${total.toFixed(2)}`;
-        
-        showModal('modal-checkout');
+        document.querySelectorAll('.step-circle').forEach(c => c.classList.remove('step-active'));
+        document.getElementById(`step-${step}-cir`).classList.add('step-active');
     }
 
-    // --- CURRENCY & HELPERS ---
-    function setCurrency(curr) {
-        state.currency = curr;
-        state.rate = curr === 'EUR' ? 0.92 : 1;
-        state.symbol = curr === 'EUR' ? '€' : '$';
-        
-        document.querySelectorAll('.curr-btn').forEach(btn => {
-            btn.classList.replace('bg-red-600', 'text-zinc-500');
-            btn.classList.remove('text-white');
-            if(btn.textContent === curr) {
-                btn.classList.replace('text-zinc-500', 'bg-red-600');
-                btn.classList.add('text-white');
-            }
-        });
-
-        renderCart();
-        if(!document.getElementById('view-products').classList.contains('hidden')) initProducts();
+    /* --- UTILS --- */
+    function openModal(id) { document.getElementById(id).classList.add('active'); }
+    function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+    function notify(msg) {
+        const n = document.createElement('div');
+        n.className = "fixed bottom-5 right-5 bg-red-600 text-white px-6 py-3 rounded-xl font-black text-xs z-[2000] animate-bounce";
+        n.innerText = msg;
+        document.body.appendChild(n);
+        setTimeout(() => n.remove(), 3000);
     }
 
-    function changeQty(v) {
-        let input = document.getElementById('prod-qty');
-        let newVal = parseInt(input.value) + v;
-        if(newVal >= 1) input.value = newVal;
-    }
-
-    function showModal(id) {
-        document.getElementById(id).style.display = 'block';
-        document.body.style.overflow = 'hidden';
-    }
-
-    function closeAll() {
-        document.querySelectorAll('.modal-overlay').forEach(m => m.style.display = 'none');
-        document.body.style.overflow = 'auto';
-    }
-
-    function notify(text) {
-        const host = document.getElementById('notification-host');
-        const toast = document.createElement('div');
-        toast.className = 'toast font-black text-xs uppercase italic';
-        toast.innerHTML = `<i class="fa-solid fa-circle-check mr-2 text-red-600"></i> ${text}`;
-        host.appendChild(toast);
-        setTimeout(() => toast.remove(), 3000);
-    }
-
-    // --- CANVAS PARTICLES ENGINE ---
+    /* --- BACKGROUND CANVAS --- */
     const canvas = document.getElementById('canvas');
     const ctx = canvas.getContext('2d');
-    let pts = [];
-
-    function resize() {
+    let dots = [];
+    function initCanvas() {
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
-    }
-
-    function initCanvas() {
-        resize();
-        window.onresize = resize;
-        for(let i=0; i<80; i++) {
-            pts.push({
-                x: Math.random() * canvas.width,
-                y: Math.random() * canvas.height,
-                vx: (Math.random() - 0.5) * 0.4,
-                vy: (Math.random() - 0.5) * 0.4,
-                size: Math.random() * 2
-            });
-        }
+        for(let i=0; i<60; i++) dots.push({ x: Math.random()*canvas.width, y: Math.random()*canvas.height, vx: (Math.random()-0.5)*0.5, vy: (Math.random()-0.5)*0.5 });
         animate();
     }
-
     function animate() {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        ctx.fillStyle = "rgba(255, 0, 0, 0.3)";
-        ctx.strokeStyle = "rgba(255, 0, 0, 0.05)";
-        
-        pts.forEach(p => {
-            p.x += p.vx;
-            p.y += p.vy;
-            if(p.x < 0 || p.x > canvas.width) p.vx *= -1;
-            if(p.y < 0 || p.y > canvas.height) p.vy *= -1;
-            
-            ctx.beginPath();
-            ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-            ctx.fill();
-
-            pts.forEach(p2 => {
-                let d = Math.hypot(p.x - p2.x, p.y - p2.y);
-                if(d < 120) {
-                    ctx.beginPath();
-                    ctx.moveTo(p.x, p.y);
-                    ctx.lineTo(p2.x, p2.y);
-                    ctx.stroke();
-                }
+        ctx.clearRect(0,0,canvas.width, canvas.height);
+        ctx.strokeStyle = "rgba(255, 0, 0, 0.08)";
+        dots.forEach(d => {
+            d.x += d.vx; d.y += d.vy;
+            if(d.x<0 || d.x>canvas.width) d.vx *= -1;
+            if(d.y<0 || d.y>canvas.height) d.vy *= -1;
+            dots.forEach(d2 => {
+                let dist = Math.hypot(d.x-d2.x, d.y-d2.y);
+                if(dist < 150) { ctx.beginPath(); ctx.moveTo(d.x, d.y); ctx.lineTo(d2.x, d2.y); ctx.stroke(); }
             });
         });
         requestAnimationFrame(animate);
     }
-
-    // START
     initCanvas();
-    renderCart();
 </script>
 
 </body>
