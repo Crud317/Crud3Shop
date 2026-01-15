@@ -7,7 +7,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
     
-    <script src="https://www.paypal.com/sdk/js?client-id=test&currency=USD&disable-funding=credit,card"></script>
+    <script src="https://www.paypal.com/sdk/js?client-id=test&currency=USD&components=buttons"></script>
 
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
@@ -17,7 +17,7 @@
             --sidebar: #090909;
             --card: #0d0d0d;
             --border: #1a1a1a;
-            --accent: #e11d48; /* Rojo exacto de Rifts/SellAuth */
+            --accent: #e11d48;
             --text-muted: #71717a;
         }
 
@@ -29,7 +29,6 @@
             display: flex;
         }
 
-        /* SIDEBAR (Idéntica a Rifts) */
         .sidebar {
             width: 280px;
             height: 100vh;
@@ -62,7 +61,6 @@
 
         .nav-link i { width: 24px; font-size: 16px; }
 
-        /* MAIN CONTENT AREA */
         .main-content {
             margin-left: 280px;
             width: calc(100% - 280px);
@@ -97,7 +95,6 @@
 
         .search-input:focus { border-color: var(--accent); }
 
-        /* PRODUCT CARDS (Estilo SellAuth) */
         .product-card {
             background: var(--card);
             border: 1px solid var(--border);
@@ -136,7 +133,6 @@
             border: 1px solid rgba(225, 29, 72, 0.2);
         }
 
-        /* MODAL DE PAGO PROFESIONAL */
         .modal-overlay {
             display: none;
             position: fixed;
@@ -171,154 +167,3 @@
 
     <aside class="sidebar">
         <div class="mb-10 px-4">
-            <h1 class="text-xl font-extrabold tracking-tighter italic uppercase flex items-center gap-2">
-                <div class="w-8 h-8 bg-rose-600 rounded-lg flex items-center justify-center font-bold text-white shadow-lg shadow-rose-600/20 italic">C</div>
-                CRUD3 <span class="text-rose-600">SHOP</span>
-            </h1>
-        </div>
-
-        <nav class="flex-1">
-            <p class="text-[11px] font-bold text-zinc-600 uppercase tracking-widest mb-4 px-4">Marketplace</p>
-            <div class="nav-link active" onclick="filterCat('all')"><i class="fa-solid fa-grid-2"></i> All Products</div>
-            <div class="nav-link" onclick="filterCat('swords')"><i class="fa-solid fa-khanda"></i> Swords</div>
-            <div class="nav-link" onclick="filterCat('accounts')"><i class="fa-solid fa-shield-halved"></i> Accounts</div>
-            <div class="nav-link" onclick="filterCat('yens')"><i class="fa-solid fa-coins"></i> Yens & Farm</div>
-        </nav>
-
-        <div class="mt-auto pt-6 border-t border-white/5">
-            <a href="https://discord.gg/wxCNQCNn" target="_blank" class="nav-link text-rose-500 bg-rose-500/5">
-                <i class="fa-brands fa-discord"></i> Discord Support
-            </a>
-        </div>
-    </aside>
-
-    <main class="main-content">
-        <header class="top-bar">
-            <div class="relative w-full">
-                <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500"></i>
-                <input type="text" id="search" placeholder="Search for a product..." class="search-input pl-12" oninput="doSearch()">
-            </div>
-        </header>
-
-        <div class="p-10">
-            <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6" id="product-grid">
-                
-                <div class="product-card item" data-cat="swords" onclick="openPay('Epic Devil Blade', 15.00, 'https://tr.rbxcdn.com/180da92042296d04254479e0a022989b/420/420/Image/Png')">
-                    <div class="image-box"><img src="https://tr.rbxcdn.com/180da92042296d04254479e0a022989b/420/420/Image/Png" class="w-2/3"></div>
-                    <div class="p-5">
-                        <div class="flex justify-between items-center mb-3">
-                            <span class="stock-badge">12 In Stock</span>
-                            <span class="text-zinc-600 text-[10px] font-bold">#S001</span>
-                        </div>
-                        <h3 class="font-bold text-sm text-zinc-100 uppercase title">Epic Devil Blade</h3>
-                        <p class="text-rose-600 font-extrabold text-2xl mt-4">$15.00</p>
-                    </div>
-                </div>
-
-                <div class="product-card item" data-cat="accounts" onclick="openPay('Max Level Account', 55.00, 'https://tr.rbxcdn.com/3931657805626a575083759367123984/420/420/Image/Png')">
-                    <div class="image-box"><i class="fa-solid fa-user-secret text-6xl text-rose-950/40"></i></div>
-                    <div class="p-5">
-                        <div class="flex justify-between items-center mb-3">
-                            <span class="stock-badge">Automatic Delivery</span>
-                            <span class="text-zinc-600 text-[10px] font-bold">#A001</span>
-                        </div>
-                        <h3 class="font-bold text-sm text-zinc-100 uppercase title">Max Level Account</h3>
-                        <p class="text-rose-600 font-extrabold text-2xl mt-4">$55.00</p>
-                    </div>
-                </div>
-
-                <div class="product-card item" data-cat="yens" onclick="openPay('50M Yens Pack', 12.99, 'https://tr.rbxcdn.com/027376045622089228929283742/420/420/Image/Png')">
-                    <div class="image-box"><i class="fa-solid fa-coins text-6xl text-rose-950/40"></i></div>
-                    <div class="p-5">
-                        <div class="flex justify-between items-center mb-3">
-                            <span class="stock-badge">Instant</span>
-                            <span class="text-zinc-600 text-[10px] font-bold">#Y001</span>
-                        </div>
-                        <h3 class="font-bold text-sm text-zinc-100 uppercase title">50 Million Yens</h3>
-                        <p class="text-rose-600 font-extrabold text-2xl mt-4">$12.99</p>
-                    </div>
-                </div>
-
-            </div>
-        </div>
-    </main>
-
-    <div id="modal" class="modal-overlay" onclick="if(event.target==this) closePay()">
-        <div class="modal-content">
-            <div class="flex justify-between items-start mb-8">
-                <div>
-                    <h2 id="m-name" class="text-xl font-extrabold tracking-tight">Product Name</h2>
-                    <p id="m-price" class="text-rose-500 font-bold text-lg">$0.00 USD</p>
-                </div>
-                <button onclick="closePay()" class="text-zinc-600 hover:text-white transition"><i class="fa-solid fa-xmark text-xl"></i></button>
-            </div>
-
-            <div class="space-y-4">
-                <div class="bg-zinc-900/40 p-5 rounded-2xl border border-white/5">
-                    <label class="text-[10px] font-black text-zinc-500 uppercase block mb-3 tracking-widest">Delivery Details</label>
-                    <input type="text" id="rbx-user" placeholder="Roblox Username" class="w-full bg-black border border-white/10 p-3.5 rounded-xl text-sm outline-none focus:border-rose-600 transition text-white">
-                </div>
-                
-                <div id="paypal-container" class="mt-4"></div>
-            </div>
-            
-            <p class="text-center text-zinc-600 text-[9px] mt-8 uppercase font-bold tracking-[3px]">Secure Payment Via PayPal</p>
-        </div>
-    </div>
-
-    <script>
-        let selectedItem = { name: "", price: 0 };
-
-        // Función de Búsqueda
-        function doSearch() {
-            const query = document.getElementById('search').value.toLowerCase();
-            document.querySelectorAll('.item').forEach(card => {
-                const title = card.querySelector('.title').innerText.toLowerCase();
-                card.style.display = title.includes(query) ? 'flex' : 'none';
-            });
-        }
-
-        // Filtro por Categoría
-        function filterCat(cat) {
-            document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
-            event.currentTarget.classList.add('active');
-            document.querySelectorAll('.item').forEach(card => {
-                card.style.display = (cat === 'all' || card.dataset.cat === cat) ? 'flex' : 'none';
-            });
-        }
-
-        // Abrir Pago
-        function openPay(name, price, img) {
-            selectedItem = { name, price };
-            document.getElementById('m-name').innerText = name;
-            document.getElementById('m-price').innerText = `$${price.toFixed(2)} USD`;
-            document.getElementById('modal').style.display = 'flex';
-            
-            // Renderizar botones de PayPal dinámicamente
-            document.getElementById('paypal-container').innerHTML = '';
-            paypal.Buttons({
-                style: { layout: 'vertical', color: 'blue', shape: 'rect' },
-                createOrder: (data, actions) => {
-                    const user = document.getElementById('rbx-user').value || "No User Provided";
-                    return actions.order.create({
-                        purchase_units: [{
-                            description: `${selectedItem.name} | User: ${user}`,
-                            amount: { value: selectedItem.price.toString() }
-                        }]
-                    });
-                },
-                onApprove: (data, actions) => {
-                    return actions.order.capture().then(() => {
-                        alert('¡Pago Completado! Únete al Discord para recibir tu ítem.');
-                        window.location.href = "https://discord.gg/wxCNQCNn";
-                    });
-                }
-            }).render('#paypal-container');
-        }
-
-        function closePay() {
-            document.getElementById('modal').style.display = 'none';
-        }
-    </script>
-</body>
-</html>
