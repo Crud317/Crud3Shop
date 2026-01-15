@@ -3,124 +3,157 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CRUD3 SHOP | Devil Hunter</title>
+    <title>CRUD3 SHOP | DEVIL HUNTER EDITION</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    
+    <script src="https://www.paypal.com/sdk/js?client-id=test&currency=USD"></script>
+
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap');
-        
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
         body { background-color: #050505; color: #ffffff; font-family: 'Inter', sans-serif; overflow-x: hidden; }
-
-        /* Navbar */
-        .navbar { background: rgba(10, 10, 10, 0.8); backdrop-filter: blur(10px); border-bottom: 1px solid #221111; }
-
-        /* Tarjetas de Producto */
-        .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 24px; }
         
-        .product-card {
-            background: #0a0a0a;
-            border: 1px solid #1f1111;
-            border-radius: 12px;
-            transition: all 0.3s ease;
-            cursor: pointer;
-            overflow: hidden;
+        .product-card { 
+            background: #0a0a0a; border: 1px solid #1f1111; border-radius: 15px; 
+            transition: 0.3s; cursor: pointer; position: relative; overflow: hidden;
         }
-        .product-card:hover {
-            border-color: #dc2626;
-            transform: translateY(-5px);
-            box-shadow: 0 10px 30px -10px rgba(220, 38, 38, 0.3);
-        }
+        .product-card:hover { border-color: #dc2626; transform: translateY(-5px); box-shadow: 0 10px 30px rgba(220, 38, 38, 0.3); }
 
-        /* Ventana Modal (Igual a Rifts) */
-        .modal-overlay {
-            display: none;
-            position: fixed;
-            inset: 0;
-            background: rgba(0, 0, 0, 0.8);
-            backdrop-filter: blur(5px);
-            z-index: 1000;
-            align-items: center;
-            justify-content: center;
+        .modal-overlay { 
+            display: none; position: fixed; inset: 0; background: rgba(0, 0, 0, 0.9); 
+            z-index: 1000; align-items: center; justify-content: center; backdrop-filter: blur(10px); 
         }
-
-        .modal-content {
-            background: #0d0d0d;
-            border: 1px solid #2d1111;
-            width: 90%;
-            max-width: 500px;
-            border-radius: 20px;
-            padding: 32px;
-            position: relative;
-            animation: modalFadeIn 0.3s ease-out;
+        .modal-content { 
+            background: #0d0d0d; border: 1px solid #2d1111; width: 95%; max-width: 480px; 
+            border-radius: 25px; padding: 30px; position: relative; animation: zoomIn 0.2s ease-out;
         }
+        @keyframes zoomIn { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
 
-        @keyframes modalFadeIn {
-            from { transform: scale(0.9); opacity: 0; }
-            to { transform: scale(1); opacity: 1; }
-        }
-
-        .input-dark {
-            background: #000;
-            border: 1px solid #331111;
-            color: white;
-            width: 100%;
-            padding: 12px 16px;
-            border-radius: 10px;
-            outline: none;
-            transition: 0.2s;
+        .input-dark { 
+            background: #000; border: 1px solid #331111; color: white; width: 100%; 
+            padding: 15px; border-radius: 12px; outline: none; transition: 0.2s;
         }
         .input-dark:focus { border-color: #dc2626; box-shadow: 0 0 10px rgba(220, 38, 38, 0.2); }
-
-        .btn-red {
-            background: #dc2626;
-            color: white;
-            font-weight: 800;
-            width: 100%;
-            padding: 14px;
-            border-radius: 10px;
-            text-transform: uppercase;
-            transition: 0.3s;
-        }
-        .btn-red:hover { background: #ff1a1a; transform: scale(1.02); }
+        
+        /* Ocultar botones de PayPal hasta que pongan el usuario */
+        #paypal-button-container { display: none; margin-top: 20px; }
     </style>
 </head>
 <body>
 
-    <nav class="navbar sticky top-0 z-50 px-6 py-4">
-        <div class="max-w-7xl mx-auto flex justify-between items-center">
-            <div class="flex items-center gap-2">
-                <div class="w-10 h-10 bg-red-600 rounded-full flex items-center justify-center shadow-[0_0_15px_rgba(220,38,38,0.5)]">
-                    <i class="fa-solid fa-skull text-white"></i>
-                </div>
-                <span class="text-xl font-black tracking-tighter italic uppercase">CRUD3 <span class="text-red-600">SHOP</span></span>
-            </div>
-            <a href="https://discord.gg/wxCNQCNn" target="_blank" class="text-gray-400 hover:text-white transition">
-                <i class="fa-brands fa-discord text-2xl"></i>
-            </a>
+    <nav class="p-6 border-b border-red-900/20 flex justify-between items-center bg-black/50 sticky top-0 z-50">
+        <span class="text-2xl font-black italic tracking-tighter uppercase">CRUD3 <span class="text-red-600">SHOP</span></span>
+        <div class="flex items-center gap-4">
+            <a href="https://discord.gg/wxCNQCNn" target="_blank" class="bg-red-600 hover:bg-red-700 px-5 py-2 rounded-full font-bold text-sm transition">DISCORD</a>
         </div>
     </nav>
 
-    <header class="max-w-7xl mx-auto px-6 py-16 text-center">
-        <h1 class="text-5xl font-black mb-4 uppercase italic tracking-tighter">Devil <span class="text-red-600">Hunter</span> Items</h1>
-        <p class="text-gray-500 font-medium">Selecciona un producto para ver detalles y comprar.</p>
+    <header class="py-20 text-center">
+        <h1 class="text-6xl font-black italic uppercase text-shadow-glow">Devil <span class="text-red-600">Hunter</span></h1>
+        <p class="text-gray-500 mt-4 font-bold tracking-widest uppercase text-xs">Premium Items Marketplace</p>
     </header>
 
-    <main class="max-w-7xl mx-auto px-6 pb-20">
-        <div class="product-grid">
+    <main class="max-w-6xl mx-auto px-6 pb-20">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
             
             <div class="product-card" onclick="openModal('Epic Devil Blade', '15.00', 'https://img.freepik.com/premium-photo/glowing-red-sword-dark-background_925376-200.jpg')">
-                <img src="https://img.freepik.com/premium-photo/glowing-red-sword-dark-background_925376-200.jpg" class="w-full h-56 object-cover">
-                <div class="p-5">
-                    <div class="flex justify-between items-center mb-2">
-                        <h3 class="font-bold text-lg">Epic Devil Blade</h3>
-                        <span class="text-red-600 font-black">$15.00</span>
+                <img src="https://img.freepik.com/premium-photo/glowing-red-sword-dark-background_925376-200.jpg" class="w-full h-64 object-cover">
+                <div class="p-6">
+                    <h3 class="text-xl font-black uppercase italic">Epic Devil Blade</h3>
+                    <div class="flex justify-between items-center mt-4">
+                        <span class="text-red-600 font-black text-2xl">$15.00</span>
+                        <span class="text-[10px] bg-red-600/10 text-red-500 px-3 py-1 rounded-full border border-red-600/20 font-bold uppercase">In Stock</span>
                     </div>
-                    <p class="text-gray-500 text-xs uppercase font-bold tracking-widest mb-4 italic">Devil Hunter</p>
-                    <button class="w-full bg-white/5 border border-white/10 py-2 rounded-lg text-sm font-bold hover:bg-red-600 hover:border-red-600 transition">Ver Producto</button>
                 </div>
             </div>
 
             </div>
     </main>
 
-    <div id="paymentModal" class="modal-overlay" onclick="closeModalOnOut
+    <div id="paymentModal" class="modal-overlay">
+        <div class="modal-content">
+            <button onclick="closeModal()" class="absolute top-6 right-6 text-gray-500 hover:text-white text-3xl">&times;</button>
+            
+            <div class="text-center mb-6">
+                <img id="mImg" src="" class="w-24 h-24 mx-auto rounded-xl border-2 border-red-600 mb-4 object-cover shadow-lg shadow-red-600/20">
+                <h2 id="mTitle" class="text-2xl font-black text-white italic uppercase"></h2>
+                <p id="mPrice" class="text-red-600 font-bold text-xl"></p>
+            </div>
+
+            <div id="step-1">
+                <label class="text-[10px] font-black text-gray-500 uppercase tracking-widest block mb-2">Paso 1: Tu Usuario de Roblox</label>
+                <input type="text" id="rbxUser" placeholder="Escribe tu @username..." class="input-dark" oninput="togglePayButtons()">
+                <p class="text-[9px] text-gray-500 mt-2 italic">* Necesitamos tu usuario para entregarte el ítem en el juego.</p>
+            </div>
+
+            <div id="paypal-button-container"></div>
+            
+            <div class="mt-6 p-4 bg-red-600/5 border border-red-600/10 rounded-xl text-[10px] text-gray-400">
+                <i class="fa-solid fa-circle-info text-red-600 mr-2"></i>
+                Tras el pago, se abrirá un ticket automáticamente en nuestro Discord.
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentPrice = "0.00";
+        let currentItem = "";
+
+        function openModal(name, price, img) {
+            currentPrice = price;
+            currentItem = name;
+            document.getElementById('mTitle').innerText = name;
+            document.getElementById('mPrice').innerText = "$" + price + " USD";
+            document.getElementById('mImg').src = img;
+            document.getElementById('paymentModal').style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+            
+            // Iniciar botones de PayPal
+            renderPaypalButtons();
+        }
+
+        function closeModal() {
+            document.getElementById('paymentModal').style.display = 'none';
+            document.body.style.overflow = 'auto';
+            document.getElementById('paypal-button-container').innerHTML = ''; // Limpiar para evitar duplicados
+            document.getElementById('paypal-button-container').style.display = 'none';
+            document.getElementById('rbxUser').value = '';
+        }
+
+        function togglePayButtons() {
+            const user = document.getElementById('rbxUser').value.trim();
+            const container = document.getElementById('paypal-button-container');
+            container.style.display = user.length >= 3 ? 'block' : 'none';
+        }
+
+        function renderPaypalButtons() {
+            paypal.Buttons({
+                style: { layout: 'vertical', color: 'blue', shape: 'rect', label: 'pay' },
+                createOrder: function(data, actions) {
+                    return actions.order.create({
+                        purchase_units: [{
+                            description: currentItem + " para el usuario: " + document.getElementById('rbxUser').value,
+                            amount: { value: currentPrice }
+                        }]
+                    });
+                },
+                onApprove: function(data, actions) {
+                    return actions.order.capture().then(function(details) {
+                        alert('¡ÉXITO! Pago de ' + details.payer.name.given_name + ' recibido. Redirigiendo a Discord para entrega...');
+                        window.location.href = "https://discord.gg/wxCNQCNn";
+                    });
+                },
+                onError: function (err) {
+                    console.error('Error en el pago:', err);
+                    alert('Hubo un error con el pago. Inténtalo de nuevo.');
+                }
+            }).render('#paypal-button-container');
+        }
+
+        // Cerrar al hacer clic fuera
+        window.onclick = function(event) {
+            if (event.target == document.getElementById('paymentModal')) closeModal();
+        }
+    </script>
+</body>
+</html>
