@@ -3,64 +3,64 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CRUD3 SHOP | Catálogo Estilo Rifts</title>
+    <title>CRUD3 SHOP | DEVIL HUNTER</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    
     <script src="https://www.paypal.com/sdk/js?client-id=test&currency=USD"></script>
 
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
-        body { background-color: #050505; color: #ffffff; font-family: 'Inter', sans-serif; }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap');
         
-        .product-card { 
-            background: #0a0a0a; border: 1px solid #1f1111; border-radius: 12px; 
-            transition: 0.3s; cursor: pointer; overflow: hidden;
+        body { background-color: #050505; color: #ffffff; font-family: 'Inter', sans-serif; overflow-x: hidden; }
+
+        /* Estilo Rifts: Grid y Tarjetas */
+        .product-grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); 
+            gap: 20px; 
         }
-        .product-card:hover { border-color: #dc2626; transform: translateY(-5px); }
-
-        .modal-overlay { 
-            display: none; position: fixed; inset: 0; background: rgba(0, 0, 0, 0.9); 
-            z-index: 1000; align-items: center; justify-content: center; backdrop-filter: blur(10px); 
+        
+        .product-card {
+            background: #0a0a0a;
+            border: 1px solid #1f1111;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
         }
-        .modal-content { 
-            background: #0d0d0d; border: 1px solid #2d1111; width: 95%; max-width: 480px; 
-            border-radius: 20px; padding: 30px; position: relative;
+
+        .product-card:hover {
+            border-color: #dc2626;
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(220, 38, 38, 0.2);
         }
-        .input-dark { 
-            background: #000; border: 1px solid #331111; color: white; width: 100%; 
-            padding: 12px; border-radius: 10px; outline: none; margin-top: 10px;
+
+        /* Ventana Emergente (Modal) */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.9);
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
         }
-        #paypal-button-container { display: none; margin-top: 20px; }
-    </style>
-</head>
-<body>
 
-    <nav class="p-6 border-b border-red-900/20 flex justify-between items-center bg-black">
-        <span class="text-xl font-black italic uppercase">CRUD3 <span class="text-red-600">SHOP</span></span>
-        <a href="https://discord.gg/wxCNQCNn" target="_blank" class="text-gray-400 hover:text-white"><i class="fa-brands fa-discord text-2xl"></i></a>
-    </nav>
+        .modal-content {
+            background: #0d0d0d;
+            border: 1px solid #2d1111;
+            width: 95%;
+            max-width: 480px;
+            border-radius: 20px;
+            padding: 30px;
+            position: relative;
+            animation: fadeIn 0.2s ease-out;
+        }
 
-    <header class="py-12 text-center">
-        <h1 class="text-4xl font-black uppercase italic">Devil Hunter <span class="text-red-600 text-glow-red">Catalog</span></h1>
-    </header>
-
-    <main class="max-w-6xl mx-auto px-6 pb-20">
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            
-            <div class="product-card" onclick="openModal('Epic Devil Blade', '15.00', 'https://tr.rbxcdn.com/180da92042296d04254479e0a022989b/420/420/Image/Png')">
-                <img src="https://tr.rbxcdn.com/180da92042296d04254479e0a022989b/420/420/Image/Png" class="w-full h-48 object-cover">
-                <div class="p-4">
-                    <h3 class="font-bold text-sm uppercase">Epic Devil Blade</h3>
-                    <p class="text-red-600 font-black mt-2">$15.00 USD</p>
-                </div>
-            </div>
-
-            <div class="product-card" onclick="openModal('Shadow Scythe', '20.00', 'https://tr.rbxcdn.com/f044955b46e39665f8a0a996720f8c85/420/420/Image/Png')">
-                <img src="https://tr.rbxcdn.com/f044955b46e39665f8a0a996720f8c85/420/420/Image/Png" class="w-full h-48 object-cover">
-                <div class="p-4">
-                    <h3 class="font-bold text-sm uppercase">Shadow Scythe</h3>
-                    <p class="text-red-600 font-black mt-2">$20.00 USD</p>
-                </div>
-            </div>
-
-            <div class="product-card" onclick="openModal('Crimson Katana', '12.00', '
+        @keyframes fadeIn {
+            from { transform: scale(0.9); opacity: 0; }
+            to { transform:
