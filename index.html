@@ -3,404 +3,352 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CRUD3 ELITE | Premium Asset Marketplace</title>
+    <title>CRUD3 SHOP | The ONE shop you need</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     
     <script src="https://js.stripe.com/v3/"></script>
     <script src="https://www.paypal.com/sdk/js?client-id=test&currency=USD"></script>
 
     <style>
         :root {
-            --bg: #030303;
-            --accent: #e11d48;
-            --accent-glow: rgba(225, 29, 72, 0.45);
-            --card-bg: rgba(9, 9, 9, 0.75);
-            --border: rgba(255, 255, 255, 0.05);
-            --text-main: #ffffff;
-            --text-dim: #71717a;
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            user-select: none;
+            --bg: #050505;
+            --accent: #5865f2; /* Color azulado estilo Rift */
+            --accent-glow: rgba(88, 101, 242, 0.3);
+            --text-dim: #a1a1aa;
         }
 
         body, html {
             background-color: var(--bg);
-            color: var(--text-main);
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            overflow: hidden;
-            height: 100vh;
-            width: 100vw;
+            color: #fff;
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            overflow-x: hidden;
+            scroll-behavior: smooth;
         }
 
-        /* --- ADVANCED BACKGROUND ENGINE --- */
+        /* --- PARTICLES CANVAS --- */
         #bg-canvas {
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: -2;
+            top: 0; left: 0;
+            z-index: 0;
             pointer-events: none;
         }
 
-        .neon-cloud {
+        /* --- NAVIGATION --- */
+        nav {
+            background: rgba(5, 5, 5, 0.8);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255,255,255,0.05);
             position: fixed;
-            width: 800px;
-            height: 800px;
-            border-radius: 50%;
-            background: radial-gradient(circle, var(--accent-glow) 0%, transparent 70%);
-            filter: blur(140px);
-            z-index: -1;
-            pointer-events: none;
-            opacity: 0.4;
-            animation: cloudFloat 25s infinite alternate ease-in-out;
+            top: 0; width: 100%; z-index: 100;
         }
 
-        @keyframes cloudFloat {
-            0% { transform: translate(-20%, -20%) scale(1); }
-            50% { transform: translate(10%, 5%) scale(1.1); }
-            100% { transform: translate(-5%, 15%) scale(1); }
-        }
-
-        /* --- UI COMPONENTS --- */
-        .glass-panel {
-            background: var(--card-bg);
-            backdrop-filter: blur(25px);
-            border: 1px solid var(--border);
-            transition: all 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
-        }
-
-        .sidebar-item {
-            position: relative;
-            transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        .nav-item {
             color: var(--text-dim);
+            font-size: 14px;
+            font-weight: 500;
+            transition: 0.3s;
             cursor: pointer;
         }
-
-        .sidebar-item:hover {
+        .nav-item:hover, .nav-item.active {
             color: #fff;
-            background: rgba(255, 255, 255, 0.03);
         }
 
-        .sidebar-item.active {
-            color: #fff;
-            background: linear-gradient(90deg, rgba(225, 29, 72, 0.12) 0%, transparent 100%);
-            border-right: 3px solid var(--accent);
-        }
-
-        /* --- VIEW TRANSITIONS --- */
-        .view-section {
-            display: none;
-            opacity: 0;
-            transform: scale(0.98) translateY(20px);
-            transition: all 0.7s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-
-        .view-section.active {
-            display: block;
-            opacity: 1;
-            transform: scale(1) translateY(0);
-        }
-
-        /* --- CUSTOM SCROLLBAR --- */
-        .custom-scroll::-webkit-scrollbar { width: 4px; }
-        .custom-scroll::-webkit-scrollbar-track { background: transparent; }
-        .custom-scroll::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.05); border-radius: 10px; }
-        .custom-scroll::-webkit-scrollbar-thumb:hover { background: var(--accent); }
-
-        /* --- NOTIFICATION (TOAST) --- */
-        #notification-center {
-            position: fixed;
-            bottom: 40px;
-            right: 40px;
-            z-index: 9999;
-        }
-
-        .toast-msg {
-            background: rgba(10, 10, 10, 0.9);
-            border: 1px solid var(--border);
-            border-left: 4px solid var(--accent);
-            padding: 20px 30px;
-            border-radius: 20px;
-            margin-top: 15px;
+        /* --- HERO SECTION --- */
+        .hero {
+            height: 100vh;
             display: flex;
-            align-items: center;
-            gap: 15px;
-            backdrop-filter: blur(20px);
-            box-shadow: 0 15px 45px rgba(0,0,0,0.6);
-            animation: toastIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
-        }
-
-        @keyframes toastIn {
-            from { transform: translateX(120%); opacity: 0; }
-            to { transform: translateX(0); opacity: 1; }
-        }
-
-        /* --- MODAL SYSTEM --- */
-        .modal-wrapper {
-            position: fixed;
-            inset: 0;
-            background: rgba(0,0,0,0.92);
-            backdrop-filter: blur(30px);
-            z-index: 1000;
-            display: none;
-            align-items: center;
+            flex-direction: column;
             justify-content: center;
-            padding: 20px;
+            align-items: center;
+            text-align: center;
+            position: relative;
+            z-index: 1;
+            padding: 0 20px;
         }
 
-        .modal-box {
-            background: #080808;
-            border: 1px solid var(--border);
+        .search-container {
+            position: relative;
             width: 100%;
             max-width: 600px;
-            border-radius: 45px;
-            padding: 50px;
-            position: relative;
-            box-shadow: 0 0 80px rgba(0,0,0,0.8);
+            margin-top: 40px;
         }
 
-        .pay-method-btn {
-            flex: 1;
-            padding: 15px;
-            border-bottom: 2px solid #1a1a1a;
-            color: #444;
-            font-size: 11px;
-            font-weight: 800;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            transition: 0.3s;
-            cursor: pointer;
-            text-align: center;
-        }
-
-        .pay-method-btn.active {
-            color: #fff;
-            border-color: var(--accent);
-            background: rgba(225, 29, 72, 0.03);
-        }
-
-        .stripe-card-element {
+        .search-input {
+            width: 100%;
             background: rgba(255,255,255,0.02);
-            border: 1px solid var(--border);
-            padding: 20px;
-            border-radius: 18px;
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 8px;
+            padding: 16px 20px 16px 50px;
+            color: #fff;
+            font-size: 15px;
+            outline: none;
             transition: 0.3s;
         }
-
-        .stripe-card-element:focus-within {
+        .search-input:focus {
             border-color: var(--accent);
+            background: rgba(255,255,255,0.05);
         }
 
         /* --- BUTTONS --- */
-        .elite-btn {
+        .btn-outline {
+            border: 1px solid var(--accent);
+            padding: 12px 30px;
+            border-radius: 4px;
+            color: #fff;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: 0.3s;
+            margin-top: 30px;
+        }
+        .btn-outline:hover {
             background: var(--accent);
-            color: white;
-            padding: 18px 30px;
-            border-radius: 20px;
-            font-weight: 800;
-            text-transform: uppercase;
-            font-size: 11px;
-            letter-spacing: 2px;
-            transition: 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
-            box-shadow: 0 10px 30px rgba(225, 29, 72, 0.2);
-            cursor: pointer;
+            box-shadow: 0 0 20px var(--accent-glow);
         }
 
-        .elite-btn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 15px 40px rgba(225, 29, 72, 0.4);
-            filter: brightness(1.1);
+        /* --- SECTIONS --- */
+        .page-view {
+            display: none;
+            padding: 120px 10% 80px;
+            position: relative;
+            z-index: 1;
+        }
+        .page-view.active { display: block; animation: fadeIn 0.5s ease forwards; }
+        
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* --- PRODUCT CARDS --- */
+        .card {
+            background: #090909;
+            border: 1px solid rgba(255,255,255,0.05);
+            border-radius: 8px;
+            padding: 30px;
+            transition: 0.3s;
+        }
+        .card:hover {
+            border-color: var(--accent);
+            transform: translateY(-5px);
+        }
+
+        /* --- MODAL --- */
+        .modal {
+            position: fixed; inset: 0;
+            background: rgba(0,0,0,0.9);
+            display: none; align-items: center; justify-content: center;
+            z-index: 1000; padding: 20px;
+        }
+        .modal-content {
+            background: #0c0c0c;
+            width: 100%; max-width: 500px;
+            padding: 40px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1);
         }
     </style>
 </head>
-<body class="flex overflow-hidden">
+<body>
 
     <canvas id="bg-canvas"></canvas>
-    <div class="neon-cloud" style="top: -200px; left: -200px;"></div>
-    <div class="neon-cloud" style="bottom: -200px; right: -200px; animation-delay: -10s;"></div>
 
-    <div id="notification-center"></div>
-
-    <aside class="w-[340px] h-screen bg-[#050505]/80 border-r border-white/5 flex flex-col z-50 backdrop-blur-3xl">
-        <div class="p-12 flex items-center gap-5">
-            <div class="w-14 h-14 bg-rose-600 rounded-[24px] flex items-center justify-center font-black text-3xl italic shadow-2xl shadow-rose-600/40">C</div>
-            <div>
-                <h1 class="text-2xl font-black italic tracking-tighter uppercase leading-none">CRUD3</h1>
-                <span class="text-[9px] font-extrabold text-rose-600 tracking-[5px] uppercase">Elite Marketplace</span>
-            </div>
+    <nav class="h-20 flex items-center justify-between px-10">
+        <div class="flex items-center gap-2">
+            <div class="w-8 h-8 bg-blue-600 rounded flex items-center justify-center font-bold">R</div>
+            <span class="text-xl font-bold tracking-tight">Rift <span class="text-blue-500">Shop</span></span>
+        </div>
+        
+        <div class="flex items-center gap-8">
+            <span onclick="showPage('home')" class="nav-item active">Home</span>
+            <span onclick="showPage('products')" class="nav-item">Products</span>
+            <span onclick="showPage('reviews')" class="nav-item">Reviews</span>
+            <span onclick="showPage('status')" class="nav-item">Status</span>
+            <span onclick="showPage('blog')" class="nav-item">Blog</span>
+            <span class="nav-item">Login</span>
         </div>
 
-        <div class="px-8 flex-1 mt-6 space-y-3">
-            <div onclick="navigate('store')" id="nav-store" class="sidebar-item active p-5 flex items-center gap-5 rounded-[22px]">
-                <i class="fa-solid fa-layer-group text-lg"></i>
-                <span class="font-bold text-xs uppercase tracking-widest">Inventory</span>
-            </div>
-            <div onclick="navigate('reviews')" id="nav-reviews" class="sidebar-item p-5 flex items-center gap-5 rounded-[22px]">
-                <i class="fa-solid fa-star-half-stroke text-lg"></i>
-                <span class="font-bold text-xs uppercase tracking-widest">Reviews</span>
-            </div>
-            <div onclick="navigate('faq')" id="nav-faq" class="sidebar-item p-5 flex items-center gap-5 rounded-[22px]">
-                <i class="fa-solid fa-circle-question text-lg"></i>
-                <span class="font-bold text-xs uppercase tracking-widest">Questions</span>
-            </div>
-            <div onclick="navigate('support')" id="nav-support" class="sidebar-item p-5 flex items-center gap-5 rounded-[22px]">
-                <i class="fa-solid fa-headset text-lg"></i>
-                <span class="font-bold text-xs uppercase tracking-widest">Support</span>
+        <div class="flex items-center gap-4">
+            <div class="flex items-center gap-2 text-zinc-500 font-bold">$ <i class="fa-solid fa-caret-down text-[10px]"></i></div>
+            <div class="w-10 h-10 bg-blue-600/10 border border-blue-600/20 rounded flex items-center justify-center text-blue-500">
+                <i class="fa-solid fa-cart-shopping"></i>
             </div>
         </div>
+    </nav>
 
-        <div class="p-10">
-            <div class="bg-white/5 p-6 rounded-[30px] border border-white/5 mb-6">
-                <p class="text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-2">Need Help?</p>
-                <p class="text-xs text-zinc-400 leading-relaxed mb-4">Our community is live on Discord.</p>
-                <a href="https://discord.gg/wxCNQCNn" target="_blank" class="w-full bg-[#5865f2] py-4 rounded-2xl flex items-center justify-center gap-3 font-black text-[10px] uppercase tracking-widest hover:scale-105 transition">
-                    <i class="fa-brands fa-discord"></i> Connect
-                </a>
-            </div>
+    <section id="view-home" class="page-view active hero">
+        <h1 class="text-6xl font-extrabold mb-4">Welcome to <span class="text-blue-500">Rift Shop!</span></h1>
+        <p class="text-zinc-500 text-lg">The ONE shop you need, best prices worldwide.</p>
+        
+        <div class="search-container">
+            <i class="fa-solid fa-magnifying-glass absolute left-5 top-1/2 -translate-y-1/2 text-zinc-600"></i>
+            <input type="text" id="mainSearch" placeholder="Search for products..." class="search-input">
         </div>
-    </aside>
 
-    <main class="flex-1 flex flex-col relative">
-        <header class="h-32 flex items-center justify-between px-16 z-40">
-            <div class="relative group">
-                <i class="fa-solid fa-magnifying-glass absolute left-6 top-1/2 -translate-y-1/2 text-zinc-600 group-focus-within:text-rose-600 transition"></i>
-                <input type="text" id="storeSearch" oninput="shopEngine.render()" placeholder="Search assets..." class="bg-white/[0.03] border border-white/10 rounded-[24px] py-4 pl-16 pr-10 text-xs focus:border-rose-600 outline-none w-[450px] transition text-white backdrop-blur-xl">
+        <button onclick="showPage('products')" class="btn-outline">
+            View Products <i class="fa-solid fa-cart-shopping"></i>
+        </button>
+    </section>
+
+    <section id="view-products" class="page-view">
+        <h2 class="text-4xl font-bold mb-10 text-center">Our <span class="text-blue-500">Products</span></h2>
+        <div id="product-grid" class="grid grid-cols-1 md:grid-cols-3 gap-6">
             </div>
+    </section>
 
-            <div class="flex items-center gap-10">
-                <div class="hidden xl:flex flex-col items-end">
-                    <span class="text-[9px] font-black text-rose-600 uppercase tracking-[4px] mb-1">Status</span>
-                    <span class="text-xs font-bold text-white flex items-center gap-2">
-                        <span class="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></span>
-                        Operational
-                    </span>
-                </div>
-                <div class="h-14 w-14 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-zinc-400 hover:text-white transition cursor-pointer">
-                    <i class="fa-solid fa-bell"></i>
-                </div>
+    <section id="view-reviews" class="page-view max-w-4xl mx-auto">
+        <h2 class="text-4xl font-bold mb-10 text-center">Customer <span class="text-blue-500">Reviews</span></h2>
+        <div class="card mb-6">
+            <div class="text-yellow-500 mb-2"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></div>
+            <p class="text-zinc-400">"Excellent service, fast delivery and very cheap prices."</p>
+            <p class="mt-4 font-bold text-blue-500">- User123</p>
+        </div>
+    </section>
+
+    <section id="view-status" class="page-view text-center">
+        <h2 class="text-4xl font-bold mb-6">System <span class="text-blue-500">Status</span></h2>
+        <div class="inline-flex items-center gap-3 bg-green-500/10 text-green-500 border border-green-500/20 px-6 py-3 rounded-full">
+            <span class="w-3 h-3 bg-green-500 rounded-full animate-pulse"></span>
+            All systems operational
+        </div>
+    </section>
+
+    <div id="payModal" class="modal">
+        <div class="modal-content">
+            <div class="flex justify-between mb-8">
+                <h3 class="text-2xl font-bold">Checkout</h3>
+                <i onclick="closeModal()" class="fa-solid fa-xmark cursor-pointer text-zinc-500"></i>
             </div>
-        </header>
-
-        <div class="flex-1 overflow-y-auto px-16 pb-24 pt-4 custom-scroll">
             
-            <section id="view-store" class="view-section active">
-                <div class="mb-16">
-                    <h2 class="text-7xl font-black italic uppercase tracking-tighter leading-tight">Master <br><span class="text-rose-600">Marketplace</span></h2>
-                </div>
-                <div id="item-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-10">
-                    </div>
-            </section>
-
-            <section id="view-reviews" class="view-section">
-                <h2 class="text-5xl font-black italic uppercase mb-16">Elite <span class="text-rose-600">Testimonials</span></h2>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                    <div class="glass-panel p-10 rounded-[40px]">
-                        <div class="flex text-rose-600 gap-1 mb-6"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></div>
-                        <p class="text-zinc-400 italic text-sm leading-relaxed mb-8">"Unbelievable speed. I purchased the Dual Katana and it was delivered via bot in less than 30 seconds."</p>
-                        <div class="flex items-center gap-4">
-                            <div class="w-12 h-12 rounded-2xl bg-rose-600/10 flex items-center justify-center text-rose-600 font-black">S</div>
-                            <span class="text-[10px] font-black uppercase tracking-widest text-zinc-300">@Shadow_Roblox</span>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <section id="view-faq" class="view-section max-w-4xl">
-                <h2 class="text-5xl font-black italic uppercase mb-16">Common <span class="text-rose-600">Questions</span></h2>
-                <div class="space-y-6">
-                    <div class="glass-panel p-8 rounded-[30px] border-l-4 border-l-rose-600">
-                        <h4 class="font-black text-sm uppercase mb-3 tracking-widest">How does delivery work?</h4>
-                        <p class="text-zinc-500 text-sm">Our bot automatically detects your payment and opens a private channel on our Discord server to fulfill your order using the Roblox username provided.</p>
-                    </div>
-                </div>
-            </section>
-
-            <section id="view-support" class="view-section text-center pt-20">
-                <div class="w-28 h-28 bg-rose-600/10 rounded-full flex items-center justify-center mx-auto mb-10 text-rose-600 text-5xl border border-rose-600/20 shadow-2xl shadow-rose-600/20">
-                    <i class="fa-solid fa-shield-heart"></i>
-                </div>
-                <h2 class="text-6xl font-black italic uppercase mb-6">Support Center</h2>
-                <p class="text-zinc-500 text-sm max-w-lg mx-auto mb-12">Having trouble with your purchase? Don't worry, our team of administrators is available 24/7 to solve any issue.</p>
-                <a href="https://discord.gg/wxCNQCNn" class="elite-btn inline-block no-underline">Open Support Ticket</a>
-            </section>
-
-        </div>
-    </main>
-
-    <div id="checkoutModal" class="modal-wrapper">
-        <div class="modal-box">
-            <button onclick="closeModal()" class="absolute top-10 right-10 text-zinc-600 hover:text-white transition text-3xl"><i class="fa-solid fa-xmark"></i></button>
-            
-            <h3 class="text-3xl font-black italic uppercase mb-1">Checkout</h3>
-            <p class="text-zinc-600 text-[10px] font-black uppercase tracking-[3px] mb-12">Automated Digital Delivery</p>
-
-            <div class="bg-white/[0.03] p-8 rounded-[35px] border border-white/5 mb-10 flex justify-between items-center">
-                <div class="flex items-center gap-6">
-                    <div class="w-16 h-16 bg-black rounded-3xl flex items-center justify-center border border-white/5 text-rose-600 text-2xl">
-                        <i class="fa-solid fa-box-open"></i>
-                    </div>
-                    <div>
-                        <span id="targetName" class="text-xl font-black italic uppercase tracking-tighter block">Product Name</span>
-                        <span class="text-[9px] font-black text-rose-600 uppercase tracking-widest">Digital Asset</span>
-                    </div>
-                </div>
-                <span id="targetPrice" class="text-4xl font-black italic text-rose-500">$0.00</span>
+            <div class="bg-white/5 p-4 rounded mb-6 flex justify-between">
+                <span id="itemName">Item</span>
+                <span id="itemPrice" class="text-blue-500 font-bold">$0.00</span>
             </div>
 
-            <div class="flex mb-10 border-b border-white/5">
-                <div id="tab-card" onclick="switchMethod('card')" class="pay-method-btn active">Credit Card</div>
-                <div id="tab-paypal" onclick="switchMethod('paypal')" class="pay-method-btn">PayPal</div>
+            <div class="flex gap-4 mb-8">
+                <button onclick="setPay('card')" id="t-card" class="flex-1 py-2 border-b-2 border-blue-500 font-bold text-xs uppercase">Card</button>
+                <button onclick="setPay('paypal')" id="t-paypal" class="flex-1 py-2 border-b-2 border-transparent text-zinc-500 font-bold text-xs uppercase">PayPal</button>
             </div>
 
-            <div id="method-card" class="space-y-8">
-                <div class="space-y-3">
-                    <label class="text-[10px] font-black text-zinc-600 uppercase tracking-widest ml-2">Roblox Username</label>
-                    <input type="text" id="rbxCard" placeholder="Type username" class="w-full bg-white/5 border border-white/5 p-5 rounded-2xl outline-none focus:border-rose-600 transition text-sm text-white">
-                </div>
-                <div class="space-y-3">
-                    <label class="text-[10px] font-black text-zinc-600 uppercase tracking-widest ml-2">Card Details</label>
-                    <div id="card-mount" class="stripe-card-element"></div>
-                    <p id="card-errors" class="text-rose-500 text-[9px] font-black uppercase tracking-widest mt-3"></p>
-                </div>
-                <button onclick="handleStripe()" class="w-full elite-btn">Pay & Receive Item</button>
+            <div id="form-card" class="space-y-4">
+                <input type="text" id="rbxUser" placeholder="Roblox Username" class="w-full bg-white/5 border border-white/10 p-3 rounded outline-none focus:border-blue-500 text-sm">
+                <div id="card-element" class="bg-white/5 p-4 rounded border border-white/10"></div>
+                <button onclick="processStripe()" class="w-full bg-blue-600 py-4 rounded font-bold mt-4">Pay Now</button>
             </div>
 
-            <div id="method-paypal" class="space-y-8 hidden">
-                <div class="space-y-3">
-                    <label class="text-[10px] font-black text-zinc-600 uppercase tracking-widest ml-2">Roblox Username</label>
-                    <input type="text" id="rbxPaypal" placeholder="Type username" class="w-full bg-white/5 border border-white/5 p-5 rounded-2xl outline-none focus:border-rose-600 transition text-sm text-white mb-6">
-                </div>
-                <div id="paypal-button-container"></div>
+            <div id="form-paypal" class="hidden">
+                <div id="paypal-btn"></div>
             </div>
         </div>
     </div>
 
     <script>
-        // --- DATA ---
-        const DATABASE = [
-            { id: 1, name: "Dark Blade V3", price: 25.00, icon: "fa-bolt-lightning" },
-            { id: 2, name: "Fruit Notifier", price: 55.00, icon: "fa-eye" },
-            { id: 3, name: "Perm Dragon Fruit", price: 40.00, icon: "fa-dragon" },
-            { id: 4, name: "Max Bounty Acc", price: 75.00, icon: "fa-skull-crossbones" },
-            { id: 5, name: "Currency Pack", price: 10.00, icon: "fa-coins" },
-            { id: 6, name: "Boss Drops Bundle", price: 15.00, icon: "fa-gift" }
+        // --- 1. CONFIGURACIÓN ---
+        const ITEMS = [
+            { id: 1, name: "Dark Blade V3", price: 20.00 },
+            { id: 2, name: "Fast Boats", price: 5.00 },
+            { id: 3, name: "Fruit Notifier", price: 30.00 },
+            { id: 4, name: "2x Mastery", price: 10.00 }
         ];
 
-        // --- BACKGROUND CANVAS ENGINE ---
+        // --- 2. MOTOR DE PARTÍCULAS (CONSTELACIÓN RIFT) ---
         const canvas = document.getElementById('bg-canvas');
         const ctx = canvas.getContext('2d');
-        let dots = [];
-        function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
-        class Dot {
-            constructor() {
-                this.x = Math.random() * canvas.width;
-                this.y = Math.random() * canvas.height;
-                this.vX = (Math.
+        let particles = [];
+
+        function initCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            particles = [];
+            for(let i=0; i<80; i++) {
+                particles.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height,
+                    vx: (Math.random() - 0.5) * 0.5,
+                    vy: (Math.random() - 0.5) * 0.5
+                });
+            }
+        }
+
+        function drawParticles() {
+            ctx.clearRect(0,0,canvas.width, canvas.height);
+            ctx.fillStyle = "rgba(255,255,255,0.15)";
+            ctx.strokeStyle = "rgba(255,255,255,0.03)";
+
+            particles.forEach((p, i) => {
+                p.x += p.vx; p.y += p.vy;
+                if(p.x<0 || p.x>canvas.width) p.vx*=-1;
+                if(p.y<0 || p.y>canvas.height) p.vy*=-1;
+
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, 1.5, 0, Math.PI*2);
+                ctx.fill();
+
+                for(let j=i+1; j<particles.length; j++) {
+                    let p2 = particles[j];
+                    let dist = Math.hypot(p.x - p2.x, p.y - p2.y);
+                    if(dist < 150) {
+                        ctx.beginPath();
+                        ctx.moveTo(p.x, p.y);
+                        ctx.lineTo(p2.x, p2.y);
+                        ctx.stroke();
+                    }
+                }
+            });
+            requestAnimationFrame(drawParticles);
+        }
+
+        window.onresize = initCanvas;
+        initCanvas();
+        drawParticles();
+
+        // --- 3. FUNCIONALIDAD DE LA TIENDA ---
+        function showPage(id) {
+            document.querySelectorAll('.page-view').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            document.getElementById('view-' + id).classList.add('active');
+            // Marcar nav activa
+            event.target.classList.add('active');
+        }
+
+        function renderProducts() {
+            const grid = document.getElementById('product-grid');
+            grid.innerHTML = ITEMS.map(i => `
+                <div class="card">
+                    <div class="w-full h-32 bg-white/5 rounded mb-4 flex items-center justify-center">
+                        <i class="fa-solid fa-cube text-3xl text-zinc-800"></i>
+                    </div>
+                    <h3 class="font-bold mb-2">${i.name}</h3>
+                    <div class="flex justify-between items-center">
+                        <span class="text-blue-500 font-bold">$${i.price.toFixed(2)}</span>
+                        <button onclick="openPay(${i.id})" class="bg-blue-600 px-4 py-2 rounded text-xs font-bold">Buy</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        let selected = null;
+        function openPay(id) {
+            selected = ITEMS.find(i => i.id === id);
+            document.getElementById('itemName').innerText = selected.name;
+            document.getElementById('itemPrice').innerText = `$${selected.price.toFixed(2)}`;
+            document.getElementById('payModal').style.display = 'flex';
+        }
+
+        function closeModal() { document.getElementById('payModal').style.display = 'none'; }
+
+        function setPay(m) {
+            document.getElementById('form-card').classList.toggle('hidden', m === 'paypal');
+            document.getElementById('form-paypal').classList.toggle('hidden', m === 'card');
+            document.getElementById('t-card').style.borderColor = m === 'card' ? '#5865f2' : 'transparent';
+            document.getElementById('t-paypal').style.borderColor = m === 'paypal' ? '#5865f2' : 'transparent';
+        }
+
+        // --- 4. PAGOS (STUBS) ---
+        const stripe = Stripe('pk_test_123');
+        const cardElement = elements.create('card'); // (Reemplazar con keys reales)
+
+        renderProducts();
+    </script>
+</body>
+</html>
