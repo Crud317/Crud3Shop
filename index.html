@@ -1,172 +1,126 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CRUD3 SHOP | Red Edition</title>
+    <title>CRUD3 SHOP | Devil Hunter</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap');
-        body { background-color: #050505; color: #ffffff; font-family: 'Inter', sans-serif; }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap');
         
-        /* Navbar con borde rojo sutil */
-        .navbar { background-color: #0a0a0a; border-bottom: 1px solid #1a0a0a; }
+        body { background-color: #050505; color: #ffffff; font-family: 'Inter', sans-serif; overflow-x: hidden; }
+
+        /* Navbar */
+        .navbar { background: rgba(10, 10, 10, 0.8); backdrop-filter: blur(10px); border-bottom: 1px solid #221111; }
+
+        /* Tarjetas de Producto */
+        .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 24px; }
         
-        /* Tarjetas estilo Rifts en Rojo */
-        .product-card { 
-            background-color: #0a0a0a; 
-            border: 1px solid #1f1111; 
-            border-radius: 12px; 
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
-            cursor: pointer; 
+        .product-card {
+            background: #0a0a0a;
+            border: 1px solid #1f1111;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            overflow: hidden;
         }
-        .product-card:hover { 
-            border-color: #dc2626; 
-            transform: translateY(-5px); 
-            box-shadow: 0 10px 40px -10px rgba(220, 38, 38, 0.2); 
+        .product-card:hover {
+            border-color: #dc2626;
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px -10px rgba(220, 38, 38, 0.3);
         }
-        
-        /* Ventana de Pago (Modal) */
-        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 100; backdrop-filter: blur(10px); }
-        .modal-content { 
-            background: #0d0d0d; 
-            border: 1px solid #2d0a0a; 
-            max-width: 450px; 
-            width: 95%; 
-            margin: 10vh auto; 
-            border-radius: 24px; 
-            animation: scaleIn 0.2s ease-out; 
+
+        /* Ventana Modal (Igual a Rifts) */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(5px);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
         }
-        @keyframes scaleIn { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-        
-        /* Inputs y Botones */
-        .input-dark { background: #000; border: 1px solid #221111; color: white; width: 100%; padding: 14px; border-radius: 12px; outline: none; }
-        .input-dark:focus { border-color: #dc2626; }
-        
-        .btn-red { background-color: #dc2626; transition: 0.2s; }
-        .btn-red:hover { background-color: #b91c1c; box-shadow: 0 0 20px rgba(220, 38, 38, 0.4); }
-        
-        .text-glow-red { text-shadow: 0 0 15px rgba(220, 38, 38, 0.5); }
+
+        .modal-content {
+            background: #0d0d0d;
+            border: 1px solid #2d1111;
+            width: 90%;
+            max-width: 500px;
+            border-radius: 20px;
+            padding: 32px;
+            position: relative;
+            animation: modalFadeIn 0.3s ease-out;
+        }
+
+        @keyframes modalFadeIn {
+            from { transform: scale(0.9); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        .input-dark {
+            background: #000;
+            border: 1px solid #331111;
+            color: white;
+            width: 100%;
+            padding: 12px 16px;
+            border-radius: 10px;
+            outline: none;
+            transition: 0.2s;
+        }
+        .input-dark:focus { border-color: #dc2626; box-shadow: 0 0 10px rgba(220, 38, 38, 0.2); }
+
+        .btn-red {
+            background: #dc2626;
+            color: white;
+            font-weight: 800;
+            width: 100%;
+            padding: 14px;
+            border-radius: 10px;
+            text-transform: uppercase;
+            transition: 0.3s;
+        }
+        .btn-red:hover { background: #ff1a1a; transform: scale(1.02); }
     </style>
 </head>
 <body>
 
-    <nav class="navbar sticky top-0 px-6 py-4 z-40">
+    <nav class="navbar sticky top-0 z-50 px-6 py-4">
         <div class="max-w-7xl mx-auto flex justify-between items-center">
-            <span class="text-xl font-extrabold tracking-tighter italic uppercase">CRUD3 <span class="text-red-600">SHOP</span></span>
-            <div class="flex gap-4 items-center">
-                <a href="https://discord.gg/wxCNQCNn" target="_blank" class="text-gray-400 hover:text-red-500 transition text-xl">
-                    <i class="fa-brands fa-discord"></i>
-                </a>
-                <a href="https://discord.gg/wxCNQCNn" target="_blank" class="bg-red-600/10 hover:bg-red-600/20 text-red-600 px-4 py-2 rounded-lg text-xs font-bold transition border border-red-600/30">
-                    SUPPORT
-                </a>
+            <div class="flex items-center gap-2">
+                <div class="w-10 h-10 bg-red-600 rounded-full flex items-center justify-center shadow-[0_0_15px_rgba(220,38,38,0.5)]">
+                    <i class="fa-solid fa-skull text-white"></i>
+                </div>
+                <span class="text-xl font-black tracking-tighter italic uppercase">CRUD3 <span class="text-red-600">SHOP</span></span>
             </div>
+            <a href="https://discord.gg/wxCNQCNn" target="_blank" class="text-gray-400 hover:text-white transition">
+                <i class="fa-brands fa-discord text-2xl"></i>
+            </a>
         </div>
     </nav>
 
-    <header class="max-w-7xl mx-auto px-6 py-24 text-center">
-        <h1 class="text-6xl font-black mb-4 tracking-tighter uppercase italic">CRUD3 <span class="text-red-600 text-glow-red">SHOP</span></h1>
-        <p class="text-gray-500 font-medium max-w-lg mx-auto leading-relaxed">The ultimate destination for premium Dungeon Quest items. Fast delivery, secure payments.</p>
+    <header class="max-w-7xl mx-auto px-6 py-16 text-center">
+        <h1 class="text-5xl font-black mb-4 uppercase italic tracking-tighter">Devil <span class="text-red-600">Hunter</span> Items</h1>
+        <p class="text-gray-500 font-medium">Selecciona un producto para ver detalles y comprar.</p>
     </header>
 
-    <section class="max-w-7xl mx-auto px-6 pb-32">
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+    <main class="max-w-7xl mx-auto px-6 pb-20">
+        <div class="product-grid">
             
-            <div class="product-card p-5 group" onclick="openModal('Epic Flesh', '15.00')">
-                <div class="overflow-hidden rounded-lg mb-5 relative">
-                    <img src="https://img.freepik.com/premium-photo/glowing-red-sword-dark-background_925376-200.jpg" class="w-full h-64 object-cover group-hover:scale-110 transition duration-700">
-                    <div class="absolute top-3 left-3 bg-black/60 backdrop-blur-md px-3 py-1 rounded-full border border-white/10">
-                        <span class="text-[10px] font-bold uppercase tracking-widest text-red-500">Legendary</span>
+            <div class="product-card" onclick="openModal('Epic Devil Blade', '15.00', 'https://img.freepik.com/premium-photo/glowing-red-sword-dark-background_925376-200.jpg')">
+                <img src="https://img.freepik.com/premium-photo/glowing-red-sword-dark-background_925376-200.jpg" class="w-full h-56 object-cover">
+                <div class="p-5">
+                    <div class="flex justify-between items-center mb-2">
+                        <h3 class="font-bold text-lg">Epic Devil Blade</h3>
+                        <span class="text-red-600 font-black">$15.00</span>
                     </div>
-                </div>
-                <div class="flex justify-between items-end mb-6">
-                    <div>
-                        <h3 class="font-bold text-2xl text-white">Epic Flesh</h3>
-                        <p class="text-gray-500 text-[10px] uppercase tracking-[2px] font-bold">Dungeon Quest</p>
-                    </div>
-                    <div class="text-right">
-                        <span class="text-red-600 font-black text-2xl tracking-tighter">$15.00</span>
-                    </div>
-                </div>
-                <button class="btn-red w-full py-4 rounded-xl text-sm font-black uppercase tracking-widest transition">
-                    Buy Item
-                </button>
-            </div>
-
-        </div>
-    </section>
-
-    <div id="paymentModal" class="modal">
-        <div class="modal-content p-8 relative">
-            <button onclick="closeModal()" class="absolute top-6 right-6 text-gray-500 hover:text-red-500 transition text-2xl"><i class="fa-solid fa-xmark"></i></button>
-            
-            <div class="mb-8">
-                <h2 id="modalTitle" class="text-3xl font-black mb-1 text-white italic uppercase">Product Name</h2>
-                <div class="flex items-center gap-2">
-                    <span id="modalPrice" class="text-red-600 font-black text-2xl">$0.00 USD</span>
-                    <span class="text-[10px] bg-red-600/10 text-red-600 px-3 py-1 rounded border border-red-600/20 font-black uppercase tracking-tighter">In Stock</span>
+                    <p class="text-gray-500 text-xs uppercase font-bold tracking-widest mb-4 italic">Devil Hunter</p>
+                    <button class="w-full bg-white/5 border border-white/10 py-2 rounded-lg text-sm font-bold hover:bg-red-600 hover:border-red-600 transition">Ver Producto</button>
                 </div>
             </div>
 
-            <div class="space-y-6">
-                <div>
-                    <label class="text-[10px] font-black text-gray-500 uppercase block mb-3 tracking-[2px]">Enter Roblox Username</label>
-                    <input type="text" id="rbxUser" placeholder="e.g. Builderman" class="input-dark focus:ring-1 focus:ring-red-600">
-                </div>
-
-                <div class="bg-red-900/5 border border-red-900/20 p-5 rounded-xl text-[11px] text-gray-400 leading-relaxed italic">
-                    <i class="fa-solid fa-triangle-exclamation text-red-600 mr-2"></i>
-                    After purchase, join our <a href="https://discord.gg/wxCNQCNn" class="text-red-500 font-bold hover:underline">Discord</a> and open a ticket to claim your item. Delivery is usually instant.
-                </div>
-
-                <button onclick="redirectToPaypal()" class="btn-red w-full text-white font-black py-5 rounded-xl shadow-xl transition transform active:scale-95 uppercase tracking-widest">
-                    Pay with PayPal
-                </button>
             </div>
-        </div>
-    </div>
+    </main>
 
-    <footer class="py-12 text-center border-t border-white/5">
-        <p class="text-gray-700 text-[9px] uppercase tracking-[6px] mb-2 font-bold italic">CRUD3 SHOP RED EDITION</p>
-        <div class="flex justify-center gap-6 text-gray-500 text-[10px] font-bold uppercase tracking-widest">
-            <a href="#" class="hover:text-red-600 transition">Terms</a>
-            <a href="#" class="hover:text-red-600 transition">Privacy</a>
-            <a href="https://discord.gg/wxCNQCNn" class="hover:text-red-600 transition">Discord</a>
-        </div>
-    </footer>
-
-    <script>
-        let currentPrice = "";
-
-        function openModal(name, price) {
-            document.getElementById('modalTitle').innerText = name;
-            document.getElementById('modalPrice').innerText = '$' + price + ' USD';
-            currentPrice = price;
-            document.getElementById('paymentModal').style.display = 'block';
-            document.body.style.overflow = 'hidden';
-        }
-
-        function closeModal() {
-            document.getElementById('paymentModal').style.display = 'none';
-            document.body.style.overflow = 'auto';
-        }
-
-        function redirectToPaypal() {
-            const user = document.getElementById('rbxUser').value;
-            if(user.trim() === "") {
-                alert("Missing Username: Please enter your Roblox name.");
-                return;
-            }
-            window.open("https://www.paypal.me/Crud317/" + currentPrice, "_blank");
-        }
-
-        window.onclick = function(event) {
-            let modal = document.getElementById('paymentModal');
-            if (event.target == modal) { closeModal(); }
-        }
-    </script>
-
-</body>
-</html>
+    <div id="paymentModal" class="modal-overlay" onclick="closeModalOnOut
