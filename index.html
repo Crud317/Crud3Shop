@@ -3,21 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CRUD3 SHOP | DEVIL HUNTER EDITION</title>
+    <title>CRUD3 SHOP | Catálogo Estilo Rifts</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    
     <script src="https://www.paypal.com/sdk/js?client-id=test&currency=USD"></script>
 
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
-        body { background-color: #050505; color: #ffffff; font-family: 'Inter', sans-serif; overflow-x: hidden; }
+        body { background-color: #050505; color: #ffffff; font-family: 'Inter', sans-serif; }
         
         .product-card { 
-            background: #0a0a0a; border: 1px solid #1f1111; border-radius: 15px; 
-            transition: 0.3s; cursor: pointer; position: relative; overflow: hidden;
+            background: #0a0a0a; border: 1px solid #1f1111; border-radius: 12px; 
+            transition: 0.3s; cursor: pointer; overflow: hidden;
         }
-        .product-card:hover { border-color: #dc2626; transform: translateY(-5px); box-shadow: 0 10px 30px rgba(220, 38, 38, 0.3); }
+        .product-card:hover { border-color: #dc2626; transform: translateY(-5px); }
 
         .modal-overlay { 
             display: none; position: fixed; inset: 0; background: rgba(0, 0, 0, 0.9); 
@@ -25,135 +24,43 @@
         }
         .modal-content { 
             background: #0d0d0d; border: 1px solid #2d1111; width: 95%; max-width: 480px; 
-            border-radius: 25px; padding: 30px; position: relative; animation: zoomIn 0.2s ease-out;
+            border-radius: 20px; padding: 30px; position: relative;
         }
-        @keyframes zoomIn { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-
         .input-dark { 
             background: #000; border: 1px solid #331111; color: white; width: 100%; 
-            padding: 15px; border-radius: 12px; outline: none; transition: 0.2s;
+            padding: 12px; border-radius: 10px; outline: none; margin-top: 10px;
         }
-        .input-dark:focus { border-color: #dc2626; box-shadow: 0 0 10px rgba(220, 38, 38, 0.2); }
-        
-        /* Ocultar botones de PayPal hasta que pongan el usuario */
         #paypal-button-container { display: none; margin-top: 20px; }
     </style>
 </head>
 <body>
 
-    <nav class="p-6 border-b border-red-900/20 flex justify-between items-center bg-black/50 sticky top-0 z-50">
-        <span class="text-2xl font-black italic tracking-tighter uppercase">CRUD3 <span class="text-red-600">SHOP</span></span>
-        <div class="flex items-center gap-4">
-            <a href="https://discord.gg/wxCNQCNn" target="_blank" class="bg-red-600 hover:bg-red-700 px-5 py-2 rounded-full font-bold text-sm transition">DISCORD</a>
-        </div>
+    <nav class="p-6 border-b border-red-900/20 flex justify-between items-center bg-black">
+        <span class="text-xl font-black italic uppercase">CRUD3 <span class="text-red-600">SHOP</span></span>
+        <a href="https://discord.gg/wxCNQCNn" target="_blank" class="text-gray-400 hover:text-white"><i class="fa-brands fa-discord text-2xl"></i></a>
     </nav>
 
-    <header class="py-20 text-center">
-        <h1 class="text-6xl font-black italic uppercase text-shadow-glow">Devil <span class="text-red-600">Hunter</span></h1>
-        <p class="text-gray-500 mt-4 font-bold tracking-widest uppercase text-xs">Premium Items Marketplace</p>
+    <header class="py-12 text-center">
+        <h1 class="text-4xl font-black uppercase italic">Devil Hunter <span class="text-red-600 text-glow-red">Catalog</span></h1>
     </header>
 
     <main class="max-w-6xl mx-auto px-6 pb-20">
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             
-            <div class="product-card" onclick="openModal('Epic Devil Blade', '15.00', 'https://img.freepik.com/premium-photo/glowing-red-sword-dark-background_925376-200.jpg')">
-                <img src="https://img.freepik.com/premium-photo/glowing-red-sword-dark-background_925376-200.jpg" class="w-full h-64 object-cover">
-                <div class="p-6">
-                    <h3 class="text-xl font-black uppercase italic">Epic Devil Blade</h3>
-                    <div class="flex justify-between items-center mt-4">
-                        <span class="text-red-600 font-black text-2xl">$15.00</span>
-                        <span class="text-[10px] bg-red-600/10 text-red-500 px-3 py-1 rounded-full border border-red-600/20 font-bold uppercase">In Stock</span>
-                    </div>
+            <div class="product-card" onclick="openModal('Epic Devil Blade', '15.00', 'https://tr.rbxcdn.com/180da92042296d04254479e0a022989b/420/420/Image/Png')">
+                <img src="https://tr.rbxcdn.com/180da92042296d04254479e0a022989b/420/420/Image/Png" class="w-full h-48 object-cover">
+                <div class="p-4">
+                    <h3 class="font-bold text-sm uppercase">Epic Devil Blade</h3>
+                    <p class="text-red-600 font-black mt-2">$15.00 USD</p>
                 </div>
             </div>
 
-            </div>
-    </main>
-
-    <div id="paymentModal" class="modal-overlay">
-        <div class="modal-content">
-            <button onclick="closeModal()" class="absolute top-6 right-6 text-gray-500 hover:text-white text-3xl">&times;</button>
-            
-            <div class="text-center mb-6">
-                <img id="mImg" src="" class="w-24 h-24 mx-auto rounded-xl border-2 border-red-600 mb-4 object-cover shadow-lg shadow-red-600/20">
-                <h2 id="mTitle" class="text-2xl font-black text-white italic uppercase"></h2>
-                <p id="mPrice" class="text-red-600 font-bold text-xl"></p>
+            <div class="product-card" onclick="openModal('Shadow Scythe', '20.00', 'https://tr.rbxcdn.com/f044955b46e39665f8a0a996720f8c85/420/420/Image/Png')">
+                <img src="https://tr.rbxcdn.com/f044955b46e39665f8a0a996720f8c85/420/420/Image/Png" class="w-full h-48 object-cover">
+                <div class="p-4">
+                    <h3 class="font-bold text-sm uppercase">Shadow Scythe</h3>
+                    <p class="text-red-600 font-black mt-2">$20.00 USD</p>
+                </div>
             </div>
 
-            <div id="step-1">
-                <label class="text-[10px] font-black text-gray-500 uppercase tracking-widest block mb-2">Paso 1: Tu Usuario de Roblox</label>
-                <input type="text" id="rbxUser" placeholder="Escribe tu @username..." class="input-dark" oninput="togglePayButtons()">
-                <p class="text-[9px] text-gray-500 mt-2 italic">* Necesitamos tu usuario para entregarte el ítem en el juego.</p>
-            </div>
-
-            <div id="paypal-button-container"></div>
-            
-            <div class="mt-6 p-4 bg-red-600/5 border border-red-600/10 rounded-xl text-[10px] text-gray-400">
-                <i class="fa-solid fa-circle-info text-red-600 mr-2"></i>
-                Tras el pago, se abrirá un ticket automáticamente en nuestro Discord.
-            </div>
-        </div>
-    </div>
-
-    <script>
-        let currentPrice = "0.00";
-        let currentItem = "";
-
-        function openModal(name, price, img) {
-            currentPrice = price;
-            currentItem = name;
-            document.getElementById('mTitle').innerText = name;
-            document.getElementById('mPrice').innerText = "$" + price + " USD";
-            document.getElementById('mImg').src = img;
-            document.getElementById('paymentModal').style.display = 'flex';
-            document.body.style.overflow = 'hidden';
-            
-            // Iniciar botones de PayPal
-            renderPaypalButtons();
-        }
-
-        function closeModal() {
-            document.getElementById('paymentModal').style.display = 'none';
-            document.body.style.overflow = 'auto';
-            document.getElementById('paypal-button-container').innerHTML = ''; // Limpiar para evitar duplicados
-            document.getElementById('paypal-button-container').style.display = 'none';
-            document.getElementById('rbxUser').value = '';
-        }
-
-        function togglePayButtons() {
-            const user = document.getElementById('rbxUser').value.trim();
-            const container = document.getElementById('paypal-button-container');
-            container.style.display = user.length >= 3 ? 'block' : 'none';
-        }
-
-        function renderPaypalButtons() {
-            paypal.Buttons({
-                style: { layout: 'vertical', color: 'blue', shape: 'rect', label: 'pay' },
-                createOrder: function(data, actions) {
-                    return actions.order.create({
-                        purchase_units: [{
-                            description: currentItem + " para el usuario: " + document.getElementById('rbxUser').value,
-                            amount: { value: currentPrice }
-                        }]
-                    });
-                },
-                onApprove: function(data, actions) {
-                    return actions.order.capture().then(function(details) {
-                        alert('¡ÉXITO! Pago de ' + details.payer.name.given_name + ' recibido. Redirigiendo a Discord para entrega...');
-                        window.location.href = "https://discord.gg/wxCNQCNn";
-                    });
-                },
-                onError: function (err) {
-                    console.error('Error en el pago:', err);
-                    alert('Hubo un error con el pago. Inténtalo de nuevo.');
-                }
-            }).render('#paypal-button-container');
-        }
-
-        // Cerrar al hacer clic fuera
-        window.onclick = function(event) {
-            if (event.target == document.getElementById('paymentModal')) closeModal();
-        }
-    </script>
-</body>
-</html>
+            <div class="product-card" onclick="openModal('Crimson Katana', '12.00', '
