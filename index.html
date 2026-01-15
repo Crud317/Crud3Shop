@@ -3,668 +3,524 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CRUDE SHOP | Absolute Edition</title>
+    <title>CRUDE SHOP v4.0 | ABSOLUTE ARCHITECTURE</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Syncopate:wght@700&family=Inter:wght@300;400;600;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Syncopate:wght@700&family=Inter:wght@300;400;600;700;800;900&family=Space+Mono&display=swap" rel="stylesheet">
     
     <style>
         :root {
             --primary: #ff0000;
             --primary-glow: rgba(255, 0, 0, 0.4);
-            --bg-dark: #050505;
-            --card-bg: #0a0a0a;
-            --glass: rgba(255, 255, 255, 0.03);
+            --bg-deep: #030303;
+            --card-surface: #0a0a0a;
+            --text-main: #ffffff;
+            --text-dim: #71717a;
+            --accent-blue: #5865F2;
+            --paypal-blue: #0070ba;
         }
 
-        /* --- GLOBAL & SCROLL --- */
-        * { margin: 0; padding: 0; box-sizing: border-box; scroll-behavior: smooth; }
-        ::-webkit-scrollbar { width: 5px; }
-        ::-webkit-scrollbar-track { background: #050505; }
-        ::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 10px; }
+        /* --- ADVANCED RESET --- */
+        * { margin: 0; padding: 0; box-sizing: border-box; outline: none !important; }
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: var(--bg-deep); }
+        ::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 20px; }
 
         body {
-            background-color: var(--bg-dark);
-            color: #ffffff;
+            background-color: var(--bg-deep);
+            color: var(--text-main);
             font-family: 'Inter', sans-serif;
             overflow-x: hidden;
+            line-height: 1.5;
         }
 
-        .brand-font { font-family: 'Syncopate', sans-serif; }
+        .brand-font { font-family: 'Syncopate', sans-serif; text-transform: uppercase; }
+        .mono { font-family: 'Space Mono', monospace; }
 
-        /* --- ANIMATED BACKGROUND --- */
-        #bg-canvas { position: fixed; top: 0; left: 0; z-index: -1; }
+        /* --- BACKGROUND ENGINE --- */
+        #main-canvas { position: fixed; top: 0; left: 0; z-index: -1; opacity: 0.4; pointer-events: none; }
+        .vignette {
+            position: fixed; inset: 0; z-index: -1;
+            background: radial-gradient(circle at center, transparent 0%, rgba(0,0,0,0.9) 100%);
+        }
 
         /* --- UI COMPONENTS --- */
-        .glass-panel {
-            background: var(--glass);
-            backdrop-filter: blur(15px);
+        .glass {
+            background: rgba(255, 255, 255, 0.02);
+            backdrop-filter: blur(20px);
             border: 1px solid rgba(255, 255, 255, 0.05);
         }
 
-        .crude-card {
-            background: var(--card-bg);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+        .product-card {
+            background: var(--card-surface);
+            border: 1px solid rgba(255,255,255,0.03);
+            transition: all 0.6s cubic-bezier(0.19, 1, 0.22, 1);
             position: relative;
             overflow: hidden;
         }
-
-        .crude-card:hover {
-            border-color: var(--primary);
-            box-shadow: 0 0 30px var(--primary-glow);
-            transform: translateY(-8px);
+        .product-card::before {
+            content: ''; position: absolute; top: 0; left: -100%;
+            width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,0,0,0.1), transparent);
+            transition: 0.5s;
         }
+        .product-card:hover::before { left: 100%; }
+        .product-card:hover {
+            transform: translateY(-12px);
+            border-color: var(--primary);
+            box-shadow: 0 30px 60px rgba(0,0,0,0.8), 0 0 20px var(--primary-glow);
+        }
+
+        /* --- PAYMENT SELECTOR --- */
+        .pay-method {
+            border: 2px solid rgba(255,255,255,0.05);
+            transition: 0.3s;
+            cursor: pointer;
+        }
+        .pay-method.active {
+            border-color: var(--primary);
+            background: rgba(255,0,0,0.05);
+        }
+
+        /* --- ANIMATIONS --- */
+        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-20px); } }
+        .float-anim { animation: float 6s infinite ease-in-out; }
 
         .btn-crude {
             position: relative;
-            clip-path: polygon(10% 0, 100% 0, 90% 100%, 0% 100%);
             background: var(--primary);
-            color: white;
+            color: #fff;
             font-weight: 900;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            transition: 0.3s;
-            overflow: hidden;
+            clip-path: polygon(10% 0, 100% 0, 90% 100%, 0% 100%);
+            transition: 0.4s;
+            display: flex; align-items: center; justify-content: center;
+            gap: 12px;
         }
-
         .btn-crude:hover {
-            background: white;
-            color: black;
-            transform: scale(1.05);
+            background: #fff; color: #000; transform: scale(1.05) skewX(-2deg);
+            box-shadow: 0 0 30px #fff;
         }
 
-        /* --- EYE LOGO --- */
-        .eye-container {
-            width: 45px; height: 45px;
-            border: 2.5px solid var(--primary);
-            border-radius: 80% 0;
+        .modal-blur {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.95);
+            backdrop-filter: blur(20px); z-index: 9999;
+            opacity: 0; pointer-events: none; transition: 0.4s;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .modal-active { opacity: 1; pointer-events: auto; }
+
+        /* --- LOGO --- */
+        .logo-wrapper { position: relative; width: 60px; height: 60px; }
+        .eye-outer {
+            width: 100%; height: 100%;
+            border: 3px solid var(--primary);
+            border-radius: 85% 15%;
             transform: rotate(45deg);
             display: flex; align-items: center; justify-content: center;
-            box-shadow: 0 0 15px var(--primary-glow);
-            background: black;
+            box-shadow: 0 0 30px var(--primary-glow);
         }
-        .pupil {
-            width: 14px; height: 14px;
-            background: white;
+        .eye-inner {
+            width: 18px; height: 18px;
+            background: #fff;
             border-radius: 50%;
-            box-shadow: 0 0 10px white;
-            animation: watch 4s infinite ease-in-out;
+            box-shadow: 0 0 15px #fff;
+            animation: eyeMove 4s infinite alternate ease-in-out;
         }
-        @keyframes watch {
-            0%, 100% { transform: translate(0,0); }
-            25% { transform: translate(4px, -4px); }
-            75% { transform: translate(-4px, 4px); }
+        @keyframes eyeMove {
+            from { transform: translate(-5px, -5px); }
+            to { transform: translate(5px, 5px); }
         }
-
-        /* --- MODALS & NOTIFS --- */
-        .modal-overlay {
-            position: fixed; inset: 0; background: rgba(0,0,0,0.9);
-            backdrop-filter: blur(10px); z-index: 5000;
-            display: none; align-items: center; justify-content: center;
-        }
-        .modal-active { display: flex; }
-
-        .toast-container {
-            position: fixed; bottom: 30px; right: 30px; z-index: 9999;
-        }
-        .toast {
-            background: #111; border-left: 4px solid var(--primary);
-            padding: 15px 25px; margin-top: 10px; border-radius: 4px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            animation: slideIn 0.4s forwards;
-        }
-        @keyframes slideIn { from { transform: translateX(100%); } to { transform: translateX(0); } }
-
-        /* --- SHOP SPECIFICS --- */
-        .badge-stock { font-size: 9px; font-weight: 900; padding: 2px 8px; border-radius: 4px; }
-        .in-stock { background: rgba(34, 197, 94, 0.1); color: #22c55e; border: 1px solid #22c55e; }
-        .out-stock { background: rgba(239, 68, 68, 0.1); color: #ef4444; border: 1px solid #ef4444; }
-
-        .currency-option:hover { background: var(--primary); }
     </style>
 </head>
 <body>
 
-<canvas id="bg-canvas"></canvas>
-<div id="toast-area" class="toast-container"></div>
+<canvas id="main-canvas"></canvas>
+<div class="vignette"></div>
 
-<nav class="h-24 glass-panel sticky top-0 z-[1000] flex items-center justify-between px-6 lg:px-20 border-b border-white/5">
-    <div class="flex items-center gap-4 cursor-pointer group" onclick="navigate('home')">
-        <div class="eye-container">
-            <div class="pupil"></div>
+<nav class="h-28 glass sticky top-0 z-[1000] px-6 lg:px-24 flex items-center justify-between border-b border-white/5">
+    <div class="flex items-center gap-8 cursor-pointer group" onclick="switchView('home')">
+        <div class="logo-wrapper">
+            <div class="eye-outer"><div class="eye-inner"></div></div>
         </div>
         <div class="brand-font">
-            <h1 class="text-2xl font-black tracking-tighter">CRUDE <span class="text-red-600">SHOP</span></h1>
-            <p class="text-[8px] tracking-[0.6em] text-zinc-500 -mt-1 uppercase">Digital Supremacy</p>
+            <h1 class="text-3xl font-black tracking-tighter">CRUDE <span class="text-red-600 italic">SHOP</span></h1>
+            <p class="text-[9px] tracking-[0.5em] text-zinc-500 uppercase">Architecture v4.0.2</p>
         </div>
     </div>
 
-    <div class="hidden lg:flex gap-10 items-center">
-        <a onclick="navigate('home')" class="text-xs font-black uppercase hover:text-red-600 cursor-pointer transition">Home</a>
-        <a onclick="navigate('shop')" class="text-xs font-black uppercase hover:text-red-600 cursor-pointer transition">Products</a>
-        <a onclick="navigate('reviews')" class="text-xs font-black uppercase hover:text-red-600 cursor-pointer transition">Reviews</a>
-        <a onclick="navigate('status')" class="text-xs font-black uppercase hover:text-red-600 cursor-pointer transition">Status</a>
+    <div class="hidden xl:flex items-center gap-14">
+        <button onclick="switchView('home')" class="text-[11px] font-black uppercase tracking-widest hover:text-red-600 transition">Mainframe</button>
+        <button onclick="switchView('shop')" class="text-[11px] font-black uppercase tracking-widest hover:text-red-600 transition">Database</button>
+        <button onclick="switchView('reviews')" class="text-[11px] font-black uppercase tracking-widest hover:text-red-600 transition">Logs</button>
+        <a href="https://discord.gg/crude" target="_blank" class="bg-accent-blue/10 text-accent-blue border border-accent-blue/20 px-6 py-2 rounded-full text-[10px] font-black uppercase flex items-center gap-2 hover:bg-accent-blue hover:text-white transition">
+            <i class="fa-brands fa-discord"></i> Community
+        </a>
     </div>
 
-    <div class="flex items-center gap-6">
-        <div class="relative group">
-            <button class="bg-white/5 border border-white/10 px-4 py-2 rounded-lg text-[10px] font-black uppercase flex items-center gap-2">
-                <span id="active-currency">USD - $</span> <i class="fa-solid fa-chevron-down text-red-600"></i>
+    <div class="flex items-center gap-8">
+        <div id="auth-zone">
+            <button onclick="openModal('login-modal')" class="glass px-8 py-4 rounded-2xl text-[10px] font-black uppercase border-red-600/20 border hover:border-red-600 transition">
+                <i class="fa-solid fa-plug mr-2"></i> Link Roblox
             </button>
-            <div class="absolute right-0 top-full mt-2 w-32 glass-panel rounded-xl hidden group-hover:block overflow-hidden shadow-2xl">
-                <div onclick="setCurrency('USD', 1, '$')" class="p-3 text-[10px] font-bold cursor-pointer currency-option transition border-b border-white/5">USD - $</div>
-                <div onclick="setCurrency('EUR', 0.92, '€')" class="p-3 text-[10px] font-bold cursor-pointer currency-option transition border-b border-white/5">EUR - €</div>
-                <div onclick="setCurrency('ARS', 1050, '$')" class="p-3 text-[10px] font-bold cursor-pointer currency-option transition border-b border-white/5">ARS - $</div>
-                <div onclick="setCurrency('GBP', 0.78, '£')" class="p-3 text-[10px] font-bold cursor-pointer currency-option transition">GBP - £</div>
-            </div>
         </div>
-
-        <div id="auth-section">
-            <button onclick="openModal('modal-login')" class="text-[10px] font-black uppercase border border-white/10 px-6 py-2.5 rounded-lg hover:border-red-600 transition">Login</button>
-        </div>
-
-        <div class="relative cursor-pointer" onclick="toggleCart()">
-            <div class="w-12 h-12 flex items-center justify-center rounded-xl bg-red-600/10 border border-red-600/20 text-red-600 hover:bg-red-600 hover:text-white transition">
-                <i class="fa-solid fa-cart-shopping text-lg"></i>
+        <div class="relative cursor-pointer group" onclick="toggleDrawer('cart-drawer')">
+            <div class="w-14 h-14 glass flex items-center justify-center rounded-2xl text-red-600 group-hover:bg-red-600 group-hover:text-white transition shadow-lg">
+                <i class="fa-solid fa-cart-shopping"></i>
             </div>
-            <span id="cart-counter" class="absolute -top-2 -right-2 w-6 h-6 bg-white text-black text-[11px] font-black rounded-full flex items-center justify-center border-2 border-black">0</span>
+            <span id="cart-count" class="absolute -top-2 -right-2 w-6 h-6 bg-white text-black text-[11px] font-black rounded-lg flex items-center justify-center shadow-xl">0</span>
         </div>
     </div>
 </nav>
 
-<main id="content">
-    
-    <section id="view-home" class="page-view py-20">
-        <div class="max-w-7xl mx-auto px-6 text-center">
-            <div class="mb-8 inline-block bg-red-600/10 border border-red-600/20 px-6 py-2 rounded-full">
-                <span class="text-[10px] font-black uppercase tracking-[0.3em] text-red-500">Official 2026 Platform</span>
+<main>
+    <section id="view-home" class="view-section view-visible min-h-screen pt-40 pb-20 px-6">
+        <div class="max-w-7xl mx-auto text-center">
+            <div class="float-anim">
+                <span class="bg-red-600/10 text-red-500 border border-red-600/20 px-6 py-2 rounded-full text-[10px] font-black uppercase tracking-[0.3em] mb-10 inline-block">
+                    System Protocol Active
+                </span>
+                <h1 class="text-8xl lg:text-[12rem] font-black italic tracking-tighter leading-none brand-font mb-10">
+                    CRUDE<br><span class="text-red-600">CORE</span>
+                </h1>
             </div>
-            <h2 class="text-6xl lg:text-9xl font-black italic tracking-tighter mb-6 brand-font uppercase">
-                CRUDE <span class="text-red-600">POWER</span>
-            </h2>
-            <p class="max-w-2xl mx-auto text-zinc-500 text-lg lg:text-xl font-medium mb-12">
-                The most reliable source for digital assets, game accounts, and automation services. 
-                Instant delivery, lifetime warranty, and 24/7 technical support.
+            <p class="max-w-3xl mx-auto text-zinc-500 text-xl font-medium mb-16">
+                The most advanced digital marketplace for Roblox assets. Instant delivery, military-grade encryption, and seamless integration.
             </p>
-
-            <div class="flex flex-col sm:flex-row gap-6 justify-center mb-24">
-                <button onclick="navigate('shop')" class="btn-crude px-12 py-5 text-lg">Browse Shop <i class="fa-solid fa-arrow-right ml-2"></i></button>
-                <button class="px-12 py-5 border border-white/10 rounded-xl font-black uppercase text-sm hover:bg-white/5 transition">Join Discord</button>
-            </div>
-
-            <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 glass-panel p-10 rounded-[40px] border border-white/5">
-                <div class="p-6">
-                    <h4 id="stat-sold" class="text-5xl font-black italic mb-2 tracking-tighter">0</h4>
-                    <p class="text-[10px] font-black text-zinc-500 uppercase tracking-widest">Products Sold</p>
-                </div>
-                <div class="p-6 border-l border-white/5">
-                    <h4 id="stat-customers" class="text-5xl font-black italic mb-2 tracking-tighter">0</h4>
-                    <p class="text-[10px] font-black text-zinc-500 uppercase tracking-widest">Total Customers</p>
-                </div>
-                <div class="p-6 border-l border-white/5">
-                    <h4 id="stat-reviews" class="text-5xl font-black italic mb-2 tracking-tighter">0</h4>
-                    <p class="text-[10px] font-black text-zinc-500 uppercase tracking-widest">Reviews Received</p>
-                </div>
-                <div class="p-6 border-l border-white/5">
-                    <h4 id="stat-rating" class="text-5xl font-black italic mb-2 tracking-tighter text-red-600">0.0</h4>
-                    <p class="text-[10px] font-black text-zinc-500 uppercase tracking-widest">Average Rating</p>
-                </div>
+            <div class="flex flex-wrap justify-center gap-8">
+                <button onclick="switchView('shop')" class="btn-crude px-16 py-7 text-lg">
+                    ENTER DATABASE <i class="fa-solid fa-arrow-right"></i>
+                </button>
             </div>
         </div>
     </section>
 
-    <section id="view-shop" class="page-view hidden py-20">
-        <div class="max-w-7xl mx-auto px-6">
-            <div class="flex flex-col md:flex-row justify-between items-center mb-16 gap-8">
-                <div>
-                    <h2 class="text-4xl font-black italic brand-font uppercase">Current <span class="text-red-600">Inventory</span></h2>
-                    <p class="text-zinc-500 text-sm mt-2 font-bold uppercase tracking-widest">Filter by category or search</p>
-                </div>
-                <div class="flex gap-4 w-full md:w-auto">
-                    <div class="relative flex-1 md:w-80">
-                        <i class="fa-solid fa-search absolute left-4 top-1/2 -translate-y-1/2 text-zinc-600"></i>
-                        <input type="text" oninput="liveSearch(this.value)" placeholder="Search products..." class="w-full bg-white/5 border border-white/10 py-4 pl-12 pr-4 rounded-xl outline-none focus:border-red-600">
-                    </div>
-                </div>
+    <section id="view-shop" class="view-section py-24 px-6 lg:px-24">
+        <div class="flex flex-col lg:flex-row justify-between items-end mb-20 gap-10">
+            <div>
+                <h2 class="text-6xl font-black italic brand-font mb-4">Stock <span class="text-red-600">Inventory</span></h2>
+                <div class="h-1 w-40 bg-red-600"></div>
             </div>
-
-            <div id="product-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-                </div>
+            <div class="w-full lg:w-96 relative">
+                <input type="text" id="search-input" oninput="renderProducts()" placeholder="Filter items..." class="w-full bg-white/5 border border-white/10 p-6 rounded-2xl outline-none focus:border-red-600 transition">
+                <i class="fa-solid fa-magnifying-glass absolute right-6 top-1/2 -translate-y-1/2 text-zinc-600"></i>
+            </div>
         </div>
+        <div id="product-grid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-10">
+            </div>
     </section>
-
-    <section id="view-reviews" class="page-view hidden py-20">
-        <div class="max-w-4xl mx-auto px-6">
-            <h2 class="text-4xl font-black italic brand-font uppercase text-center mb-16">Customer <span class="text-red-600">Feedback</span></h2>
-            <div id="reviews-list" class="space-y-6">
-                </div>
-        </div>
-    </section>
-
 </main>
 
-<div id="cart-drawer" class="fixed inset-0 z-[6000] hidden">
-    <div class="absolute inset-0 bg-black/80 backdrop-blur-md" onclick="toggleCart()"></div>
-    <div class="absolute right-0 top-0 h-full w-full max-w-md bg-[#080808] border-l border-white/5 p-10 flex flex-col">
-        <div class="flex justify-between items-center mb-10">
-            <h3 class="brand-font text-xl font-black uppercase italic">Shopping Cart</h3>
-            <i class="fa-solid fa-xmark text-2xl cursor-pointer hover:text-red-600" onclick="toggleCart()"></i>
-        </div>
-
-        <div id="cart-content-list" class="flex-1 overflow-y-auto space-y-6 pr-2">
+<div id="login-modal" class="modal-blur">
+    <div class="bg-black border border-white/10 p-12 rounded-[50px] w-full max-w-lg relative overflow-hidden">
+        <div class="absolute top-0 left-0 w-full h-2 bg-red-600"></div>
+        <h3 class="brand-font text-3xl mb-4 italic">SYSTEM <span class="text-red-600">LINK</span></h3>
+        <p class="text-zinc-500 mb-10 text-sm">Please provide your Roblox identity to initialize secure sessions.</p>
+        <form onsubmit="robAuth(event)" class="space-y-8">
+            <div class="space-y-3">
+                <label class="text-[11px] font-black text-zinc-400 uppercase tracking-widest ml-2">Roblox Username</label>
+                <input type="text" id="rob-user" required placeholder="Ex: Builderman" class="w-full bg-white/5 border border-white/10 p-6 rounded-3xl outline-none focus:border-red-600 transition text-lg font-bold">
             </div>
-
-        <div class="border-t border-white/10 pt-8 mt-6">
-            <div class="flex justify-between text-zinc-500 text-sm font-black uppercase mb-2"><span>Subtotal</span><span id="cart-subtotal">$0.00</span></div>
-            <div class="flex justify-between text-3xl font-black mb-10"><span>Total</span><span id="cart-total" class="text-red-600">$0.00</span></div>
-            <button onclick="startCheckout()" class="btn-crude w-full py-5 text-lg">Checkout Now</button>
-        </div>
-    </div>
-</div>
-
-<div id="modal-login" class="modal-overlay">
-    <div class="bg-[#0a0a0a] border border-white/10 p-12 rounded-[40px] w-full max-w-md relative">
-        <h3 class="brand-font text-2xl font-black italic mb-8 uppercase">Login to <span class="text-red-600">Crude</span></h3>
-        <form id="login-form" onsubmit="handleAuth(event)" class="space-y-6">
-            <div class="space-y-2">
-                <label class="text-[10px] font-black text-zinc-500 uppercase tracking-widest">Email Address</label>
-                <input type="email" id="auth-email" required class="w-full bg-white/5 border border-white/10 p-4 rounded-xl focus:border-red-600 outline-none">
-            </div>
-            <div class="space-y-2">
-                <label class="text-[10px] font-black text-zinc-500 uppercase tracking-widest">Password</label>
-                <input type="password" required class="w-full bg-white/5 border border-white/10 p-4 rounded-xl focus:border-red-600 outline-none">
-            </div>
-            <button type="submit" class="btn-crude w-full py-5">Enter Store</button>
+            <button type="submit" class="btn-crude w-full py-6 text-xl">AUTHENTICATE</button>
         </form>
-        <button onclick="closeModal('modal-login')" class="absolute top-6 right-6 text-zinc-600 hover:text-white"><i class="fa-solid fa-xmark text-xl"></i></button>
+        <button onclick="closeModal('login-modal')" class="absolute top-10 right-10 text-zinc-600 hover:text-white"><i class="fa-solid fa-xmark text-2xl"></i></button>
     </div>
 </div>
 
-<div id="modal-checkout" class="modal-overlay">
-    <div class="bg-black border border-white/5 w-full max-w-5xl rounded-[40px] overflow-hidden flex flex-col lg:flex-row min-h-[600px]">
-        <div class="lg:w-1/3 bg-[#0a0a0a] p-12 border-r border-white/5">
-            <div class="eye-container mb-8"><div class="pupil"></div></div>
-            <h4 class="text-xs font-black text-zinc-500 uppercase mb-8 tracking-widest">Summary</h4>
-            <div id="check-items" class="space-y-4 mb-10"></div>
-            <div class="border-t border-white/5 pt-6">
-                <p class="text-2xl font-black text-red-600" id="check-total-display">$0.00</p>
+<div id="cart-drawer" class="fixed inset-y-0 right-0 w-full max-w-xl bg-[#050505] border-l border-white/5 z-[9999] translate-x-full transition-transform duration-700 flex flex-col">
+    <div class="p-12 flex justify-between items-center border-b border-white/5">
+        <h3 class="brand-font text-2xl italic">Encrypted <span class="text-red-600">Cart</span></h3>
+        <i class="fa-solid fa-xmark cursor-pointer text-2xl hover:text-red-600 transition" onclick="toggleDrawer('cart-drawer')"></i>
+    </div>
+    <div id="cart-items" class="flex-1 overflow-y-auto p-12 space-y-8">
+        </div>
+    <div class="p-12 glass border-t border-white/10 space-y-8">
+        <div class="flex justify-between items-end">
+            <span class="text-zinc-500 font-black uppercase text-xs">Total Commitment</span>
+            <span id="final-price" class="text-5xl font-black text-red-600 mono">$0.00</span>
+        </div>
+        <button onclick="checkoutFlow()" class="btn-crude w-full py-8 text-2xl italic">PROCEED TO CHECKOUT</button>
+    </div>
+</div>
+
+<div id="checkout-modal" class="modal-blur">
+    <div class="bg-black border border-white/10 rounded-[60px] w-full max-w-6xl flex flex-col lg:flex-row overflow-hidden shadow-2xl">
+        <div class="lg:w-1/3 bg-[#080808] p-16 border-r border-white/5">
+            <h4 class="brand-font text-xs mb-12 text-red-600">Transaction Summary</h4>
+            <div id="digest-list" class="space-y-6 mb-12"></div>
+            <div class="pt-8 border-t border-white/5">
+                <p class="text-[10px] text-zinc-600 font-black uppercase mb-2">Final Amount</p>
+                <div class="text-5xl font-black mono text-white" id="digest-total">$0.00</div>
             </div>
         </div>
-        <div class="lg:w-2/3 p-12 relative">
-            <div id="step-1" class="checkout-step">
-                <h3 class="brand-font text-2xl font-black italic mb-10 uppercase">Order <span class="text-red-600">Info</span></h3>
-                <div class="space-y-6">
-                    <input type="text" id="order-discord" placeholder="Discord Username (User#0000)" class="w-full bg-white/5 border border-white/10 p-5 rounded-2xl focus:border-red-600 outline-none">
-                    <div class="p-6 bg-red-600/5 border border-red-600/20 rounded-2xl">
-                        <p class="text-[10px] font-black uppercase text-red-500 mb-2">Delivery Method</p>
-                        <p class="text-sm font-bold">Instant Delivery to <span id="delivery-mail" class="text-white">...</span></p>
-                    </div>
-                    <button onclick="processOrder()" class="btn-crude w-full py-5 mt-8">Confirm & Pay</button>
+        <div class="lg:w-2/3 p-16">
+            <h3 class="text-4xl font-black italic brand-font mb-10 text-white">Payment <span class="text-red-600">Method</span></h3>
+            
+            <div class="grid grid-cols-2 gap-6 mb-12">
+                <div onclick="setPayMethod('paypal')" id="pay-paypal" class="pay-method p-8 rounded-[30px] flex flex-col items-center gap-4">
+                    <i class="fa-brands fa-paypal text-4xl text-[#0070ba]"></i>
+                    <span class="font-black text-xs uppercase">PayPal</span>
+                </div>
+                <div onclick="setPayMethod('card')" id="pay-card" class="pay-method p-8 rounded-[30px] flex flex-col items-center gap-4 active">
+                    <i class="fa-solid fa-credit-card text-4xl text-zinc-400"></i>
+                    <span class="font-black text-xs uppercase">Credit Card</span>
                 </div>
             </div>
-        </div>
-    </div>
-</div>
 
-<div id="modal-rate" class="modal-overlay">
-    <div class="bg-[#0a0a0a] p-12 rounded-[40px] border border-red-600/30 text-center max-w-md w-full">
-        <h3 class="brand-font text-2xl font-black italic mb-4">RATE YOUR <span class="text-red-600">EXPERIENCE</span></h3>
-        <p class="text-zinc-500 text-sm mb-10">How would you rate your recent purchase?</p>
-        <div class="flex justify-center gap-4 mb-10 text-4xl">
-            <i class="fa-solid fa-star star-btn cursor-pointer transition" data-val="1" onclick="selectStars(1)"></i>
-            <i class="fa-solid fa-star star-btn cursor-pointer transition" data-val="2" onclick="selectStars(2)"></i>
-            <i class="fa-solid fa-star star-btn cursor-pointer transition" data-val="3" onclick="selectStars(3)"></i>
-            <i class="fa-solid fa-star star-btn cursor-pointer transition" data-val="4" onclick="selectStars(4)"></i>
-            <i class="fa-solid fa-star star-btn cursor-pointer transition" data-val="5" onclick="selectStars(5)"></i>
+            <div id="card-fields" class="space-y-6">
+                <div class="relative">
+                    <input type="text" placeholder="Card Number" class="w-full bg-white/5 border border-white/10 p-6 rounded-2xl outline-none focus:border-red-600 transition">
+                    <i class="fa-solid fa-lock absolute right-6 top-1/2 -translate-y-1/2 text-zinc-700"></i>
+                </div>
+                <div class="grid grid-cols-2 gap-6">
+                    <input type="text" placeholder="MM/YY" class="w-full bg-white/5 border border-white/10 p-6 rounded-2xl outline-none">
+                    <input type="text" placeholder="CVC" class="w-full bg-white/5 border border-white/10 p-6 rounded-2xl outline-none">
+                </div>
+            </div>
+
+            <div id="paypal-msg" class="hidden py-10 text-center glass rounded-3xl mb-8">
+                <i class="fa-brands fa-paypal text-5xl mb-4 text-[#0070ba]"></i>
+                <p class="text-sm text-zinc-400">You will be redirected to PayPal Secure Portal</p>
+            </div>
+
+            <button onclick="confirmPurchase()" class="btn-crude w-full py-8 text-2xl mt-8">AUTHORIZE PAYMENT</button>
+            <button onclick="closeModal('checkout-modal')" class="w-full mt-6 text-zinc-600 font-black uppercase text-[10px] tracking-widest hover:text-white transition">Abort Operation</button>
         </div>
-        <textarea id="review-text" placeholder="Write a short review..." class="w-full bg-white/5 border border-white/10 p-4 rounded-xl mb-6 outline-none focus:border-red-600"></textarea>
-        <button onclick="submitFinalReview()" class="w-full btn-crude py-4">Submit Review</button>
     </div>
 </div>
 
 <script>
-    /* --- DATABASE --- */
-    const DATABASE = {
-        products: [
-            { id: 101, name: "Katana Frags (DH)", price: 1.99, stock: 45, img: "https://i.postimg.cc/q7fW3G8B/items-dh.png", category: "Items" },
-            { id: 102, name: "Common Flesh (DH)", price: 0.10, stock: 120, img: "https://i.postimg.cc/q7fW3G8B/items-dh.png", category: "Items" },
-            { id: 201, name: "Starter Account", price: 4.99, stock: 12, img: "https://i.postimg.cc/W3zD8z8Z/account-dh.png", category: "Accounts" },
-            { id: 202, name: "Max Level Account", price: 14.99, stock: 3, img: "https://i.postimg.cc/W3zD8z8Z/account-dh.png", category: "Accounts" },
-            { id: 301, name: "Auto-Farm Leveling", price: 2.99, stock: 99, img: "https://i.postimg.cc/9F4P5p2h/farm-dh.png", category: "Services" },
-            { id: 401, name: "500K Yen Pack", price: 3.50, stock: 50, img: "https://i.postimg.cc/8P2zG8p5/yen-dh.png", category: "Currency" },
-            { id: 402, name: "1M Yen Pack", price: 5.99, stock: 25, img: "https://i.postimg.cc/8P2zG8p5/yen-dh.png", category: "Currency" }
-        ],
-        reviews: [
-            { user: "Drakon#12", rating: 5, text: "Instant delivery, best prices for DH.", date: "2 days ago" },
-            { user: "SilentKiller", rating: 4, text: "Accounts are legit. Good support.", date: "1 week ago" }
-        ]
+    /* --- SYSTEM CONFIGURATION --- */
+    const DISCORD_WEBHOOK = "https://discord.com/api/webhooks/1461478942451171340/5l1NqpvpYD0ScyuldYTKygcNfh0dtxVc469mQ0TQea_K5BLWf9H6jm7-yXtFBnIZdkyM";
+
+    const STORE_DB = [
+        { id: 101, name: 'Slayer Fragments [X100]', price: 4.99, stock: 45, img: 'https://i.postimg.cc/q7fW3G8B/items-dh.png', cat: 'Items' },
+        { id: 102, name: 'Devil Heart Core', price: 12.50, stock: 12, img: 'https://i.postimg.cc/q7fW3G8B/items-dh.png', cat: 'Rare' },
+        { id: 103, name: 'Ancient Katana Skin', price: 25.00, stock: 5, img: 'https://i.postimg.cc/q7fW3G8B/items-dh.png', cat: 'Limited' },
+        { id: 201, name: 'Godly Account v4 [MAX]', price: 89.99, stock: 2, img: 'https://i.postimg.cc/W3zD8z8Z/account-dh.png', cat: 'Accounts' },
+        { id: 202, name: 'Starter Slayer LV.50', price: 9.99, stock: 25, img: 'https://i.postimg.cc/W3zD8z8Z/account-dh.png', cat: 'Accounts' },
+        { id: 301, name: 'Rank Boost [1-100]', price: 15.00, stock: 99, img: 'https://i.postimg.cc/9F4P5p2h/farm-dh.png', cat: 'Services' },
+        { id: 302, name: 'Yen Farm 48h Bot', price: 7.50, stock: 99, img: 'https://i.postimg.cc/9F4P5p2h/farm-dh.png', cat: 'Services' }
+    ];
+
+    let cart = [];
+    let userSession = JSON.parse(localStorage.getItem('crude_session')) || null;
+    let paymentMethod = 'card';
+
+    window.onload = () => {
+        renderProducts();
+        if(userSession) applySessionUI();
+        initCanvas();
     };
 
-    /* --- STATE MANAGEMENT --- */
-    let cart = [];
-    let activeUser = JSON.parse(localStorage.getItem('crude_user')) || null;
-    let shopConfig = { rate: 1, symbol: '$', currency: 'USD' };
-    let globalStats = JSON.parse(localStorage.getItem('crude_stats')) || { sold: 0, customers: 0, totalRating: 9, reviews: 2 };
-    let pendingStars = 0;
-
-    /* --- CORE ENGINE --- */
-    function init() {
-        renderProducts();
-        renderReviews();
-        updateStats();
-        updateAuthUI();
-        animateStats();
-    }
-
-    function navigate(view) {
-        document.querySelectorAll('.page-view').forEach(v => v.classList.add('hidden'));
-        document.getElementById(`view-${view}`).classList.remove('hidden');
-        window.scrollTo(0,0);
-    }
-
-    /* --- CURRENCY ENGINE --- */
-    function setCurrency(curr, rate, sym) {
-        shopConfig = { rate, symbol: sym, currency: curr };
-        document.getElementById('active-currency').innerText = `${curr} - ${sym}`;
-        renderProducts();
-        updateCartUI();
-        createToast(`Currency changed to ${curr}`);
-    }
-
-    /* --- SHOP ENGINE --- */
-    function renderProducts(filter = "") {
-        const grid = document.getElementById('product-grid');
-        const items = DATABASE.products.filter(p => p.name.toLowerCase().includes(filter.toLowerCase()));
+    /* --- NOTIFIER ENGINE --- */
+    async function notifyDiscord(action, details) {
+        if(!DISCORD_WEBHOOK.includes('discord.com')) return;
         
-        grid.innerHTML = items.map(p => {
-            const finalPrice = (p.price * shopConfig.rate).toFixed(2);
-            return `
-                <div class="crude-card p-6 rounded-[30px]">
-                    <div class="relative mb-6">
-                        <img src="${p.img}" class="w-full h-48 object-cover rounded-2xl grayscale hover:grayscale-0 transition duration-700">
-                        <span class="absolute top-4 right-4 badge-stock ${p.stock > 0 ? 'in-stock' : 'out-stock'} uppercase">
-                            ${p.stock > 0 ? `Stock: ${p.stock}` : 'Sold Out'}
-                        </span>
-                    </div>
-                    <p class="text-[10px] font-black text-red-600 uppercase tracking-widest mb-1">${p.category}</p>
-                    <h3 class="text-lg font-black italic uppercase mb-4 truncate">${p.name}</h3>
-                    <div class="flex justify-between items-center border-t border-white/5 pt-4">
-                        <span class="text-2xl font-black">${shopConfig.symbol}${finalPrice}</span>
-                        <button onclick="addToCart(${p.id})" ${p.stock === 0 ? 'disabled' : ''} class="w-12 h-12 bg-white/5 hover:bg-red-600 rounded-xl flex items-center justify-center transition disabled:opacity-20">
-                            <i class="fa-solid fa-plus"></i>
-                        </button>
-                    </div>
-                </div>
-            `;
-        }).join('');
+        const payload = {
+            username: "CRUDE SYSTEM MONITOR",
+            embeds: [{
+                title: `PROTOCOL: ${action}`,
+                description: `**Event details:** ${details}`,
+                color: action === 'PURCHASE_SUCCESS' ? 65280 : 16711680,
+                fields: [
+                    { name: 'User Identity', value: userSession ? `**${userSession.name}**` : 'Unidentified', inline: true },
+                    { name: 'Timestamp', value: new Date().toISOString(), inline: true }
+                ],
+                footer: { text: "CRUDE_ENGINE_v4.0.2 // STABLE_BUILD" }
+            }]
+        };
+
+        try {
+            await fetch(DISCORD_WEBHOOK, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(payload)
+            });
+        } catch(e) { console.error("Discord link failed."); }
     }
 
-    function liveSearch(val) {
-        renderProducts(val);
-    }
-
-    /* --- CART ENGINE --- */
-    function toggleCart() {
-        document.getElementById('cart-drawer').classList.toggle('hidden');
-    }
-
-    function addToCart(id) {
-        const p = DATABASE.products.find(x => x.id === id);
-        cart.push({...p, cartId: Date.now()});
-        updateCartUI();
-        createToast(`Added ${p.name} to cart`);
-    }
-
-    function removeFromCart(cartId) {
-        cart = cart.filter(x => x.cartId !== cartId);
-        updateCartUI();
-    }
-
-    function updateCartUI() {
-        const container = document.getElementById('cart-content-list');
-        const badge = document.getElementById('cart-counter');
-        const subTotalEl = document.getElementById('cart-subtotal');
-        const totalEl = document.getElementById('cart-total');
-        
-        badge.innerText = cart.length;
-        let total = 0;
-
-        if(cart.length === 0) {
-            container.innerHTML = `<div class="h-60 flex flex-col items-center justify-center text-zinc-600">
-                <i class="fa-solid fa-cart-ghost text-5xl mb-4"></i>
-                <p class="font-black uppercase text-xs">Your cart is empty</p>
-            </div>`;
-        } else {
-            container.innerHTML = cart.map(item => {
-                const p = (item.price * shopConfig.rate);
-                total += p;
-                return `
-                    <div class="flex items-center gap-4 glass-panel p-4 rounded-2xl border border-white/5">
-                        <img src="${item.img}" class="w-16 h-16 rounded-lg object-cover">
-                        <div class="flex-1">
-                            <h4 class="text-[10px] font-black uppercase tracking-tighter">${item.name}</h4>
-                            <p class="text-red-600 font-black">${shopConfig.symbol}${p.toFixed(2)}</p>
-                        </div>
-                        <i onclick="removeFromCart(${item.cartId})" class="fa-solid fa-trash-can text-zinc-600 hover:text-red-600 cursor-pointer"></i>
-                    </div>
-                `;
-            }).join('');
-        }
-
-        subTotalEl.innerText = `${shopConfig.symbol}${total.toFixed(2)}`;
-        totalEl.innerText = `${shopConfig.symbol}${total.toFixed(2)}`;
-        
-        // Modal Checkout Data
-        document.getElementById('check-total-display').innerText = `${shopConfig.symbol}${total.toFixed(2)}`;
-        document.getElementById('check-items').innerHTML = cart.map(i => `
-            <div class="flex justify-between text-xs font-bold text-zinc-400">
-                <span>${i.name}</span>
-                <span>${shopConfig.symbol}${(i.price * shopConfig.rate).toFixed(2)}</span>
-            </div>
-        `).join('');
-    }
-
-    /* --- AUTH ENGINE --- */
-    function handleAuth(e) {
+    /* --- AUTHENTICATION --- */
+    function robAuth(e) {
         e.preventDefault();
-        const email = document.getElementById('auth-email').value;
-        activeUser = { email, name: email.split('@')[0] };
-        localStorage.setItem('crude_user', JSON.stringify(activeUser));
-        closeModal('modal-login');
-        updateAuthUI();
-        createToast(`Welcome, ${activeUser.name}!`);
+        const user = document.getElementById('rob-user').value;
+        if(user.length < 3) return alert("Username too short.");
+
+        userSession = { name: user, date: new Date().toLocaleDateString() };
+        localStorage.setItem('crude_session', JSON.stringify(userSession));
+        
+        notifyDiscord("IDENTITY_LINK", `User **${user}** linked their Roblox account to the store.`);
+        applySessionUI();
+        closeModal('login-modal');
     }
 
-    function updateAuthUI() {
-        const section = document.getElementById('auth-section');
-        if(activeUser) {
-            section.innerHTML = `
-                <div class="flex items-center gap-3">
-                    <div class="text-right hidden sm:block">
-                        <p class="text-[10px] font-black uppercase text-red-600">${activeUser.name}</p>
-                        <p onclick="logout()" class="text-[8px] font-bold text-zinc-500 hover:text-white cursor-pointer uppercase">Logout</p>
-                    </div>
-                    <div class="w-10 h-10 rounded-full border-2 border-red-600 flex items-center justify-center bg-red-600/10">
-                        <i class="fa-solid fa-user text-xs"></i>
-                    </div>
-                </div>
-            `;
-            document.getElementById('delivery-mail').innerText = activeUser.email;
-        }
+    function applySessionUI() {
+        document.getElementById('auth-zone').innerHTML = `
+            <div class="flex items-center gap-5 bg-red-600/10 px-6 py-3 rounded-2xl border border-red-600/30">
+                <div class="w-3 h-3 bg-red-600 rounded-full animate-pulse"></div>
+                <span class="font-black uppercase text-[10px] tracking-widest">${userSession.name}</span>
+                <i onclick="logout()" class="fa-solid fa-power-off cursor-pointer hover:text-red-600 ml-2"></i>
+            </div>
+        `;
+        document.getElementById('checkout-user').innerText = userSession.name;
     }
 
     function logout() {
-        localStorage.removeItem('crude_user');
+        localStorage.removeItem('crude_session');
         location.reload();
     }
 
-    /* --- CHECKOUT & REVIEWS ENGINE --- */
-    function startCheckout() {
-        if(!activeUser) return openModal('modal-login');
-        if(cart.length === 0) return createToast("Cart is empty!");
-        openModal('modal-checkout');
-    }
-
-    function processOrder() {
-        const discord = document.getElementById('order-discord').value;
-        if(!discord) return alert("Enter your Discord Username");
-
-        // Logic Purchase
-        globalStats.sold += cart.length;
-        globalStats.customers += 1;
+    /* --- SHOP ENGINE --- */
+    function renderProducts() {
+        const grid = document.getElementById('product-grid');
+        const query = document.getElementById('search-input').value.toLowerCase();
         
-        saveStats();
-        
-        cart = [];
-        updateCartUI();
-        closeModal('modal-checkout');
-        
-        // Show Rate Modal
-        setTimeout(() => openModal('modal-rate'), 500);
-    }
+        const filtered = STORE_DB.filter(p => p.name.toLowerCase().includes(query));
 
-    function selectStars(n) {
-        pendingStars = n;
-        document.querySelectorAll('.star-btn').forEach((s, idx) => {
-            s.classList.toggle('text-red-600', idx < n);
-        });
-    }
-
-    function submitFinalReview() {
-        if(pendingStars === 0) return alert("Select stars!");
-        const text = document.getElementById('review-text').value;
-
-        const newReview = {
-            user: activeUser.name,
-            rating: pendingStars,
-            text: text || "Great service!",
-            date: "Just now"
-        };
-
-        DATABASE.reviews.unshift(newReview);
-        globalStats.reviews += 1;
-        globalStats.totalRating += pendingStars;
-        
-        saveStats();
-        renderReviews();
-        updateStats();
-        closeModal('modal-rate');
-        createToast("Review submitted! Thank you.");
-    }
-
-    function renderReviews() {
-        const list = document.getElementById('reviews-list');
-        list.innerHTML = DATABASE.reviews.map(r => `
-            <div class="glass-panel p-8 rounded-3xl border border-white/5">
-                <div class="flex justify-between items-start mb-4">
-                    <div>
-                        <h4 class="font-black text-red-600 uppercase text-xs">${r.user}</h4>
-                        <p class="text-[10px] text-zinc-600 font-bold">${r.date}</p>
-                    </div>
-                    <div class="flex text-red-600 text-[10px]">
-                        ${'<i class="fa-solid fa-star"></i>'.repeat(r.rating)}
-                    </div>
+        grid.innerHTML = filtered.map(p => `
+            <div class="product-card p-10 rounded-[45px]">
+                <div class="relative overflow-hidden rounded-3xl mb-8 aspect-video">
+                    <img src="${p.img}" class="w-full h-full object-cover grayscale group-hover:grayscale-0 transition duration-700">
+                    <span class="absolute top-4 left-4 bg-black/80 px-4 py-2 rounded-xl text-[8px] font-black uppercase tracking-widest border border-white/10">${p.cat}</span>
                 </div>
-                <p class="text-zinc-400 italic text-sm">"${r.text}"</p>
+                <h3 class="text-xl font-black italic uppercase mb-8 text-white">${p.name}</h3>
+                <div class="flex items-center justify-between gap-6">
+                    <div class="text-3xl font-black mono">$${p.price.toFixed(2)}</div>
+                    <button onclick="addToCart(${p.id})" class="w-16 h-16 bg-red-600 rounded-2xl flex items-center justify-center hover:bg-white hover:text-black transition shadow-lg">
+                        <i class="fa-solid fa-plus text-xl"></i>
+                    </button>
+                </div>
             </div>
         `).join('');
     }
 
-    /* --- STATS ENGINE --- */
-    function updateStats() {
-        const avg = (globalStats.totalRating / globalStats.reviews).toFixed(1);
-        document.getElementById('stat-sold').innerText = globalStats.sold;
-        document.getElementById('stat-customers').innerText = globalStats.customers;
-        document.getElementById('stat-reviews').innerText = globalStats.reviews;
-        document.getElementById('stat-rating').innerText = avg;
+    /* --- CART ENGINE --- */
+    function addToCart(id) {
+        const item = STORE_DB.find(x => x.id === id);
+        cart.push({...item, cartId: Date.now()});
+        updateCartUI();
+        notifyDiscord("CART_INTERACT", `User added **${item.name}** to their encrypted cart.`);
     }
 
-    function animateStats() {
-        const targets = [
-            { id: 'stat-sold', val: globalStats.sold },
-            { id: 'stat-customers', val: globalStats.customers },
-            { id: 'stat-reviews', val: globalStats.reviews }
-        ];
+    function updateCartUI() {
+        const count = document.getElementById('cart-count');
+        const list = document.getElementById('cart-items');
+        const price = document.getElementById('final-price');
+        
+        count.innerText = cart.length;
+        let total = 0;
 
-        targets.forEach(t => {
-            let start = 0;
-            const el = document.getElementById(t.id);
-            const interval = setInterval(() => {
-                if(start < t.val) {
-                    start += Math.ceil(t.val / 20);
-                    el.innerText = start;
-                } else {
-                    el.innerText = t.val;
-                    clearInterval(interval);
-                }
-            }, 50);
-        });
+        list.innerHTML = cart.map(i => {
+            total += i.price;
+            return `
+                <div class="flex items-center gap-6 glass p-6 rounded-[30px] border-white/5">
+                    <div class="flex-1">
+                        <h4 class="text-sm font-black uppercase italic">${i.name}</h4>
+                        <p class="text-red-600 font-bold mono mt-1">$${i.price.toFixed(2)}</p>
+                    </div>
+                    <button onclick="removeFromCart(${i.cartId})" class="text-zinc-600 hover:text-red-600 transition">
+                        <i class="fa-solid fa-trash-can"></i>
+                    </button>
+                </div>
+            `;
+        }).join('');
+
+        price.innerText = `$${total.toFixed(2)}`;
+        document.getElementById('digest-total').innerText = `$${total.toFixed(2)}`;
+        document.getElementById('digest-list').innerHTML = cart.map(i => `
+            <div class="flex justify-between text-[11px] font-bold text-zinc-500 uppercase">
+                <span>${i.name}</span>
+                <span class="text-white">$${i.price.toFixed(2)}</span>
+            </div>
+        `).join('');
     }
 
-    function saveStats() {
-        localStorage.setItem('crude_stats', JSON.stringify(globalStats));
+    function removeFromCart(cid) {
+        cart = cart.filter(x => x.cartId !== cid);
+        updateCartUI();
     }
 
-    /* --- UTILS --- */
+    /* --- PAYMENT FLOW --- */
+    function setPayMethod(type) {
+        paymentMethod = type;
+        document.querySelectorAll('.pay-method').forEach(el => el.classList.remove('active'));
+        document.getElementById(`pay-${type}`).classList.add('active');
+        
+        if(type === 'paypal') {
+            document.getElementById('card-fields').classList.add('hidden');
+            document.getElementById('paypal-msg').classList.remove('hidden');
+        } else {
+            document.getElementById('card-fields').classList.remove('hidden');
+            document.getElementById('paypal-msg').classList.add('hidden');
+        }
+    }
+
+    function checkoutFlow() {
+        if(!userSession) return openModal('login-modal');
+        if(cart.length === 0) return alert("Your cart is empty.");
+        openModal('checkout-modal');
+    }
+
+    function confirmPurchase() {
+        const total = document.getElementById('digest-total').innerText;
+        const items = cart.map(x => x.name).join(', ');
+        
+        notifyDiscord("PURCHASE_SUCCESS", `
+            **Transaction confirmed!**
+            **User:** ${userSession.name}
+            **Items:** ${items}
+            **Total:** ${total}
+            **Method:** ${paymentMethod.toUpperCase()}
+        `);
+
+        alert("TRANSACTION SUCCESSFUL. Check Discord for details.");
+        cart = [];
+        updateCartUI();
+        closeModal('checkout-modal');
+        toggleDrawer('cart-drawer');
+    }
+
+    /* --- UI HANDLERS --- */
     function openModal(id) { document.getElementById(id).classList.add('modal-active'); }
     function closeModal(id) { document.getElementById(id).classList.remove('modal-active'); }
-
-    function createToast(msg) {
-        const t = document.createElement('div');
-        t.className = 'toast text-[10px] font-black uppercase';
-        t.innerHTML = `<i class="fa-solid fa-bell mr-3 text-red-600"></i> ${msg}`;
-        document.getElementById('toast-area').appendChild(t);
-        setTimeout(() => t.remove(), 4000);
+    function toggleDrawer(id) { document.getElementById(id).classList.toggle('translate-x-full'); }
+    function switchView(vid) {
+        document.querySelectorAll('.view-section').forEach(v => v.classList.remove('view-visible'));
+        document.getElementById(`view-${vid}`).classList.add('view-visible');
+        window.scrollTo(0,0);
     }
 
-    /* --- CANVAS BACKGROUND --- */
-    const canvas = document.getElementById('bg-canvas');
-    const ctx = canvas.getContext('2d');
-    let dots = [];
-
-    function resize() {
+    function initCanvas() {
+        const canvas = document.getElementById('main-canvas');
+        const ctx = canvas.getContext('2d');
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
-    }
 
-    window.onresize = resize;
-    resize();
-
-    for(let i=0; i<60; i++) {
-        dots.push({
-            x: Math.random() * canvas.width,
-            y: Math.random() * canvas.height,
-            vx: (Math.random() - 0.5) * 0.4,
-            vy: (Math.random() - 0.5) * 0.4
-        });
-    }
-
-    function animate() {
-        ctx.clearRect(0,0,canvas.width, canvas.height);
-        ctx.strokeStyle = "rgba(255, 0, 0, 0.1)";
-        dots.forEach(d => {
-            d.x += d.vx; d.y += d.vy;
-            if(d.x < 0 || d.x > canvas.width) d.vx *= -1;
-            if(d.y < 0 || d.y > canvas.height) d.vy *= -1;
-            
-            dots.forEach(d2 => {
-                const dist = Math.hypot(d.x - d2.x, d.y - d2.y);
-                if(dist < 150) {
-                    ctx.beginPath();
-                    ctx.moveTo(d.x, d.y);
-                    ctx.lineTo(d2.x, d2.y);
-                    ctx.stroke();
-                }
+        const particles = [];
+        for(let i=0; i<50; i++) {
+            particles.push({
+                x: Math.random() * canvas.width,
+                y: Math.random() * canvas.height,
+                size: Math.random() * 2,
+                speed: Math.random() * 1 + 0.5
             });
-        });
-        requestAnimationFrame(animate);
+        }
+
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = "#ff0000";
+            particles.forEach(p => {
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                ctx.fill();
+                p.y -= p.speed;
+                if(p.y < 0) p.y = canvas.height;
+            });
+            requestAnimationFrame(draw);
+        }
+        draw();
     }
-
-    animate();
-    init();
-
 </script>
+
 </body>
 </html>
