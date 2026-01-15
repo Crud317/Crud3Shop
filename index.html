@@ -3,140 +3,350 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CRUD3 SHOP | Apex Professional</title>
+    <title>CRUD3 SHOP | Professional Elite</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
     <script src="https://www.paypal.com/sdk/js?client-id=test&currency=USD"></script>
 
     <style>
         :root {
             --bg: #050505;
             --sidebar: #080808;
-            --card: #0c0c0c;
             --accent: #e11d48;
-            --border: rgba(255, 255, 255, 0.05);
+            --card: #0c0c0c;
+            --border: rgba(255, 255, 255, 0.08);
         }
 
         body {
             background-color: var(--bg);
-            color: #ffffff;
+            color: #fff;
             font-family: 'Plus Jakarta Sans', sans-serif;
             overflow: hidden;
+            margin: 0;
         }
 
-        /* --- SISTEMA DE NAVEGACIÓN (VENTANAS) --- */
-        .view-section { display: none; }
-        .view-section.active { display: block; animation: viewFade 0.4s ease forwards; }
-
-        @keyframes viewFade {
-            from { opacity: 0; transform: translateY(15px); }
-            to { opacity: 1; transform: translateY(0); }
+        /* --- ANIMACIÓN DE NUBES DE FONDO --- */
+        .cloud {
+            position: absolute;
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, rgba(225, 29, 72, 0.1) 0%, transparent 70%);
+            z-index: -1;
+            filter: blur(60px);
+            animation: moveClouds 20s infinite alternate;
         }
 
-        /* --- SIDEBAR RIFTS STYLE --- */
-        .sidebar-item.active {
-            background: linear-gradient(90deg, rgba(225, 29, 72, 0.1) 0%, transparent 100%);
-            border-left: 3px solid var(--accent);
+        @keyframes moveClouds {
+            from { transform: translate(-10%, -10%); }
+            to { transform: translate(20%, 20%); }
+        }
+
+        /* --- SISTEMA DE VISTAS (SPA) --- */
+        .section-view { display: none; opacity: 0; transform: translateY(10px); transition: all 0.3s ease; }
+        .section-view.active { display: block; opacity: 1; transform: translateY(0); }
+
+        /* --- SIDEBAR --- */
+        .nav-link.active {
+            background: linear-gradient(90deg, rgba(225, 29, 72, 0.15) 0%, transparent 100%);
+            border-left: 4px solid var(--accent);
             color: #fff;
         }
 
-        /* --- NUBES DE NOTIFICACIÓN (TOASTS) --- */
-        #toast-container {
+        /* --- MODALES (VENTANAS) --- */
+        .modal-overlay {
             position: fixed;
-            top: 20px;
-            right: 20px;
-            z-index: 9999;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(8px);
+            z-index: 100;
+            display: none; /* Controlado por JS */
+            align-items: center;
+            justify-content: center;
+            animation: fadeIn 0.2s ease;
         }
 
-        .toast-nube {
-            background: rgba(15, 15, 15, 0.9);
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        /* --- NOTIFICACIONES (TOASTS) --- */
+        #toast-container { position: fixed; top: 20px; right: 20px; z-index: 1000; }
+        .toast {
+            background: #111;
             border: 1px solid var(--accent);
-            backdrop-filter: blur(10px);
-            padding: 12px 20px;
+            padding: 12px 24px;
             border-radius: 12px;
             margin-bottom: 10px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.5);
             display: flex;
             align-items: center;
             gap: 12px;
-            animation: slideInRight 0.3s ease-out;
+            animation: slideLeft 0.3s ease forwards;
         }
 
-        @keyframes slideInRight {
-            from { transform: translateX(100%); opacity: 0; }
-            to { transform: translateX(0); opacity: 1; }
-        }
+        @keyframes slideLeft { from { transform: translateX(100%); } to { transform: translateX(0); } }
 
-        /* --- EFECTO NEÓN NUBES FONDO --- */
-        .cloud-glow {
-            position: absolute;
-            width: 400px;
-            height: 400px;
-            background: radial-gradient(circle, rgba(225, 29, 72, 0.08) 0%, transparent 70%);
-            z-index: -1;
-            pointer-events: none;
-        }
-
-        /* --- PRODUCT CARDS --- */
-        .card-apex {
+        /* Estilos de Tarjeta */
+        .item-card {
             background: var(--card);
             border: 1px solid var(--border);
-            transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: 0.3s;
+            cursor: pointer;
         }
-
-        .card-apex:hover {
+        .item-card:hover {
             border-color: var(--accent);
             transform: translateY(-5px);
-            box-shadow: 0 10px 40px -10px rgba(225, 29, 72, 0.2);
+            box-shadow: 0 15px 30px -10px rgba(225, 29, 72, 0.2);
         }
     </style>
 </head>
-<body class="flex h-screen overflow-hidden">
+<body class="flex h-screen w-screen">
 
-    <div class="cloud-glow top-[-100px] right-[-100px]"></div>
-    <div class="cloud-glow bottom-[-100px] left-[-100px]"></div>
+    <div class="cloud" style="top: -100px; left: -100px;"></div>
+    <div class="cloud" style="bottom: -100px; right: -100px; animation-delay: -5s;"></div>
 
     <div id="toast-container"></div>
 
     <aside class="w-72 bg-[#080808] border-r border-white/5 flex flex-col z-50">
-        <div class="p-8 flex items-center gap-4">
-            <div class="w-10 h-10 bg-rose-600 rounded-xl flex items-center justify-center font-black italic shadow-[0_0_20px_rgba(225,29,72,0.3)]">C</div>
-            <span class="text-xl font-bold tracking-tighter uppercase italic">CRUD3 <span class="text-rose-600">SHOP</span></span>
+        <div class="p-8">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-rose-600 rounded-xl flex items-center justify-center font-bold text-xl italic shadow-lg shadow-rose-600/30">C</div>
+                <h1 class="text-xl font-extrabold tracking-tighter uppercase italic">CRUD3 <span class="text-rose-600">SHOP</span></h1>
+            </div>
         </div>
 
         <nav class="flex-1 px-4 space-y-1">
-            <p class="text-[10px] font-bold text-zinc-600 uppercase tracking-widest ml-4 mb-4">Navegación</p>
-            <button onclick="router('store')" class="sidebar-item active w-full flex items-center gap-4 px-4 py-3.5 rounded-xl text-zinc-400 hover:text-white transition">
-                <i class="fa-solid fa-shop"></i> <span class="text-sm font-semibold">Productos</span>
+            <p class="text-[10px] font-bold text-zinc-600 uppercase tracking-[2px] ml-4 mb-4">Marketplace</p>
+            <button onclick="router('store')" id="btn-store" class="nav-link active w-full flex items-center gap-4 px-4 py-3.5 rounded-xl text-zinc-400 hover:text-white transition">
+                <i class="fa-solid fa-house-chimney text-sm"></i>
+                <span class="text-sm font-semibold">Inicio</span>
             </button>
-            <button onclick="router('faq')" class="sidebar-item w-full flex items-center gap-4 px-4 py-3.5 rounded-xl text-zinc-400 hover:text-white transition">
-                <i class="fa-solid fa-circle-question"></i> <span class="text-sm font-semibold">Preguntas</span>
+            <button onclick="router('faq')" id="btn-faq" class="nav-link w-full flex items-center gap-4 px-4 py-3.5 rounded-xl text-zinc-400 hover:text-white transition">
+                <i class="fa-solid fa-circle-question text-sm"></i>
+                <span class="text-sm font-semibold">Preguntas</span>
             </button>
-            <button onclick="router('reviews')" class="sidebar-item w-full flex items-center gap-4 px-4 py-3.5 rounded-xl text-zinc-400 hover:text-white transition">
-                <i class="fa-solid fa-star"></i> <span class="text-sm font-semibold">Reseñas</span>
-            </button>
-            <button onclick="router('tos')" class="sidebar-item w-full flex items-center gap-4 px-4 py-3.5 rounded-xl text-zinc-400 hover:text-white transition">
-                <i class="fa-solid fa-shield-halved"></i> <span class="text-sm font-semibold">Términos</span>
+            <button onclick="router('tos')" id="btn-tos" class="nav-link w-full flex items-center gap-4 px-4 py-3.5 rounded-xl text-zinc-400 hover:text-white transition">
+                <i class="fa-solid fa-file-contract text-sm"></i>
+                <span class="text-sm font-semibold">Términos</span>
             </button>
         </nav>
 
         <div class="p-6">
-            <a href="https://discord.gg/wxCNQCNn" class="flex items-center justify-center gap-3 bg-[#5865f2] hover:bg-[#4752c4] py-3.5 rounded-2xl font-bold text-sm transition">
-                <i class="fa-brands fa-discord text-lg"></i> Discord
+            <a href="https://discord.gg/wxCNQCNn" class="w-full bg-[#5865f2] hover:bg-[#4752c4] py-3.5 rounded-2xl flex items-center justify-center gap-2 font-bold text-sm transition shadow-lg">
+                <i class="fa-brands fa-discord"></i> Discord
             </a>
         </div>
     </aside>
 
-    <div class="flex-1 flex flex-col h-screen overflow-hidden">
+    <main class="flex-1 flex flex-col min-w-0 overflow-hidden relative">
         
-        <header class="h-24 flex items-center justify-between px-10 border-b border-white/5 bg-[#050505]/50 backdrop-blur-md">
-            <div class="relative w-full max-w-lg">
-                <i class="fa-solid fa-search absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500"></i>
-                <input type="text" id="searchBar" oninput="app.search()" placeholder="¿Qué estás buscando hoy?..." class="w-full bg-white/5 border border-white/10 rounded-2xl py-3 pl-12 pr-4 text-sm focus:border-rose-600 outline-none transition">
+        <header class="h-20 border-b border-white/5 flex items-center justify-between px-10 bg-[#050505]/60 backdrop-blur-xl z-40">
+            <div class="relative w-full max-w-md">
+                <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500"></i>
+                <input type="text" id="searchInput" oninput="shop.filter()" placeholder="Buscar productos..." class="w-full bg-white/5 border border-white/10 rounded-xl py-2.5 pl-12 pr-4 text-sm focus:border-rose-600 outline-none transition">
             </div>
             <div class="flex items-center gap-4">
-                <div class="bg-green-500/10 border border-green-500/20 px-4 py-2 rounded-full flex items-center gap-2">
-                    <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse
+                <div class="flex items-center gap-2 bg-green-500/10 border border-green-500/20 px-4 py-1.5 rounded-full">
+                    <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
+                    <span class="text-[10px] font-black text-green-500 uppercase">ONLINE</span>
+                </div>
+            </div>
+        </header>
+
+        <div class="flex-1 overflow-y-auto p-10">
+            
+            <section id="view-store" class="section-view active">
+                <div class="flex items-center justify-between mb-10">
+                    <h2 class="text-4xl font-black italic uppercase tracking-tighter">Explorar <span class="text-rose-600">Items</span></h2>
+                    <div class="flex bg-white/5 p-1 rounded-xl border border-white/5">
+                        <button onclick="shop.setCat('all')" class="cat-btn bg-rose-600 px-5 py-2 rounded-lg text-[10px] font-bold uppercase transition">Todos</button>
+                        <button onclick="shop.setCat('accounts')" class="cat-btn px-5 py-2 rounded-lg text-[10px] font-bold uppercase text-zinc-500 hover:text-white transition">Cuentas</button>
+                        <button onclick="shop.setCat('items')" class="cat-btn px-5 py-2 rounded-lg text-[10px] font-bold uppercase text-zinc-500 hover:text-white transition">Objetos</button>
+                    </div>
+                </div>
+
+                <div id="product-grid" class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6">
+                    </div>
+            </section>
+
+            <section id="view-faq" class="section-view max-w-3xl mx-auto">
+                <h2 class="text-3xl font-black uppercase italic mb-8">Preguntas <span class="text-rose-600">Frecuentes</span></h2>
+                <div class="space-y-4" id="faq-list">
+                    <div class="bg-white/5 p-6 rounded-2xl border border-white/10">
+                        <h3 class="font-bold text-rose-500">¿Cómo recibo mi cuenta?</h3>
+                        <p class="text-zinc-400 text-sm mt-2">La entrega es inmediata a través de nuestro sistema de tickets en Discord una vez que el pago sea validado.</p>
+                    </div>
+                </div>
+            </section>
+
+            <section id="view-tos" class="section-view max-w-3xl mx-auto">
+                <h2 class="text-3xl font-black uppercase italic mb-8">Términos de <span class="text-rose-600">Servicio</span></h2>
+                <div class="bg-white/5 p-8 rounded-3xl border border-white/10 text-zinc-400 text-sm leading-relaxed">
+                    <p class="mb-4">1. Al realizar una compra, aceptas que no hay reembolsos debido a la naturaleza digital de los productos.</p>
+                    <p>2. No nos hacemos responsables por baneos de terceros si se infringe la normativa de Roblox.</p>
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+    <div id="paymentModal" class="modal-overlay">
+        <div class="bg-[#0a0a0a] border border-white/10 w-full max-w-xl rounded-[2.5rem] overflow-hidden shadow-2xl">
+            <div class="p-8 border-b border-white/5 flex justify-between items-center bg-white/5">
+                <div>
+                    <h3 id="m-name" class="text-2xl font-black uppercase italic">Item</h3>
+                    <p id="m-price" class="text-rose-500 font-extrabold text-xl mt-1">$0.00</p>
+                </div>
+                <button onclick="closeModal()" class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-white/10 transition text-zinc-500 hover:text-white">
+                    <i class="fa-solid fa-xmark text-xl"></i>
+                </button>
+            </div>
+            
+            <div class="p-8 space-y-6">
+                <div>
+                    <label class="text-[10px] font-black text-zinc-500 uppercase tracking-widest ml-1 mb-2 block">Usuario de Roblox</label>
+                    <input type="text" id="rbxUser" placeholder="Tu nombre de usuario..." class="w-full bg-black border border-white/10 p-4 rounded-2xl outline-none focus:border-rose-600 transition text-sm">
+                </div>
+                <div id="paypal-container" class="min-h-[150px]"></div>
+                <p class="text-center text-[9px] text-zinc-600 uppercase font-bold tracking-widest">Protegido por CRUD3 SECURE-PAY</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- 1. BASE DE DATOS ---
+        const PRODUCTS = [
+            { id: 1, name: "Epic Devil Blade", price: 15.00, cat: "items", stock: 12, img: "https://tr.rbxcdn.com/180da92042296d04254479e0a022989b/420/420/Image/Png" },
+            { id: 2, name: "Max Level Blox Fruit", price: 45.00, cat: "accounts", stock: 3, img: "https://tr.rbxcdn.com/3931657805626a575083759367123984/420/420/Image/Png" },
+            { id: 3, name: "Dual Cursed Katana", price: 25.00, cat: "items", stock: 5, img: "https://tr.rbxcdn.com/c60787a9355745191535456209867919/420/420/Image/Png" },
+            { id: 4, name: "100M Beli Cash", price: 10.00, cat: "items", stock: "99+", img: "https://tr.rbxcdn.com/027376045622089228929283742/420/420/Image/Png" },
+            { id: 5, name: "Cuentas CDK + Soul", price: 55.00, cat: "accounts", stock: 1, img: "" },
+            { id: 6, name: "Dark Blade Gamepass", price: 30.00, cat: "items", stock: 8, img: "" }
+        ];
+
+        // --- 2. GESTIÓN DE TIENDA ---
+        const shop = {
+            currentCat: 'all',
+            selectedItem: null,
+
+            init() {
+                this.render();
+                showNotification("CRUD3 SHOP Cargada Correctamente", "fa-check");
+            },
+
+            render() {
+                const grid = document.getElementById('product-grid');
+                const search = document.getElementById('searchInput').value.toLowerCase();
+                
+                const filtered = PRODUCTS.filter(p => {
+                    const matchCat = this.currentCat === 'all' || p.cat === this.currentCat;
+                    const matchSearch = p.name.toLowerCase().includes(search);
+                    return matchCat && matchSearch;
+                });
+
+                grid.innerHTML = filtered.map(p => `
+                    <div class="item-card rounded-[2rem] p-5 flex flex-col group" onclick="openModal(${p.id})">
+                        <div class="h-44 bg-black/50 rounded-3xl mb-4 flex items-center justify-center relative border border-white/5 overflow-hidden">
+                            ${p.img ? `<img src="${p.img}" class="w-2/3 group-hover:scale-110 transition duration-500">` : `<i class="fa-solid fa-box text-5xl text-zinc-900"></i>`}
+                            <div class="absolute top-3 left-3 bg-rose-600 text-[8px] font-black px-2 py-0.5 rounded italic">NEW</div>
+                        </div>
+                        <div class="flex justify-between items-center mb-1">
+                            <span class="text-[9px] font-bold text-zinc-600 uppercase tracking-widest">${p.cat}</span>
+                            <span class="text-[9px] font-bold text-green-500 uppercase">Stock: ${p.stock}</span>
+                        </div>
+                        <h3 class="font-bold text-sm text-zinc-200 group-hover:text-rose-500 transition mb-4">${p.name}</h3>
+                        <div class="mt-auto flex items-center justify-between pt-4 border-t border-white/5">
+                            <span class="text-xl font-black text-white">$${p.price.toFixed(2)}</span>
+                            <button class="bg-white text-black text-[9px] font-black px-4 py-2 rounded-xl group-hover:bg-rose-600 group-hover:text-white transition uppercase">Comprar</button>
+                        </div>
+                    </div>
+                `).join('');
+            },
+
+            setCat(cat) {
+                this.currentCat = cat;
+                document.querySelectorAll('.cat-btn').forEach(b => {
+                    b.classList.remove('bg-rose-600', 'text-white');
+                    b.classList.add('text-zinc-500');
+                });
+                event.currentTarget.classList.add('bg-rose-600', 'text-white');
+                event.currentTarget.classList.remove('text-zinc-500');
+                this.render();
+                showNotification("Filtrando por: " + cat, "fa-filter");
+            },
+
+            filter() { this.render(); }
+        };
+
+        // --- 3. NAVEGACIÓN (ROUTER) ---
+        function router(viewId) {
+            // Ocultar todas las secciones
+            document.querySelectorAll('.section-view').forEach(v => v.classList.remove('active'));
+            // Mostrar la seleccionada
+            document.getElementById('view-' + viewId).classList.add('active');
+            
+            // Actualizar botones del sidebar
+            document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+            document.getElementById('btn-' + viewId).classList.add('active');
+
+            showNotification("Navegando a: " + viewId.toUpperCase(), "fa-eye");
+        }
+
+        // --- 4. VENTANAS (MODALES) ---
+        function openModal(id) {
+            const item = PRODUCTS.find(p => p.id === id);
+            shop.selectedItem = item;
+            
+            document.getElementById('m-name').innerText = item.name;
+            document.getElementById('m-price').innerText = `$${item.price.toFixed(2)} USD`;
+            document.getElementById('paymentModal').style.display = 'flex';
+            
+            // Reiniciar PayPal Button
+            document.getElementById('paypal-container').innerHTML = '';
+            paypal.Buttons({
+                createOrder: (data, actions) => {
+                    const user = document.getElementById('rbxUser').value;
+                    if(!user) { 
+                        showNotification("Ingresa tu usuario de Roblox", "fa-exclamation-triangle"); 
+                        return; 
+                    }
+                    return actions.order.create({
+                        purchase_units: [{
+                            description: `${item.name} - User: ${user}`,
+                            amount: { value: item.price.toString() }
+                        }]
+                    });
+                },
+                onApprove: (data, actions) => {
+                    return actions.order.capture().then(() => {
+                        showNotification("¡Pago Exitoso! Entra a Discord.", "fa-check-circle");
+                        window.location.href = "https://discord.gg/wxCNQCNn";
+                    });
+                }
+            }).render('#paypal-container');
+        }
+
+        function closeModal() {
+            document.getElementById('paymentModal').style.display = 'none';
+        }
+
+        // --- 5. NOTIFICACIONES (TOASTS) ---
+        function showNotification(msg, icon) {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.innerHTML = `<i class="fa-solid ${icon} text-rose-500"></i> <span class="text-xs font-bold uppercase">${msg}</span>`;
+            container.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateX(50px)';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        // INICIAR AL CARGAR
+        window.onload = () => shop.init();
+    </script>
+</body>
+</html>
