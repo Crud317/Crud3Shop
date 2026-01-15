@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CRUD3 SHOP | Elite Marketplace</title>
+    <title>CRUD3 SHOP | Professional Marketplace</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     
-    <script src="https://www.paypal.com/sdk/js?client-id=test&currency=USD&components=buttons&enable-funding=venmo,card"></script>
+    <script src="https://www.paypal.com/sdk/js?client-id=test&currency=USD"></script>
 
     <style>
         :root {
@@ -17,7 +17,6 @@
             --sidebar: #090909;
             --card: #0d0d0d;
             --accent: #e11d48;
-            --accent-glow: rgba(225, 29, 72, 0.3);
             --border: rgba(255, 255, 255, 0.06);
         }
 
@@ -25,176 +24,126 @@
             background-color: var(--bg);
             color: #ffffff;
             font-family: 'Plus Jakarta Sans', sans-serif;
-            overflow: hidden;
+            overflow: hidden; /* Controlado por el contenedor principal */
         }
 
-        /* Custom Scrollbar */
-        ::-webkit-scrollbar { width: 4px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: #222; border-radius: 10px; }
-        ::-webkit-scrollbar-thumb:hover { background: var(--accent); }
+        /* Sistema de secciones */
+        .page-section { display: none; animation: fadeIn 0.4s ease-out forwards; }
+        .page-section.active { display: block; }
 
-        /* Animaciones */
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        .animate-fade { animation: fadeIn 0.4s ease forwards; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
 
+        /* Estilos de la Sidebar */
+        .sidebar-link.active {
+            background: linear-gradient(90deg, rgba(225, 29, 72, 0.1) 0%, transparent 100%);
+            color: #fff;
+            border-left: 4px solid var(--accent);
+        }
+
+        /* Tarjetas Premium */
         .product-card {
             background: var(--card);
             border: 1px solid var(--border);
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            position: relative;
-            overflow: hidden;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         .product-card:hover {
             border-color: var(--accent);
-            transform: translateY(-8px);
-            box-shadow: 0 20px 40px -15px var(--accent-glow);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(225, 29, 72, 0.1);
         }
 
-        .product-card::before {
-            content: '';
-            position: absolute;
-            top: 0; left: -100%;
-            width: 100%; height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.03), transparent);
-            transition: 0.5s;
-        }
-
-        .product-card:hover::before { left: 100%; }
-
-        .sidebar-item.active {
-            background: linear-gradient(90deg, rgba(225, 29, 72, 0.15) 0%, transparent 100%);
-            color: #fff;
-            border-left: 3px solid var(--accent);
-        }
-
-        .method-btn.active {
-            border-color: var(--accent);
-            background: rgba(225, 29, 72, 0.1);
-        }
-
-        /* Glass Effect */
-        .glass { background: rgba(9, 9, 9, 0.8); backdrop-filter: blur(12px); }
+        /* Scroll personalizado */
+        .custom-scroll::-webkit-scrollbar { width: 6px; }
+        .custom-scroll::-webkit-scrollbar-track { background: transparent; }
+        .custom-scroll::-webkit-scrollbar-thumb { background: #1a1a1a; border-radius: 10px; }
     </style>
 </head>
-<body class="flex h-screen">
+<body class="flex h-screen w-screen overflow-hidden">
 
-    <aside class="w-72 bg-[#080808] border-r border-white/5 flex flex-col hidden lg:flex">
+    <aside class="w-72 bg-[#080808] border-r border-white/5 flex flex-col z-50">
         <div class="p-8">
             <div class="flex items-center gap-3">
-                <div class="w-10 h-10 bg-rose-600 rounded-xl flex items-center justify-center shadow-[0_0_20px_rgba(225,29,72,0.4)]">
-                    <i class="fa-solid fa-bolt text-white"></i>
-                </div>
-                <h1 class="text-2xl font-extrabold tracking-tighter uppercase italic">CRUD3 <span class="text-rose-600">SHOP</span></h1>
+                <div class="w-10 h-10 bg-rose-600 rounded-xl flex items-center justify-center shadow-lg shadow-rose-600/20 font-bold italic">C</div>
+                <h1 class="text-xl font-extrabold tracking-tighter uppercase">CRUD3 <span class="text-rose-600">SHOP</span></h1>
             </div>
         </div>
 
-        <nav class="flex-1 px-4 space-y-2">
-            <p class="text-[10px] font-bold text-zinc-500 uppercase tracking-widest ml-4 mb-4">Marketplace</p>
-            <div onclick="filterCat('all', this)" class="sidebar-item active p-4 rounded-xl flex items-center gap-4 cursor-pointer text-zinc-400 hover:text-white transition group">
-                <i class="fa-solid fa-house group-hover:text-rose-500 transition"></i> <span class="font-semibold text-sm">All Products</span>
-            </div>
-            <div onclick="filterCat('accounts', this)" class="sidebar-item p-4 rounded-xl flex items-center gap-4 cursor-pointer text-zinc-400 hover:text-white transition group">
-                <i class="fa-solid fa-user-shield group-hover:text-rose-500 transition"></i> <span class="font-semibold text-sm">Accounts</span>
-            </div>
-            <div onclick="filterCat('items', this)" class="sidebar-item p-4 rounded-xl flex items-center gap-4 cursor-pointer text-zinc-400 hover:text-white transition group">
-                <i class="fa-solid fa-gem group-hover:text-rose-500 transition"></i> <span class="font-semibold text-sm">Exclusive Items</span>
-            </div>
-            <div onclick="filterCat('currency', this)" class="sidebar-item p-4 rounded-xl flex items-center gap-4 cursor-pointer text-zinc-400 hover:text-white transition group">
-                <i class="fa-solid fa-coins group-hover:text-rose-500 transition"></i> <span class="font-semibold text-sm">Currency & Farm</span>
-            </div>
+        <nav class="flex-1 px-4 space-y-1">
+            <p class="text-[10px] font-bold text-zinc-600 uppercase tracking-widest ml-4 mb-4">Marketplace</p>
+            <button onclick="switchSection('shop')" class="sidebar-link active w-full p-4 rounded-xl flex items-center gap-4 text-zinc-400 hover:text-white transition">
+                <i class="fa-solid fa-shop text-sm"></i> <span class="text-sm font-semibold">Tienda</span>
+            </button>
+            <button onclick="switchSection('faq')" class="sidebar-link w-full p-4 rounded-xl flex items-center gap-4 text-zinc-400 hover:text-white transition">
+                <i class="fa-solid fa-circle-question text-sm"></i> <span class="text-sm font-semibold">Preguntas</span>
+            </button>
+            <button onclick="switchSection('reviews')" class="sidebar-link w-full p-4 rounded-xl flex items-center gap-4 text-zinc-400 hover:text-white transition">
+                <i class="fa-solid fa-star text-sm"></i> <span class="text-sm font-semibold">Reseñas</span>
+            </button>
+            <button onclick="switchSection('tos')" class="sidebar-link w-full p-4 rounded-xl flex items-center gap-4 text-zinc-400 hover:text-white transition">
+                <i class="fa-solid fa-file-shield text-sm"></i> <span class="text-sm font-semibold">Términos</span>
+            </button>
         </nav>
 
         <div class="p-6">
-            <a href="https://discord.gg/wxCNQCNn" target="_blank" class="w-full bg-[#5865F2] hover:bg-[#4752c4] py-4 rounded-2xl flex items-center justify-center gap-3 font-bold text-sm transition shadow-lg">
-                <i class="fa-brands fa-discord text-lg"></i> Community Discord
+            <a href="https://discord.gg/wxCNQCNn" target="_blank" class="w-full bg-[#5865F2] hover:bg-[#4752c4] py-3.5 rounded-xl flex items-center justify-center gap-2 font-bold text-sm transition">
+                <i class="fa-brands fa-discord"></i> Soporte Discord
             </a>
         </div>
     </aside>
 
-    <main class="flex-1 overflow-y-auto relative bg-[#050505]">
-        <header class="glass h-24 border-b border-white/5 flex items-center justify-between px-10 sticky top-0 z-30">
-            <div class="relative w-full max-w-lg">
-                <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-zinc-600"></i>
-                <input type="text" id="searchInput" placeholder="Search for items, accounts..." class="w-full bg-white/5 border border-white/10 rounded-2xl py-3 pl-12 pr-4 text-sm focus:border-rose-600 outline-none transition" oninput="runSearch()">
+    <main class="flex-1 flex flex-col min-w-0 bg-[#050505] relative">
+        
+        <header class="h-20 border-b border-white/5 flex items-center justify-between px-10 sticky top-0 bg-[#050505]/80 backdrop-blur-md z-40">
+            <div class="relative w-full max-w-md">
+                <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500"></i>
+                <input type="text" id="mainSearch" oninput="app.filter()" placeholder="Buscar producto..." class="w-full bg-white/5 border border-white/10 rounded-xl py-2.5 pl-12 pr-4 text-sm focus:border-rose-600 outline-none transition">
             </div>
-            <div class="flex items-center gap-6">
-                <div class="hidden sm:flex items-center gap-2 text-xs font-bold text-green-500 bg-green-500/5 px-4 py-2 rounded-full border border-green-500/10">
-                    <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span> ONLINE
+            <div class="flex items-center gap-4">
+                <div class="px-4 py-1.5 bg-green-500/10 border border-green-500/20 rounded-full text-[10px] font-bold text-green-500 flex items-center gap-2">
+                    <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span> SERVIDORES ONLINE
                 </div>
             </div>
         </header>
 
-        <div class="p-10 pb-0">
-            <div class="bg-gradient-to-r from-rose-900/20 to-transparent border border-rose-500/20 rounded-3xl p-8 flex items-center justify-between overflow-hidden relative">
-                <div class="relative z-10">
-                    <h2 class="text-3xl font-black italic uppercase mb-2">Winter <span class="text-rose-600">Deal!</span></h2>
-                    <p class="text-zinc-400 text-sm max-w-md">Get instant delivery on all items. Use code <span class="text-white font-bold">CRUD3</span> for 10% OFF on your first purchase.</p>
-                </div>
-                <i class="fa-solid fa-fire text-9xl absolute -right-5 -bottom-5 text-rose-600/10 -rotate-12"></i>
-            </div>
-        </div>
-
-        <div class="p-10">
-            <div id="productGrid" class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-8">
-                </div>
-        </div>
-    </main>
-
-    <div id="paymentModal" class="fixed inset-0 bg-black/90 backdrop-blur-xl z-[100] hidden flex items-center justify-center p-4">
-        <div class="bg-[#0c0c0c] border border-white/10 w-full max-w-2xl rounded-[2.5rem] overflow-hidden shadow-2xl animate-fade">
-            <div class="flex h-full flex-col md:flex-row">
-                <div class="w-full md:w-5/12 bg-white/5 p-8 border-r border-white/5">
-                    <div id="modalImg" class="w-full aspect-square bg-black rounded-3xl mb-6 border border-white/5 p-4 flex items-center justify-center"></div>
-                    <h3 id="modalTitle" class="text-xl font-bold mb-2">Product Name</h3>
-                    <p class="text-zinc-500 text-xs mb-6">Automated delivery via Discord & Email.</p>
-                    <div class="flex justify-between items-center py-4 border-t border-white/5">
-                        <span class="text-zinc-400 font-medium">Price</span>
-                        <span id="modalPrice" class="text-2xl font-black text-rose-600">$0.00</span>
+        <div class="flex-1 overflow-y-auto custom-scroll">
+            
+            <section id="section-shop" class="page-section active p-10">
+                <div class="flex items-center justify-between mb-8">
+                    <div>
+                        <h2 class="text-3xl font-black italic uppercase tracking-tighter">Catálogo <span class="text-rose-600">Premium</span></h2>
+                        <p class="text-zinc-500 text-sm mt-1">Entrega automática y segura en todos los productos.</p>
+                    </div>
+                    <div class="flex bg-white/5 p-1 rounded-xl border border-white/5">
+                        <button onclick="app.setCategory('all')" class="cat-btn bg-rose-600 px-4 py-2 rounded-lg text-xs font-bold uppercase transition">Todos</button>
+                        <button onclick="app.setCategory('swords')" class="cat-btn px-4 py-2 rounded-lg text-xs font-bold uppercase transition text-zinc-500 hover:text-white">Espadas</button>
+                        <button onclick="app.setCategory('accounts')" class="cat-btn px-4 py-2 rounded-lg text-xs font-bold uppercase transition text-zinc-500 hover:text-white">Cuentas</button>
                     </div>
                 </div>
 
-                <div class="w-full md:w-7/12 p-8">
-                    <div class="flex justify-between items-center mb-8">
-                        <h4 class="font-bold text-lg">Checkout</h4>
-                        <button onclick="closeModal()" class="text-zinc-500 hover:text-white transition"><i class="fa-solid fa-times"></i></button>
+                <div id="product-grid" class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6">
                     </div>
+            </section>
 
-                    <div class="grid grid-cols-3 gap-3 mb-8">
-                        <button onclick="setMethod('paypal')" class="method-btn active border border-white/5 p-4 rounded-2xl flex flex-col items-center gap-2 transition hover:bg-white/5">
-                            <i class="fa-brands fa-paypal text-xl text-blue-500"></i>
-                            <span class="text-[10px] font-bold uppercase">PayPal</span>
-                        </button>
-                        <button onclick="setMethod('crypto')" class="method-btn border border-white/5 p-4 rounded-2xl flex flex-col items-center gap-2 transition hover:bg-white/5 opacity-50 cursor-not-allowed">
-                            <i class="fa-brands fa-bitcoin text-xl text-orange-500"></i>
-                            <span class="text-[10px] font-bold uppercase">Crypto</span>
-                        </button>
-                        <button onclick="setMethod('card')" class="method-btn border border-white/5 p-4 rounded-2xl flex flex-col items-center gap-2 transition hover:bg-white/5">
-                            <i class="fa-solid fa-credit-card text-xl text-emerald-500"></i>
-                            <span class="text-[10px] font-bold uppercase">Card</span>
-                        </button>
+            <section id="section-faq" class="page-section p-10 max-w-4xl">
+                <h2 class="text-3xl font-black uppercase italic mb-8">Preguntas <span class="text-rose-600">Frecuentes</span></h2>
+                <div class="space-y-4">
+                    <div class="bg-white/5 border border-white/10 p-6 rounded-2xl">
+                        <h4 class="font-bold text-rose-500">¿Cuánto tarda la entrega?</h4>
+                        <p class="text-zinc-400 text-sm mt-2">La mayoría de nuestros productos tienen entrega automática. Una vez procesado el pago, recibirás los detalles en tu correo o vía Discord.</p>
                     </div>
-
-                    <div class="space-y-4">
-                        <div class="group">
-                            <label class="text-[10px] font-black text-zinc-500 uppercase tracking-widest mb-2 block ml-1">Roblox Username</label>
-                            <input type="text" id="rbxUser" placeholder="Enter username..." class="w-full bg-black border border-white/10 p-4 rounded-2xl outline-none focus:border-rose-600 transition">
-                        </div>
-                        <div id="paypal-btn-container" class="mt-4"></div>
+                    <div class="bg-white/5 border border-white/10 p-6 rounded-2xl">
+                        <h4 class="font-bold text-rose-500">¿Qué métodos de pago aceptan?</h4>
+                        <p class="text-zinc-400 text-sm mt-2">Aceptamos PayPal, Tarjetas de Débito/Crédito y Criptomonedas a través de nuestra pasarela segura.</p>
                     </div>
-                    
-                    <p class="text-center text-zinc-600 text-[9px] mt-8 uppercase font-black tracking-widest">Powered by CRUD3 Secure Pay</p>
                 </div>
-            </div>
-        </div>
-    </div>
+            </section>
 
-    <script>
-        // BASE DE DATOS EXTENDIDA (Aquí puedes agregar infinitos items)
-        const PRODUCTS = [
-            { id: 1, name: "Epic Devil Blade", price: 15.00, cat: "items", stock: "12", img: "https://tr.rbxcdn.com/180da92042296d04254479e0a022989b/420/420/Image/Png" },
-            { id: 2, name: "Max Level Account", price: 45.00, cat: "accounts", stock: "3", img: "https://tr.rbxcdn.com/3931657805626a575083759367123984/420/420/Image/Png" },
-            { id: 3, name: "Cursed Dual Katana", price: 25.00, cat: "items", stock: "5", img: "https://tr.rbxcdn.com/c60787a9355745191535456209867919/420/420/Image/Png" },
-            { id: 4, name: "100 Million Yens", price: 19.99, cat: "currency", stock: "99+", img: "https://tr.rbxcdn.com/027376045622089228929283742/420/420/Image/Png" },
-            { id: 5, name: "Blox Fruit Account", price: 35.00, cat: "accounts", stock: "1", img: "
+            <section id="section-tos" class="page-section p-10 max-w-4xl">
+                <h2 class="text-3xl font-black uppercase italic mb-8">Términos de <span class="text-rose-600">Servicio</span></h2>
+                <div class="prose prose-invert text-zinc-400 text-sm space-y-4">
+                    <p>1. No se realizan reembolsos una vez que el producto digital ha sido entregado.</p>
+                    <p>
