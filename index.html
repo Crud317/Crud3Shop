@@ -1,60 +1,141 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CRUD3 SHOP | Professional Marketplace</title>
+    <title>CRUD3 SHOP | Premium Store</title>
+    
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     
-    <script src="https://www.paypal.com/sdk/js?client-id=test&currency=USD&components=buttons"></script>
+    <script src="https://www.paypal.com/sdk/js?client-id=test&currency=USD&components=buttons&enable-funding=venmo,card"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        page: '#0a0a0a',     /* Fondo casi negro */
+                        sidebar: '#111111',  /* Fondo Sidebar */
+                        card: '#161616',     /* Fondo Tarjetas */
+                        border: '#222222',   /* Bordes sutiles */
+                        accent: '#e11d48',   /* EL ROJO EXACTO DE RIFTS */
+                        accentHover: '#be123c'
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
 
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+        body { background-color: #0a0a0a; color: white; }
         
-        :root {
-            --bg: #070707;
-            --sidebar: #090909;
-            --card: #0d0d0d;
-            --border: #1a1a1a;
-            --accent: #e11d48; /* Color representativo de Rifts */
-            --text-muted: #71717a;
+        /* Scrollbar estilo SellAuth */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #111; }
+        ::-webkit-scrollbar-thumb { background: #333; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #e11d48; }
+
+        .nav-item.active {
+            background: rgba(225, 29, 72, 0.1);
+            color: #e11d48;
+            border-left: 3px solid #e11d48;
         }
 
-        body { 
-            background-color: var(--bg); 
-            color: #ffffff; 
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            margin: 0;
-            display: flex;
-            overflow-x: hidden;
+        .product-card:hover {
+            transform: translateY(-4px);
+            border-color: #e11d48;
+            box-shadow: 0 10px 30px -10px rgba(225, 29, 72, 0.3);
         }
 
-        /* --- SIDEBAR PROFESIONAL --- */
-        .sidebar {
-            width: 280px;
-            height: 100vh;
-            background: var(--sidebar);
-            border-right: 1px solid var(--border);
-            position: fixed;
-            padding: 32px 24px;
-            display: flex;
-            flex-direction: column;
-            z-index: 50;
+        /* Animación Modal */
+        .modal-enter { animation: modalFadeIn 0.2s ease-out forwards; }
+        @keyframes modalFadeIn {
+            from { opacity: 0; transform: scale(0.95) translateY(10px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
         }
+    </style>
+</head>
+<body class="flex h-screen overflow-hidden text-sm antialiased selection:bg-rose-500 selection:text-white">
 
-        .nav-link {
-            display: flex;
-            align-items: center;
-            padding: 12px 16px;
-            border-radius: 12px;
-            color: var(--text-muted);
-            font-size: 14px;
-            font-weight: 600;
-            transition: 0.3s;
-            margin-bottom: 6px;
-            cursor: pointer;
-        }
+    <aside class="w-64 bg-sidebar border-r border-border flex flex-col hidden md:flex z-50">
+        <div class="h-20 flex items-center px-6 border-b border-border">
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded bg-gradient-to-br from-rose-500 to-rose-700 flex items-center justify-center font-bold text-white shadow-lg shadow-rose-900/50">
+                    C
+                </div>
+                <span class="font-bold text-lg tracking-tight">CRUD3</span>
+            </div>
+        </div>
 
-        .nav-link:hover, .nav-link.active {
-            background: #141
+        <div class="flex-1 overflow-y-auto py-6 px-3 space-y-1">
+            <p class="px-3 text-xs font-bold text-zinc-500 uppercase tracking-wider mb-2">Shop</p>
+            
+            <button onclick="filterProducts('all')" class="nav-item active w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-zinc-400 hover:text-white hover:bg-white/5 transition-all text-left">
+                <i class="fa-solid fa-grid-2 w-5 text-center"></i> All Products
+            </button>
+            
+            <button onclick="filterProducts('swords')" class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-zinc-400 hover:text-white hover:bg-white/5 transition-all text-left">
+                <i class="fa-solid fa-khanda w-5 text-center"></i> Swords / Items
+            </button>
+            
+            <button onclick="filterProducts('accounts')" class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-zinc-400 hover:text-white hover:bg-white/5 transition-all text-left">
+                <i class="fa-solid fa-user-shield w-5 text-center"></i> Accounts
+            </button>
+            
+            <button onclick="filterProducts('services')" class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-zinc-400 hover:text-white hover:bg-white/5 transition-all text-left">
+                <i class="fa-solid fa-gem w-5 text-center"></i> Services
+            </button>
+        </div>
+
+        <div class="p-4 border-t border-border">
+            <a href="https://discord.gg/wxCNQCNn" target="_blank" class="flex items-center gap-3 px-3 py-3 rounded-lg bg-indigo-500/10 text-indigo-400 hover:bg-indigo-500/20 transition-colors">
+                <i class="fa-brands fa-discord"></i>
+                <span class="font-semibold">Join Discord</span>
+            </a>
+        </div>
+    </aside>
+
+    <main class="flex-1 flex flex-col relative bg-page overflow-hidden">
+        
+        <header class="h-20 border-b border-border bg-page/80 backdrop-blur-md flex items-center justify-between px-8 sticky top-0 z-40">
+            <button class="md:hidden text-zinc-400 text-xl"><i class="fa-solid fa-bars"></i></button>
+
+            <div class="relative w-full max-w-md hidden md:block">
+                <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-zinc-600"></i>
+                <input type="text" id="searchInput" oninput="renderProducts()" placeholder="Search for products..." 
+                    class="w-full bg-sidebar border border-border rounded-full py-2.5 pl-12 pr-4 text-zinc-300 focus:border-accent focus:ring-1 focus:ring-accent outline-none transition-all placeholder-zinc-600">
+            </div>
+
+            <div class="flex items-center gap-4">
+                <div class="px-4 py-1.5 rounded-full border border-green-500/20 bg-green-500/10 text-green-500 text-xs font-bold flex items-center gap-2">
+                    <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+                    ONLINE
+                </div>
+            </div>
+        </header>
+
+        <div class="bg-gradient-to-r from-rose-900/20 to-page border-b border-rose-500/10 px-8 py-3 flex items-center gap-3">
+            <i class="fa-solid fa-bullhorn text-accent"></i>
+            <p class="text-zinc-300 text-xs font-medium">Welcome to <span class="text-white font-bold">CRUD3 SHOP</span>. Instant delivery on all accounts!</p>
+        </div>
+
+        <div class="flex-1 overflow-y-auto p-8 custom-scrollbar">
+            <div id="grid-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 pb-20">
+                </div>
+        </div>
+    </main>
+
+    <div id="checkoutModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-[100] hidden flex items-center justify-center p-4">
+        <div class="bg-[#111] border border-zinc-800 w-full max-w-lg rounded-2xl shadow-2xl modal-enter overflow-hidden relative">
+            
+            <div class="p-6 border-b border-zinc-800 flex justify-between items-start">
+                <div>
+                    <h2 id="modalTitle" class="text-xl font-bold text-white">Product Name</h2>
+                    <p class="text-zinc-500 text-xs mt-1">Instant Delivery via Email & Discord</p>
+                </div>
+                <button onclick="closeModal()" class="text-
