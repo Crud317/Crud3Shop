@@ -1,141 +1,324 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CRUD3 SHOP | Premium Store</title>
-    
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    
-    <script src="https://www.paypal.com/sdk/js?client-id=test&currency=USD&components=buttons&enable-funding=venmo,card"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CRUD3 SHOP | Professional Marketplace</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+    
+    <script src="https://www.paypal.com/sdk/js?client-id=test&currency=USD&disable-funding=credit,card"></script>
 
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        page: '#0a0a0a',     /* Fondo casi negro */
-                        sidebar: '#111111',  /* Fondo Sidebar */
-                        card: '#161616',     /* Fondo Tarjetas */
-                        border: '#222222',   /* Bordes sutiles */
-                        accent: '#e11d48',   /* EL ROJO EXACTO DE RIFTS */
-                        accentHover: '#be123c'
-                    },
-                    fontFamily: {
-                        sans: ['Inter', 'sans-serif'],
-                    }
-                }
-            }
-        }
-    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+        
+        :root {
+            --bg: #070707;
+            --sidebar: #090909;
+            --card: #0d0d0d;
+            --border: #1a1a1a;
+            --accent: #e11d48; /* Rojo exacto de Rifts/SellAuth */
+            --text-muted: #71717a;
+        }
 
-    <style>
-        body { background-color: #0a0a0a; color: white; }
-        
-        /* Scrollbar estilo SellAuth */
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-track { background: #111; }
-        ::-webkit-scrollbar-thumb { background: #333; border-radius: 3px; }
-        ::-webkit-scrollbar-thumb:hover { background: #e11d48; }
+        body { 
+            background-color: var(--bg); 
+            color: #ffffff; 
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            margin: 0;
+            display: flex;
+        }
 
-        .nav-item.active {
-            background: rgba(225, 29, 72, 0.1);
-            color: #e11d48;
-            border-left: 3px solid #e11d48;
-        }
+        /* SIDEBAR (Idéntica a Rifts) */
+        .sidebar {
+            width: 280px;
+            height: 100vh;
+            background: var(--sidebar);
+            border-right: 1px solid var(--border);
+            position: fixed;
+            padding: 32px 24px;
+            display: flex;
+            flex-direction: column;
+            z-index: 50;
+        }
 
-        .product-card:hover {
-            transform: translateY(-4px);
-            border-color: #e11d48;
-            box-shadow: 0 10px 30px -10px rgba(225, 29, 72, 0.3);
-        }
+        .nav-link {
+            display: flex;
+            align-items: center;
+            padding: 12px 16px;
+            border-radius: 10px;
+            color: var(--text-muted);
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.2s;
+            margin-bottom: 6px;
+            cursor: pointer;
+        }
 
-        /* Animación Modal */
-        .modal-enter { animation: modalFadeIn 0.2s ease-out forwards; }
-        @keyframes modalFadeIn {
-            from { opacity: 0; transform: scale(0.95) translateY(10px); }
-            to { opacity: 1; transform: scale(1) translateY(0); }
-        }
-    </style>
+        .nav-link:hover, .nav-link.active {
+            background: #141414;
+            color: #fff;
+        }
+
+        .nav-link i { width: 24px; font-size: 16px; }
+
+        /* MAIN CONTENT AREA */
+        .main-content {
+            margin-left: 280px;
+            width: calc(100% - 280px);
+            min-height: 100vh;
+        }
+
+        .top-bar {
+            height: 80px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            padding: 0 40px;
+            background: rgba(7, 7, 7, 0.8);
+            backdrop-filter: blur(12px);
+            position: sticky;
+            top: 0;
+            z-index: 40;
+        }
+
+        .search-input {
+            background: #111;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 12px 18px;
+            width: 100%;
+            max-width: 450px;
+            font-size: 14px;
+            color: #fff;
+            outline: none;
+            transition: 0.3s;
+        }
+
+        .search-input:focus { border-color: var(--accent); }
+
+        /* PRODUCT CARDS (Estilo SellAuth) */
+        .product-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .product-card:hover {
+            border-color: #333;
+            transform: translateY(-4px);
+        }
+
+        .image-box {
+            height: 180px;
+            background: #000;
+            border-radius: 12px;
+            margin: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            border: 1px solid var(--border);
+        }
+
+        .stock-badge {
+            font-size: 10px;
+            font-weight: 800;
+            text-transform: uppercase;
+            padding: 4px 12px;
+            border-radius: 20px;
+            background: rgba(225, 29, 72, 0.1);
+            color: var(--accent);
+            border: 1px solid rgba(225, 29, 72, 0.2);
+        }
+
+        /* MODAL DE PAGO PROFESIONAL */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.9);
+            backdrop-filter: blur(8px);
+            z-index: 100;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal-content {
+            background: #0a0a0a;
+            border: 1px solid var(--border);
+            width: 100%;
+            max-width: 480px;
+            border-radius: 24px;
+            padding: 32px;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+
+        @media (max-width: 1024px) {
+            .sidebar { display: none; }
+            .main-content { margin-left: 0; width: 100%; }
+        }
+    </style>
 </head>
-<body class="flex h-screen overflow-hidden text-sm antialiased selection:bg-rose-500 selection:text-white">
+<body>
 
-    <aside class="w-64 bg-sidebar border-r border-border flex flex-col hidden md:flex z-50">
-        <div class="h-20 flex items-center px-6 border-b border-border">
-            <div class="flex items-center gap-3">
-                <div class="w-8 h-8 rounded bg-gradient-to-br from-rose-500 to-rose-700 flex items-center justify-center font-bold text-white shadow-lg shadow-rose-900/50">
-                    C
-                </div>
-                <span class="font-bold text-lg tracking-tight">CRUD3</span>
-            </div>
-        </div>
+    <aside class="sidebar">
+        <div class="mb-10 px-4">
+            <h1 class="text-xl font-extrabold tracking-tighter italic uppercase flex items-center gap-2">
+                <div class="w-8 h-8 bg-rose-600 rounded-lg flex items-center justify-center font-bold text-white shadow-lg shadow-rose-600/20 italic">C</div>
+                CRUD3 <span class="text-rose-600">SHOP</span>
+            </h1>
+        </div>
 
-        <div class="flex-1 overflow-y-auto py-6 px-3 space-y-1">
-            <p class="px-3 text-xs font-bold text-zinc-500 uppercase tracking-wider mb-2">Shop</p>
-            
-            <button onclick="filterProducts('all')" class="nav-item active w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-zinc-400 hover:text-white hover:bg-white/5 transition-all text-left">
-                <i class="fa-solid fa-grid-2 w-5 text-center"></i> All Products
-            </button>
-            
-            <button onclick="filterProducts('swords')" class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-zinc-400 hover:text-white hover:bg-white/5 transition-all text-left">
-                <i class="fa-solid fa-khanda w-5 text-center"></i> Swords / Items
-            </button>
-            
-            <button onclick="filterProducts('accounts')" class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-zinc-400 hover:text-white hover:bg-white/5 transition-all text-left">
-                <i class="fa-solid fa-user-shield w-5 text-center"></i> Accounts
-            </button>
-            
-            <button onclick="filterProducts('services')" class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-zinc-400 hover:text-white hover:bg-white/5 transition-all text-left">
-                <i class="fa-solid fa-gem w-5 text-center"></i> Services
-            </button>
-        </div>
+        <nav class="flex-1">
+            <p class="text-[11px] font-bold text-zinc-600 uppercase tracking-widest mb-4 px-4">Marketplace</p>
+            <div class="nav-link active" onclick="filterCat('all')"><i class="fa-solid fa-grid-2"></i> All Products</div>
+            <div class="nav-link" onclick="filterCat('swords')"><i class="fa-solid fa-khanda"></i> Swords</div>
+            <div class="nav-link" onclick="filterCat('accounts')"><i class="fa-solid fa-shield-halved"></i> Accounts</div>
+            <div class="nav-link" onclick="filterCat('yens')"><i class="fa-solid fa-coins"></i> Yens & Farm</div>
+        </nav>
 
-        <div class="p-4 border-t border-border">
-            <a href="https://discord.gg/wxCNQCNn" target="_blank" class="flex items-center gap-3 px-3 py-3 rounded-lg bg-indigo-500/10 text-indigo-400 hover:bg-indigo-500/20 transition-colors">
-                <i class="fa-brands fa-discord"></i>
-                <span class="font-semibold">Join Discord</span>
-            </a>
-        </div>
-    </aside>
+        <div class="mt-auto pt-6 border-t border-white/5">
+            <a href="https://discord.gg/wxCNQCNn" target="_blank" class="nav-link text-rose-500 bg-rose-500/5">
+                <i class="fa-brands fa-discord"></i> Discord Support
+            </a>
+        </div>
+    </aside>
 
-    <main class="flex-1 flex flex-col relative bg-page overflow-hidden">
-        
-        <header class="h-20 border-b border-border bg-page/80 backdrop-blur-md flex items-center justify-between px-8 sticky top-0 z-40">
-            <button class="md:hidden text-zinc-400 text-xl"><i class="fa-solid fa-bars"></i></button>
+    <main class="main-content">
+        <header class="top-bar">
+            <div class="relative w-full">
+                <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500"></i>
+                <input type="text" id="search" placeholder="Search for a product..." class="search-input pl-12" oninput="doSearch()">
+            </div>
+        </header>
 
-            <div class="relative w-full max-w-md hidden md:block">
-                <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-zinc-600"></i>
-                <input type="text" id="searchInput" oninput="renderProducts()" placeholder="Search for products..." 
-                    class="w-full bg-sidebar border border-border rounded-full py-2.5 pl-12 pr-4 text-zinc-300 focus:border-accent focus:ring-1 focus:ring-accent outline-none transition-all placeholder-zinc-600">
-            </div>
+        <div class="p-10">
+            <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6" id="product-grid">
+                
+                <div class="product-card item" data-cat="swords" onclick="openPay('Epic Devil Blade', 15.00, 'https://tr.rbxcdn.com/180da92042296d04254479e0a022989b/420/420/Image/Png')">
+                    <div class="image-box"><img src="https://tr.rbxcdn.com/180da92042296d04254479e0a022989b/420/420/Image/Png" class="w-2/3"></div>
+                    <div class="p-5">
+                        <div class="flex justify-between items-center mb-3">
+                            <span class="stock-badge">12 In Stock</span>
+                            <span class="text-zinc-600 text-[10px] font-bold">#S001</span>
+                        </div>
+                        <h3 class="font-bold text-sm text-zinc-100 uppercase title">Epic Devil Blade</h3>
+                        <p class="text-rose-600 font-extrabold text-2xl mt-4">$15.00</p>
+                    </div>
+                </div>
 
-            <div class="flex items-center gap-4">
-                <div class="px-4 py-1.5 rounded-full border border-green-500/20 bg-green-500/10 text-green-500 text-xs font-bold flex items-center gap-2">
-                    <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
-                    ONLINE
-                </div>
-            </div>
-        </header>
+                <div class="product-card item" data-cat="accounts" onclick="openPay('Max Level Account', 55.00, 'https://tr.rbxcdn.com/3931657805626a575083759367123984/420/420/Image/Png')">
+                    <div class="image-box"><i class="fa-solid fa-user-secret text-6xl text-rose-950/40"></i></div>
+                    <div class="p-5">
+                        <div class="flex justify-between items-center mb-3">
+                            <span class="stock-badge">Automatic Delivery</span>
+                            <span class="text-zinc-600 text-[10px] font-bold">#A001</span>
+                        </div>
+                        <h3 class="font-bold text-sm text-zinc-100 uppercase title">Max Level Account</h3>
+                        <p class="text-rose-600 font-extrabold text-2xl mt-4">$55.00</p>
+                    </div>
+                </div>
 
-        <div class="bg-gradient-to-r from-rose-900/20 to-page border-b border-rose-500/10 px-8 py-3 flex items-center gap-3">
-            <i class="fa-solid fa-bullhorn text-accent"></i>
-            <p class="text-zinc-300 text-xs font-medium">Welcome to <span class="text-white font-bold">CRUD3 SHOP</span>. Instant delivery on all accounts!</p>
-        </div>
+                <div class="product-card item" data-cat="yens" onclick="openPay('50M Yens Pack', 12.99, 'https://tr.rbxcdn.com/027376045622089228929283742/420/420/Image/Png')">
+                    <div class="image-box"><i class="fa-solid fa-coins text-6xl text-rose-950/40"></i></div>
+                    <div class="p-5">
+                        <div class="flex justify-between items-center mb-3">
+                            <span class="stock-badge">Instant</span>
+                            <span class="text-zinc-600 text-[10px] font-bold">#Y001</span>
+                        </div>
+                        <h3 class="font-bold text-sm text-zinc-100 uppercase title">50 Million Yens</h3>
+                        <p class="text-rose-600 font-extrabold text-2xl mt-4">$12.99</p>
+                    </div>
+                </div>
 
-        <div class="flex-1 overflow-y-auto p-8 custom-scrollbar">
-            <div id="grid-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 pb-20">
-                </div>
-        </div>
-    </main>
+            </div>
+        </div>
+    </main>
 
-    <div id="checkoutModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-[100] hidden flex items-center justify-center p-4">
-        <div class="bg-[#111] border border-zinc-800 w-full max-w-lg rounded-2xl shadow-2xl modal-enter overflow-hidden relative">
-            
-            <div class="p-6 border-b border-zinc-800 flex justify-between items-start">
-                <div>
-                    <h2 id="modalTitle" class="text-xl font-bold text-white">Product Name</h2>
-                    <p class="text-zinc-500 text-xs mt-1">Instant Delivery via Email & Discord</p>
-                </div>
-                <button onclick="closeModal()" class="text-
+    <div id="modal" class="modal-overlay" onclick="if(event.target==this) closePay()">
+        <div class="modal-content">
+            <div class="flex justify-between items-start mb-8">
+                <div>
+                    <h2 id="m-name" class="text-xl font-extrabold tracking-tight">Product Name</h2>
+                    <p id="m-price" class="text-rose-500 font-bold text-lg">$0.00 USD</p>
+                </div>
+                <button onclick="closePay()" class="text-zinc-600 hover:text-white transition"><i class="fa-solid fa-xmark text-xl"></i></button>
+            </div>
+
+            <div class="space-y-4">
+                <div class="bg-zinc-900/40 p-5 rounded-2xl border border-white/5">
+                    <label class="text-[10px] font-black text-zinc-500 uppercase block mb-3 tracking-widest">Delivery Details</label>
+                    <input type="text" id="rbx-user" placeholder="Roblox Username" class="w-full bg-black border border-white/10 p-3.5 rounded-xl text-sm outline-none focus:border-rose-600 transition text-white">
+                </div>
+                
+                <div id="paypal-container" class="mt-4"></div>
+            </div>
+            
+            <p class="text-center text-zinc-600 text-[9px] mt-8 uppercase font-bold tracking-[3px]">Secure Payment Via PayPal</p>
+        </div>
+    </div>
+
+    <script>
+        let selectedItem = { name: "", price: 0 };
+
+        // Función de Búsqueda
+        function doSearch() {
+            const query = document.getElementById('search').value.toLowerCase();
+            document.querySelectorAll('.item').forEach(card => {
+                const title = card.querySelector('.title').innerText.toLowerCase();
+                card.style.display = title.includes(query) ? 'flex' : 'none';
+            });
+        }
+
+        // Filtro por Categoría
+        function filterCat(cat) {
+            document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+            event.currentTarget.classList.add('active');
+            document.querySelectorAll('.item').forEach(card => {
+                card.style.display = (cat === 'all' || card.dataset.cat === cat) ? 'flex' : 'none';
+            });
+        }
+
+        // Abrir Pago
+        function openPay(name, price, img) {
+            selectedItem = { name, price };
+            document.getElementById('m-name').innerText = name;
+            document.getElementById('m-price').innerText = `$${price.toFixed(2)} USD`;
+            document.getElementById('modal').style.display = 'flex';
+            
+            // Renderizar botones de PayPal dinámicamente
+            document.getElementById('paypal-container').innerHTML = '';
+            paypal.Buttons({
+                style: { layout: 'vertical', color: 'blue', shape: 'rect' },
+                createOrder: (data, actions) => {
+                    const user = document.getElementById('rbx-user').value || "No User Provided";
+                    return actions.order.create({
+                        purchase_units: [{
+                            description: `${selectedItem.name} | User: ${user}`,
+                            amount: { value: selectedItem.price.toString() }
+                        }]
+                    });
+                },
+                onApprove: (data, actions) => {
+                    return actions.order.capture().then(() => {
+                        alert('¡Pago Completado! Únete al Discord para recibir tu ítem.');
+                        window.location.href = "https://discord.gg/wxCNQCNn";
+                    });
+                }
+            }).render('#paypal-container');
+        }
+
+        function closePay() {
+            document.getElementById('modal').style.display = 'none';
+        }
+    </script>
+</body>
+</html>
