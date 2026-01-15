@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Epic Flesh | CRUD3 SHOP</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body { background-color: #080808; color: #e5e7eb; }
+        .bg-card { background-color: #111111; border: 1px solid #1f1f1f; }
+        .bg-input { background-color: #0a0a0a; border: 1px solid #262626; }
+        .btn-blue { background-color: #3b82f6; transition: 0.3s; }
+        .btn-blue:hover { background-color: #2563eb; transform: translateY(-2px); }
+        .accent-border { border-left: 4px solid #3b82f6; }
+    </style>
+</head>
+<body class="font-sans antialiased">
+
+    <nav class="border-b border-white/5 py-5 px-6">
+        <div class="max-w-6xl mx-auto flex justify-between items-center">
+            <div class="text-2xl font-black tracking-tighter text-white">
+                CRUD3 <span class="text-blue-500">SHOP</span>
+            </div>
+            <div class="hidden md:flex gap-8 text-sm font-semibold text-gray-400">
+                <a href="#" class="hover:text-white">Catalog</a>
+                <a href="ESCRIBE_AQUÍ_TU_DISCORD" target="_blank" class="hover:text-white">Support</a>
+            </div>
+            <div class="md:hidden text-xl"><i class="fa-solid fa-bars"></i></div>
+        </div>
+    </nav>
+
+    <main class="max-w-6xl mx-auto px-6 py-12">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-10">
+            
+            <div class="lg:col-span-8">
+                <div class="bg-card rounded-2xl overflow-hidden mb-8 shadow-2xl">
+                    <img src="https://img.freepik.com/premium-photo/glowing-red-sword-dark-background_925376-200.jpg" alt="Epic Flesh" class="w-full h-auto object-cover border-b border-white/5">
+                </div>
+
+                <div class="bg-card rounded-2xl p-8 mb-8">
+                    <h1 class="text-4xl font-black text-white mb-4">Epic Flesh</h1>
+                    <div class="flex gap-4 mb-8">
+                        <span class="bg-blue-500/10 text-blue-500 text-xs font-bold px-3 py-1 rounded-md border border-blue-500/20">Dungeon Quest</span>
+                        <span class="bg-green-500/10 text-green-500 text-xs font-bold px-3 py-1 rounded-md border border-green-500/20 italic italic">Instant Delivery</span>
+                    </div>
+
+                    <div class="accent-border pl-4 mb-6">
+                        <h3 class="text-lg font-bold text-white">Product Description</h3>
+                    </div>
+                    <p class="text-gray-400 leading-relaxed mb-6">
+                        This is the legendary <strong>Epic Flesh</strong> sword for Dungeon Quest. Known for its incredible damage stats and rare visual effects. By purchasing this item, you will receive it via in-game trade instantly after payment confirmation.
+                    </p>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="bg-white/5 p-4 rounded-xl border border-white/5 italic italic">
+                            <i class="fa-solid fa-shield-halved text-blue-500 mr-2"></i> 100% Safe Trade
+                        </div>
+                        <div class="bg-white/5 p-4 rounded-xl border border-white/5 italic italic">
+                            <i class="fa-solid fa-bolt text-blue-500 mr-2"></i> Max Level Stats
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="lg:col-span-4">
+                <div class="bg-card rounded-2xl p-6 sticky top-8 shadow-2xl">
+                    <div class="flex justify-between items-center mb-6">
+                        <span class="text-gray-400 font-bold text-xs tracking-widest uppercase">Price
