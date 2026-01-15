@@ -3,68 +3,117 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Epic Flesh | CRUD3 SHOP</title>
+    <title>CRUD3 SHOP | Digital Goods</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        body { background-color: #080808; color: #e5e7eb; }
-        .bg-card { background-color: #111111; border: 1px solid #1f1f1f; }
-        .bg-input { background-color: #0a0a0a; border: 1px solid #262626; }
-        .btn-blue { background-color: #3b82f6; transition: 0.3s; }
-        .btn-blue:hover { background-color: #2563eb; transform: translateY(-2px); }
-        .accent-border { border-left: 4px solid #3b82f6; }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap');
+        
+        body { 
+            background-color: #080808; 
+            color: #ffffff; 
+            font-family: 'Inter', sans-serif;
+        }
+
+        .navbar {
+            background-color: #0f0f0f;
+            border-bottom: 1px solid #1a1a1a;
+        }
+
+        .product-card {
+            background-color: #0f0f0f;
+            border: 1px solid #1a1a1a;
+            border-radius: 12px;
+            transition: transform 0.2s, border-color 0.2s;
+        }
+
+        .product-card:hover {
+            border-color: #3b82f6;
+            transform: translateY(-4px);
+        }
+
+        .btn-primary {
+            background-color: #3b82f6;
+            transition: background 0.2s;
+        }
+
+        .btn-primary:hover {
+            background-color: #2563eb;
+        }
+
+        .badge-stock {
+            background: rgba(59, 130, 246, 0.1);
+            color: #3b82f6;
+            border: 1px solid rgba(59, 130, 246, 0.2);
+        }
     </style>
 </head>
-<body class="font-sans antialiased">
+<body>
 
-    <nav class="border-b border-white/5 py-5 px-6">
-        <div class="max-w-6xl mx-auto flex justify-between items-center">
-            <div class="text-2xl font-black tracking-tighter text-white">
-                CRUD3 <span class="text-blue-500">SHOP</span>
+    <nav class="navbar sticky top-0 z-50 px-6 py-4">
+        <div class="max-w-7xl mx-auto flex justify-between items-center">
+            <div class="flex items-center gap-8">
+                <span class="text-xl font-extrabold tracking-tighter italic">CRUD3 <span class="text-blue-500">SHOP</span></span>
+                <div class="hidden md:flex gap-6 text-sm font-medium text-gray-400">
+                    <a href="#" class="hover:text-white transition">Products</a>
+                    <a href="https://discord.gg/nVJcX9Bc" class="hover:text-white transition">Support</a>
+                </div>
             </div>
-            <div class="hidden md:flex gap-8 text-sm font-semibold text-gray-400">
-                <a href="#" class="hover:text-white">Catalog</a>
-                <a href="https://discord.gg/wxCNQCNn" target="_blank" class="hover:text-white">Support</a>
+            <div class="flex gap-4 items-center">
+                <a href="https://discord.gg/nVJcX9Bc" class="text-gray-400 hover:text-white"><i class="fa-brands fa-discord text-xl"></i></a>
+                <button class="bg-white/5 hover:bg-white/10 px-4 py-2 rounded-lg text-sm font-semibold transition">Login</button>
             </div>
-            <div class="md:hidden text-xl"><i class="fa-solid fa-bars"></i></div>
         </div>
     </nav>
 
-    <main class="max-w-6xl mx-auto px-6 py-12">
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-10">
+    <header class="max-w-7xl mx-auto px-6 py-16 text-center">
+        <h1 class="text-5xl font-extrabold mb-4 tracking-tight">CRUD3 <span class="text-blue-500">SHOP</span></h1>
+        <p class="text-gray-500 text-lg max-w-2xl mx-auto">The most reliable marketplace for Dungeon Quest items and Roblox digital goods.</p>
+    </header>
+
+    <section class="max-w-7xl mx-auto px-6 pb-24">
+        <div class="flex justify-between items-center mb-8">
+            <h2 class="text-xl font-bold">Products</h2>
+            <div class="text-sm text-gray-500 italic italic">Showing 1 products</div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             
-            <div class="lg:col-span-8">
-                <div class="bg-card rounded-2xl overflow-hidden mb-8 shadow-2xl">
-                    <img src="https://img.freepik.com/premium-photo/glowing-red-sword-dark-background_925376-200.jpg" alt="Epic Flesh" class="w-full h-auto object-cover border-b border-white/5">
+            <div class="product-card overflow-hidden">
+                <div class="relative">
+                    <img src="https://img.freepik.com/premium-photo/glowing-red-sword-dark-background_925376-200.jpg" alt="Epic Flesh" class="w-full h-48 object-cover">
+                    <div class="absolute top-3 right-3">
+                        <span class="badge-stock text-[10px] font-bold px-2 py-1 rounded uppercase tracking-wider">In Stock</span>
+                    </div>
                 </div>
-
-                <div class="bg-card rounded-2xl p-8 mb-8">
-                    <h1 class="text-4xl font-black text-white mb-4">Epic Flesh</h1>
-                    <div class="flex gap-4 mb-8">
-                        <span class="bg-blue-500/10 text-blue-500 text-xs font-bold px-3 py-1 rounded-md border border-blue-500/20">Dungeon Quest</span>
-                        <span class="bg-green-500/10 text-green-500 text-xs font-bold px-3 py-1 rounded-md border border-green-500/20 italic italic">Instant Delivery</span>
-                    </div>
-
-                    <div class="accent-border pl-4 mb-6">
-                        <h3 class="text-lg font-bold text-white">Product Description</h3>
-                    </div>
-                    <p class="text-gray-400 leading-relaxed mb-6">
-                        This is the legendary <strong>Epic Flesh</strong> sword for Dungeon Quest. Known for its incredible damage stats and rare visual effects. By purchasing this item, you will receive it via in-game trade instantly after payment confirmation.
-                    </p>
+                <div class="p-5">
+                    <h3 class="font-bold text-lg mb-1">Epic Flesh</h3>
+                    <p class="text-gray-500 text-xs mb-4">Dungeon Quest</p>
                     
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div class="bg-white/5 p-4 rounded-xl border border-white/5 italic italic">
-                            <i class="fa-solid fa-shield-halved text-blue-500 mr-2"></i> 100% Safe Trade
+                    <div class="flex items-center justify-between mt-6">
+                        <div class="flex flex-col">
+                            <span class="text-xs text-gray-500 font-bold uppercase tracking-widest">Price</span>
+                            <span class="text-xl font-black text-white">$15.00</span>
                         </div>
-                        <div class="bg-white/5 p-4 rounded-xl border border-white/5 italic italic">
-                            <i class="fa-solid fa-bolt text-blue-500 mr-2"></i> Max Level Stats
-                        </div>
+                        <a href="https://www.paypal.me/Crud317/15" target="_blank" class="btn-primary px-6 py-2.5 rounded-lg text-sm font-bold transition">
+                            Buy Now
+                        </a>
                     </div>
                 </div>
             </div>
 
-            <div class="lg:col-span-4">
-                <div class="bg-card rounded-2xl p-6 sticky top-8 shadow-2xl">
-                    <div class="flex justify-between items-center mb-6">
+            </div>
+    </section>
 
-                        <span class="text-gray-400 font-bold text-xs tracking-widest uppercase">Price
+    <footer class="border-t border-white/5 py-12">
+        <div class="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-6">
+            <div class="text-gray-500 text-xs uppercase tracking-[4px]">© 2024 CRUD3 SHOP</div>
+            <div class="flex gap-8 text-xs font-bold text-gray-500 uppercase tracking-widest">
+                <a href="#" class="hover:text-white transition">Terms of Service</a>
+                <a href="#" class="hover:text-white transition">Privacy Policy</a>
+            </div>
+        </div>
+    </footer>
+
+</body>
+</html>
